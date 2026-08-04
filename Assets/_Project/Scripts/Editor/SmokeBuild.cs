@@ -21,7 +21,19 @@ namespace Morae.EditorTools
         {
             // 씬·폰트 에셋이 없으면 먼저 생성 (멱등)
             SmokeSceneBuilder.Build();
+            BuildScene(ScenePath);
+        }
 
+        [MenuItem("Morae/Build WebGL Main")]
+        public static void BuildMain()
+        {
+            // 최신 빌더 코드 기준으로 씬 재생성 (멱등)
+            MainSceneBuilder.Build();
+            BuildScene("Assets/_Project/Scenes/Main.unity");
+        }
+
+        private static void BuildScene(string scenePath)
+        {
             // §8.3: GitHub Pages는 Content-Encoding 제어 불가 — Brotli + Fallback ON 필수
             PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
             PlayerSettings.WebGL.decompressionFallback = true;
@@ -33,7 +45,7 @@ namespace Morae.EditorTools
 
             var options = new BuildPlayerOptions
             {
-                scenes = new[] { ScenePath },
+                scenes = new[] { scenePath },
                 locationPathName = OutputDir,
                 target = BuildTarget.WebGL,
                 options = BuildOptions.None,
