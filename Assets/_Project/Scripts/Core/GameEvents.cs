@@ -25,6 +25,9 @@ namespace Morae.Game.Core
         public static event Action<EndingKind> EndingStarted;                       // Perfect / Survived / Rescued(07:40)
         // v1.3 추가 (2026-08-04 문 입력 규칙 확정에 따름 — _shared.md 기록): 걸쇠 개방 진행률 0~1. 취소 시 0 발행
         public static event Action<float /*0~1*/> DoorLatchProgressChanged;
+        // v1.4 추가 (2026-08-04 기도 시각 피드백 — _shared.md 기록 필요): 채널 진행률 0~1 + 조준 귀퉁이(-1=미지정).
+        // 채널 중 매 틱 발행, 종료(완료·취소) 시 (0, -1) 발행
+        public static event Action<float /*0~1*/, int /*aimedCorner*/> PrayerChannelChanged;
 
         // ---- 발행 (게임플레이 모듈 전용) ----
 
@@ -42,5 +45,7 @@ namespace Morae.Game.Core
         public static void RaiseGameOver(GameOverReason reason) => GameOver?.Invoke(reason);
         public static void RaiseEndingStarted(EndingKind kind) => EndingStarted?.Invoke(kind);
         public static void RaiseDoorLatchProgressChanged(float progress01) => DoorLatchProgressChanged?.Invoke(progress01);
+        public static void RaisePrayerChannelChanged(float progress01, int aimedCorner)
+            => PrayerChannelChanged?.Invoke(progress01, aimedCorner);
     }
 }

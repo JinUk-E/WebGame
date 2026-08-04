@@ -17,18 +17,21 @@ namespace Morae.Game.Presentation
         [SerializeField] private Color stageGray = new Color(0.55f, 0.53f, 0.5f);
         [SerializeField] private Color stageBlack = new Color(0.14f, 0.12f, 0.12f);
         [SerializeField] private Color telegraphColor = new Color(0.9f, 0.15f, 0.1f);
+        [SerializeField] private Color aimColor = new Color(1f, 0.85f, 0.3f); // 기도 조준 — 금빛
         [SerializeField] private float telegraphPulseHz = 3f;
         [SerializeField] private float counterFlashSec = 0.4f;
 
         private readonly int[] _stages = new int[CornerIndex.Count];
         private readonly float[] _telegraphUntil = new float[CornerIndex.Count];
         private readonly float[] _flashUntil = new float[CornerIndex.Count];
+        private int _aimedCorner = CornerIndex.None; // v1.4 — 기도 채널 중 조준 귀퉁이
 
         private void OnEnable()
         {
             GameEvents.CornerStageChanged += HandleStageChanged;
             GameEvents.AttackTelegraphStarted += HandleTelegraph;
             GameEvents.AttackResolved += HandleResolved;
+            GameEvents.PrayerChannelChanged += HandlePrayerChanged;
         }
 
         private void OnDisable()
@@ -36,7 +39,11 @@ namespace Morae.Game.Presentation
             GameEvents.CornerStageChanged -= HandleStageChanged;
             GameEvents.AttackTelegraphStarted -= HandleTelegraph;
             GameEvents.AttackResolved -= HandleResolved;
+            GameEvents.PrayerChannelChanged -= HandlePrayerChanged;
         }
+
+        private void HandlePrayerChanged(float progress01, int aimedCorner)
+            => _aimedCorner = progress01 > 0f ? aimedCorner : CornerIndex.None;
 
         private void HandleStageChanged(int corner, int stage)
         {
@@ -66,20 +73,26 @@ namespace Morae.Game.Presentation
 
                 Color baseColor = _stages[i] >= 2 ? stageBlack : _stages[i] == 1 ? stageGray : stageWhite;
 
+                Color color;
                 if (Time.time < _telegraphUntil[i])
                 {
                     // 전조 — 적색 펄스 (남은 시간 무관 일정 주기. 위급함은 소리·페이즈가 전달)
                     float pulse = 0.5f + 0.5f * Mathf.Sin(Time.time * telegraphPulseHz * 2f * Mathf.PI);
-                    sr.color = Color.Lerp(baseColor, telegraphColor, 0.35f + 0.65f * pulse);
+                    color = Color.Lerp(baseColor, telegraphColor, 0.35f + 0.65f * pulse);
                 }
                 else if (Time.time < _flashUntil[i])
                 {
-                    sr.color = Color.Lerp(baseColor, Color.white, 0.8f);
+                    color = Color.Lerp(baseColor, Color.white, 0.8f);
                 }
                 else
                 {
-                    sr.color = baseColor;
+                    color = baseColor;
                 }
+
+                // 기도 조준 — 금빛 블렌드 (전조 위에도 겹침: 조준이 맞는지 보여야 능동 방어가 성립)
+                if (i == _aimedCorner) color = Color.Lerp(color, aimColor, 0.5f);
+
+                sr.color = color;
             }
         }
 

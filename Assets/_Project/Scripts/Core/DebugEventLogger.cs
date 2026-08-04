@@ -29,6 +29,7 @@ namespace Morae.Game.Core
             GameEvents.GameOver += OnGameOver;
             GameEvents.EndingStarted += OnEndingStarted;
             GameEvents.DoorLatchProgressChanged += OnDoorLatchProgressChanged;
+            GameEvents.PrayerChannelChanged += OnPrayerChannelChanged;
         }
 
         private void OnDisable()
@@ -46,6 +47,7 @@ namespace Morae.Game.Core
             GameEvents.GameOver -= OnGameOver;
             GameEvents.EndingStarted -= OnEndingStarted;
             GameEvents.DoorLatchProgressChanged -= OnDoorLatchProgressChanged;
+            GameEvents.PrayerChannelChanged -= OnPrayerChannelChanged;
         }
 
         private static void OnPhaseChanged(PhaseId phase) => Debug.Log($"[EVT] PhaseChanged → {phase}");
@@ -77,6 +79,16 @@ namespace Morae.Game.Core
             if (bucket == _latchBucket) return;
             _latchBucket = bucket;
             Debug.Log($"[EVT] DoorLatchProgress ≈ {p01 * 100f:F0}%");
+        }
+
+        private int _prayerBucket = int.MinValue; // 25% 단위 — 연속 값 스팸 방지 규약 동일
+
+        private void OnPrayerChannelChanged(float p01, int aimedCorner)
+        {
+            int bucket = Mathf.FloorToInt(p01 * 4f) * 10 + aimedCorner; // 진행 버킷+조준 변화 모두 감지
+            if (bucket == _prayerBucket) return;
+            _prayerBucket = bucket;
+            Debug.Log($"[EVT] PrayerChannel ≈ {p01 * 100f:F0}% aim={aimedCorner}");
         }
 #endif
     }

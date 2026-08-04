@@ -43,10 +43,15 @@ namespace Morae.Game.Interactions
                     ? (aim.x < 0f ? CornerIndex.TopLeft : CornerIndex.TopRight)
                     : (aim.x < 0f ? CornerIndex.BottomLeft : CornerIndex.BottomRight);
             }
+
+            // v1.4 — 채널 진행·조준 시각 피드백 (PrayerView·SaltCornersView 구독)
+            float progress = Duration > 0f ? Mathf.Clamp01(heldSeconds / Duration) : 1f;
+            GameEvents.RaisePrayerChannelChanged(progress, _aimedCorner);
         }
 
         public override void OnComplete(PlayerController player)
         {
+            GameEvents.RaisePrayerChannelChanged(0f, CornerIndex.None);
             player.ReturnToIdle();
 
             if (_aimedCorner == CornerIndex.None)
@@ -67,6 +72,7 @@ namespace Morae.Game.Interactions
         public override void OnCancel(PlayerController player)
         {
             Debug.Log("[PRAY] 기도 취소 (E 조기 해제)");
+            GameEvents.RaisePrayerChannelChanged(0f, CornerIndex.None);
             player.ReturnToIdle();
         }
     }

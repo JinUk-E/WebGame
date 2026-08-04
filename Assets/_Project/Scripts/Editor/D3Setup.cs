@@ -34,6 +34,7 @@ namespace Morae.EditorTools
             SetupSubtitleView();
             SetupSaltCornersView();
             SetupLightingController();
+            SetupPrayerView();
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
@@ -121,6 +122,52 @@ namespace Morae.EditorTools
                 corners[i] = FindLight($"Lighting/CornerLight_{i}");
             }
             WireArray(controller, "cornerLights", corners);
+        }
+
+        private static void SetupPrayerView()
+        {
+            var buddha = GameObject.Find("Room/Buddha");
+            var view = buddha.GetComponent<PrayerView>();
+            if (view == null) view = buddha.AddComponent<PrayerView>();
+
+            var barTr = buddha.transform.Find("PrayerBar");
+            GameObject barRoot;
+            Transform fill;
+            if (barTr == null)
+            {
+                var white = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/_Project/Art/Smoke/white32.png");
+
+                barRoot = new GameObject("PrayerBar");
+                barRoot.transform.SetParent(buddha.transform, false);
+                barRoot.transform.localPosition = new Vector3(0f, 0.75f, 0f);
+
+                var bg = new GameObject("BG");
+                bg.transform.SetParent(barRoot.transform, false);
+                bg.transform.localScale = new Vector3(1f, 0.14f, 1f);
+                var bgSr = bg.AddComponent<SpriteRenderer>();
+                bgSr.sprite = white;
+                bgSr.color = new Color(0.08f, 0.08f, 0.1f, 0.85f);
+                bgSr.sortingOrder = 6;
+
+                var fillGo = new GameObject("Fill");
+                fillGo.transform.SetParent(barRoot.transform, false);
+                fillGo.transform.localScale = new Vector3(0f, 0.1f, 1f); // x = PrayerView가 진행률로 제어
+                var fillSr = fillGo.AddComponent<SpriteRenderer>();
+                fillSr.sprite = white;
+                fillSr.color = new Color(1f, 0.85f, 0.3f); // 조준 하이라이트와 동일 금빛
+                fillSr.sortingOrder = 7;
+
+                fill = fillGo.transform;
+                barRoot.SetActive(false);
+            }
+            else
+            {
+                barRoot = barTr.gameObject;
+                fill = barTr.Find("Fill");
+            }
+
+            Wire(view, "barRoot", barRoot);
+            Wire(view, "fill", fill);
         }
 
         private static Light2D FindLight(string path)
