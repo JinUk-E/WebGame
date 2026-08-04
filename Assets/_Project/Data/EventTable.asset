@@ -17,7 +17,7 @@ MonoBehaviour:
     phaseId: 0
     offset: 15
     kind: 4
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: a3b1353d1822fe748a862b657978a948, type: 3}
     channel: 2
     audioClipMuffled: {fileID: 0}
     subtitleLines:
@@ -31,7 +31,7 @@ MonoBehaviour:
     phaseId: 0
     offset: 40
     kind: 2
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: 51eda59f39dccbf4b9e6d749f2b330bc, type: 3}
     channel: 1
     audioClipMuffled: {fileID: 0}
     subtitleLines:
@@ -45,9 +45,9 @@ MonoBehaviour:
     phaseId: 1
     offset: 35
     kind: 0
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: d7eb91907d77dc44da6d6e0dcad0fede, type: 3}
     channel: 0
-    audioClipMuffled: {fileID: 0}
+    audioClipMuffled: {fileID: 8300000, guid: e21230b87903aa2488979ac316700a86, type: 3}
     subtitleLines:
     - speaker: ???
       text: "\uC598\uC57C\u2026 \uD560\uC560\uBE44\uB2E4. \uBB38 \uC880 \uC5F4\uC5B4\uBCF4\uAC70\uB77C."
@@ -63,9 +63,9 @@ MonoBehaviour:
     phaseId: 2
     offset: 15
     kind: 2
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: 5932f7badf08f044f92462aff7da4fe1, type: 3}
     channel: 0
-    audioClipMuffled: {fileID: 0}
+    audioClipMuffled: {fileID: 8300000, guid: 70d4f90b6ee38c34e9e25f3a3d66ff72, type: 3}
     subtitleLines:
     - speaker: 
       text: "\u2026\uD3EC, \uD3EC, \uD3EC\u2026"
@@ -92,7 +92,7 @@ MonoBehaviour:
     phaseId: 2
     offset: 75
     kind: 2
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: 4afde3f505ae01941927ea571f983262, type: 3}
     channel: 1
     audioClipMuffled: {fileID: 0}
     subtitleLines:
@@ -106,7 +106,7 @@ MonoBehaviour:
     phaseId: 3
     offset: 20
     kind: 3
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: 8f8aa35be6ea0fb4892d11c7e7111f27, type: 3}
     channel: 2
     audioClipMuffled: {fileID: 0}
     subtitleLines:
@@ -136,9 +136,9 @@ MonoBehaviour:
     phaseId: 4
     offset: 5
     kind: 0
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: 4d46c3eea38a252468d51ff1a188eeb9, type: 3}
     channel: 0
-    audioClipMuffled: {fileID: 0}
+    audioClipMuffled: {fileID: 8300000, guid: ac08920b5b2cab140a8388c3d45f4083, type: 3}
     subtitleLines:
     - speaker: ???
       text: "\uC598\uC57C! \uD560\uC560\uBE44\uB2E4! \uBC8C\uC368 \uC544\uCE68\uC774\uC57C,
@@ -155,9 +155,9 @@ MonoBehaviour:
     phaseId: 6
     offset: 0
     kind: 1
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: 84d0e34198bd5984d803f4da1f0e3771, type: 3}
     channel: 0
-    audioClipMuffled: {fileID: 0}
+    audioClipMuffled: {fileID: 8300000, guid: eecee216d3f7c82448ba83720991257f, type: 3}
     subtitleLines:
     - speaker: 
       text: "(\uD560\uBA38\uB2C8\uC758 \uC6B8\uC74C\uC18C\uB9AC\uC640 \uC5FC\uBD88
@@ -171,9 +171,9 @@ MonoBehaviour:
     phaseId: 6
     offset: 60
     kind: 3
-    audioClip: {fileID: 0}
+    audioClip: {fileID: 8300000, guid: 1ea9c854313ee2f43ab1216b33328cd9, type: 3}
     channel: 0
-    audioClipMuffled: {fileID: 0}
+    audioClipMuffled: {fileID: 8300000, guid: d9f7c49a9017e7e4f862eaa43de91f18, type: 3}
     subtitleLines:
     - speaker: K
       text: "\uBB38 \uC5F4\uACA0\uB124. \u2026\uBC24\uC0C8 \uC798 \uBC84\uD17C\uAD6C\uBA3C."

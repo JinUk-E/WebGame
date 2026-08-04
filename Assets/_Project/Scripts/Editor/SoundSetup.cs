@@ -35,11 +35,12 @@ namespace Morae.EditorTools
             SetClip(so, "sfxDoorClose", LoadByName("SFX_Door", "door_close"));
             SetClip(so, "sfxDoorTry", LoadByName("SFX_Door", "door_try"));
             SetClips(so, "sfxFear", LoadAll("SFX_Fear"));
+            SetClip(so, "sfxHeartbeat", LoadFirst("SFX_Heartbeat"));
             so.ApplyModifiedPropertiesWithoutUndo();
 
             // 배선 검증 — 저장 후 실제 값 재확인 (SO 배선 유실 사고 재발 감지)
             var verify = new SerializedObject(mgr);
-            string[] singles = { "bgmMain", "bgmIntro", "bgmEnding", "sfxClock", "sfxDoorClose", "sfxDoorTry" };
+            string[] singles = { "bgmMain", "bgmIntro", "bgmEnding", "sfxClock", "sfxDoorClose", "sfxDoorTry", "sfxHeartbeat" };
             foreach (string field in singles)
             {
                 Object v = verify.FindProperty(field).objectReferenceValue;

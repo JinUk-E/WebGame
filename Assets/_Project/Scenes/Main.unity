@@ -4533,6 +4533,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 1b1988e028dc1e34fae37035e53462e4, type: 3}
   - {fileID: 8300000, guid: b56d05dc98a917e49955ea49bb056ec7, type: 3}
   - {fileID: 8300000, guid: a62af305a65062e499c718b24d64969a, type: 3}
+  sfxHeartbeat: {fileID: 8300000, guid: 09761aad7b1e6454ab92b291360932db, type: 3}
   bgmVolume: 0.5
   sfxVolume: 0.9
   bgmFadeSec: 1.5

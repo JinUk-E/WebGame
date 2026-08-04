@@ -28,6 +28,7 @@ namespace Morae.Game.Presentation
         [SerializeField] private AudioClip sfxDoorClose; // SFX_Door/door_close: 밤 시작 걸쇠·걸쇠 취소
         [SerializeField] private AudioClip sfxDoorTry;   // SFX_Door/door_try: 문 흔들림·걸쇠 개방 시도
         [SerializeField] private AudioClip[] sfxFear;    // SFX_Fear: 공포 스팅어 (랜덤 재생)
+        [SerializeField] private AudioClip sfxHeartbeat; // SFX_Heartbeat: 이성 저하 심박 루프 (§2 심박의 청각 절반)
 
         [Header("볼륨·페이드")]
         [SerializeField] private float bgmVolume = 0.5f;
@@ -36,9 +37,12 @@ namespace Morae.Game.Presentation
 
         private AudioSource _bgm;
         private AudioSource _sfx;
+        private AudioSource _heart;   // 심박 루프 — 볼륨·피치를 이성으로 변조
         private AudioClip _pending;   // 페이드아웃 완료 후 교체될 클립 (null = 정지)
         private bool _fadingOut;
         private float _lastLatch;
+        private float _fear;          // 1 − 이성(0~1)
+        private bool _listening;      // 귀 대기 중 — Door 채널 선명/뭉갬 분기
 
         private void Awake()
         {
@@ -50,6 +54,12 @@ namespace Morae.Game.Presentation
             _sfx = gameObject.AddComponent<AudioSource>();
             _sfx.playOnAwake = false;
             _sfx.spatialBlend = 0f;
+
+            _heart = gameObject.AddComponent<AudioSource>();
+            _heart.playOnAwake = false;
+            _heart.loop = true;
+            _heart.spatialBlend = 0f;
+            _heart.volume = 0f;
         }
 
         private void OnEnable()
@@ -61,6 +71,8 @@ namespace Morae.Game.Presentation
             GameEvents.TrueSignalStarted += HandleTrueSignal;
             GameEvents.EndingStarted += HandleEnding;
             GameEvents.GameOver += HandleGameOver;
+            GameEvents.SanityChanged += HandleSanityChanged;
+            GameEvents.PlayerStateChanged += HandlePlayerStateChanged;
         }
 
         private void OnDisable()
@@ -72,7 +84,14 @@ namespace Morae.Game.Presentation
             GameEvents.TrueSignalStarted -= HandleTrueSignal;
             GameEvents.EndingStarted -= HandleEnding;
             GameEvents.GameOver -= HandleGameOver;
+            GameEvents.SanityChanged -= HandleSanityChanged;
+            GameEvents.PlayerStateChanged -= HandlePlayerStateChanged;
         }
+
+        private void HandleSanityChanged(float s01) => _fear = 1f - s01;
+
+        private void HandlePlayerStateChanged(PlayerState state)
+            => _listening = state == PlayerState.ListeningAtDoor || state == PlayerState.OpeningDoor;
 
         private void Start()
         {
@@ -104,6 +123,14 @@ namespace Morae.Game.Presentation
             {
                 _bgm.volume = Mathf.MoveTowards(_bgm.volume, bgmVolume, step);
             }
+
+            // 심박 — 이성 30% 아래부터 서서히 올라와 빨라진다 (HeartView 시각 심박의 청각 짝)
+            if (_heart.isPlaying)
+            {
+                float target = _fear <= 0.3f ? 0f : Mathf.Pow((_fear - 0.3f) / 0.7f, 1.4f) * 0.65f;
+                _heart.volume = Mathf.MoveTowards(_heart.volume, target, Time.unscaledDeltaTime * 0.4f);
+                _heart.pitch = 0.85f + 0.65f * _fear;
+            }
         }
 
         // ---------- BGM ----------
@@ -115,6 +142,11 @@ namespace Morae.Game.Presentation
                 case PhaseId.P1:
                     FadeTo(bgmMain);
                     PlayOneShot(sfxDoorClose); // 밤 시작 — 걸쇠 잠금
+                    if (sfxHeartbeat != null && !_heart.isPlaying)
+                    {
+                        _heart.clip = sfxHeartbeat; // 볼륨 0에서 시작 — 이성이 떨어져야 들린다
+                        _heart.Play();
+                    }
                     break;
                 case PhaseId.P4:
                     FadeTo(Pick(bgmNight, 0));
@@ -128,11 +160,16 @@ namespace Morae.Game.Presentation
 
         private void HandleTrueSignal() => FadeOutBgm(); // 진짜 신호 — 음악이 걷히고 정적
 
-        private void HandleEnding(EndingKind kind) => FadeTo(bgmEnding);
+        private void HandleEnding(EndingKind kind)
+        {
+            _heart.Stop(); // 아침 — 심장이 가라앉는다
+            FadeTo(bgmEnding);
+        }
 
         private void HandleGameOver(GameOverReason reason)
         {
             StopBgm();
+            _heart.Stop();
             PlayRandom(sfxFear);
         }
 
@@ -142,12 +179,19 @@ namespace Morae.Game.Presentation
 
         private void HandleGameEventFired(EventDef def)
         {
-            if (def.Kind == GameEventKind.TrueSignal) return; // 정적 연출 — BGM 페이드는 TrueSignalStarted에서
-            if (def.AudioClip != null)
+            // 테이블 클립 우선 (§2.3) — Door 채널은 귀 대기 여부로 뭉갬/선명 선택 (§7.2 간이판)
+            AudioClip clip = def.AudioClip;
+            if (def.Channel == AudioChannel.Door && def.AudioClipMuffled != null && !_listening)
             {
-                _sfx.PlayOneShot(def.AudioClip, sfxVolume); // 테이블에 클립이 배선되면 그것이 우선 (§2.3)
+                clip = def.AudioClipMuffled;
+            }
+            if (clip != null)
+            {
+                _sfx.PlayOneShot(clip, sfxVolume);
                 return;
             }
+
+            if (def.Kind == GameEventKind.TrueSignal) return; // 클립 없으면 정적 연출만
             if (def.Channel == AudioChannel.Door) PlayOneShot(sfxDoorTry);
             else if (def.Kind == GameEventKind.Scare || def.Kind == GameEventKind.FakeVoice) PlayRandom(sfxFear);
         }
