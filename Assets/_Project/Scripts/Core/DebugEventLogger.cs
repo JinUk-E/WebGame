@@ -32,6 +32,7 @@ namespace Morae.Game.Core
             GameEvents.PrayerChannelChanged += OnPrayerChannelChanged;
             GameEvents.JarChannelChanged += OnJarChannelChanged;
             GameEvents.BlanketExitChanged += OnBlanketExitChanged;
+            GameEvents.UrgeChanged += OnUrgeChanged;
         }
 
         private void OnDisable()
@@ -52,6 +53,7 @@ namespace Morae.Game.Core
             GameEvents.PrayerChannelChanged -= OnPrayerChannelChanged;
             GameEvents.JarChannelChanged -= OnJarChannelChanged;
             GameEvents.BlanketExitChanged -= OnBlanketExitChanged;
+            GameEvents.UrgeChanged -= OnUrgeChanged;
         }
 
         private static void OnPhaseChanged(PhaseId phase) => Debug.Log($"[EVT] PhaseChanged → {phase}");
@@ -68,6 +70,7 @@ namespace Morae.Game.Core
         private static void OnTVToggled(bool isOn) => Debug.Log($"[EVT] TVToggled → {(isOn ? "ON" : "OFF")}");
         private static void OnGameOver(GameOverReason reason) => Debug.Log($"[EVT] GameOver reason={reason}");
         private static void OnEndingStarted(EndingKind kind) => Debug.Log($"[EVT] EndingStarted kind={kind}");
+        private static void OnUrgeChanged(bool active) => Debug.Log($"[EVT] UrgeChanged → {(active ? "발생" : "해소")}");
 
         private void OnSanityChanged(float s01)
         {

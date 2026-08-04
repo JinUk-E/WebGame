@@ -32,6 +32,8 @@ namespace Morae.Game.Core
         // 발행 규약은 걸쇠·기도와 동일 — 진행 중 매 틱, 종료 시 0
         public static event Action<float /*0~1*/> JarChannelChanged;
         public static event Action<float /*0~1*/> BlanketExitChanged;
+        // v1.6 추가 (2026-08-04 심장 UI — _shared.md 기록 필요): 요의 발생/해소. 회복 무효 상태의 유일한 상시 표시
+        public static event Action<bool> UrgeChanged;
 
         // ---- 발행 (게임플레이 모듈 전용) ----
 
@@ -53,5 +55,6 @@ namespace Morae.Game.Core
             => PrayerChannelChanged?.Invoke(progress01, aimedCorner);
         public static void RaiseJarChannelChanged(float progress01) => JarChannelChanged?.Invoke(progress01);
         public static void RaiseBlanketExitChanged(float progress01) => BlanketExitChanged?.Invoke(progress01);
+        public static void RaiseUrgeChanged(bool active) => UrgeChanged?.Invoke(active);
     }
 }

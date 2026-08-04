@@ -51,6 +51,7 @@ namespace Morae.Game.Gauges
         {
             if (UrgeActive == active) return;
             UrgeActive = active;
+            GameEvents.RaiseUrgeChanged(active); // v1.6 — 심장 UI가 구독
             Debug.Log($"[SANITY] 요의 {(active ? "발생 — 회복 무효" : "해소 — 회복 재개")}");
         }
 

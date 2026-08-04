@@ -20,6 +20,7 @@ namespace Morae.Game.Core
         [SerializeField] private Sanity sanity;
         [SerializeField] private PlayerController player;
         [SerializeField] private PrologueDirector prologueDirector;
+        [SerializeField] private TitleScreenView titleScreen;
 
         public GameState State { get; private set; } = GameState.Title;
         /// <summary>P7 진짜 신호 발화 여부 — 개문 시 사망/엔딩 분기 기준 (§1.4 DoorState).</summary>
@@ -43,8 +44,15 @@ namespace Morae.Game.Core
         {
             SessionContext.EnsureInitialized();
             Debug.Log($"[FLOW] 세션 시작 — seed={SessionContext.Seed}, skipPrologue={SessionContext.SkipPrologue}");
-            // TitleScreen(오디오 게이트 — §8.2, Epic 2)이 생기면 이 호출은 타이틀 클릭 콜백으로 옮긴다.
-            BeginFromTitle();
+            // 첫 실행 = 타이틀(오디오 게이트 §8.2) 입력 대기. 재시작은 게이트 불필요(이미 통과) — 즉시 본편
+            if (titleScreen != null && !SessionContext.SkipPrologue)
+            {
+                titleScreen.Show(BeginFromTitle);
+            }
+            else
+            {
+                BeginFromTitle();
+            }
         }
 
         /// <summary>타이틀 게이트 통과 시 호출 (지금은 Start에서 즉시 — TitleScreen 도입 시 클릭 콜백으로 이동).</summary>
