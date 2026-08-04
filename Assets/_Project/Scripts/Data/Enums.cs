@@ -65,6 +65,9 @@ namespace Morae.Game.Data
         ChannelLocked, // 시작 후 Duration 동안 잠금, 취소 불가 (요강 5s)
     }
 
+    /// <summary>부적이 가로채는 게임오버 트리거 2종 (명세 §2 — 트리거된 쪽의 복구를 적용).</summary>
+    public enum TalismanTrigger { SealCollapse, Panic }
+
     /// <summary>귀퉁이 인덱스 규약: 0=좌상(NW), 1=우상(NE), 2=좌하(SW), 3=우하(SE).</summary>
     public static class CornerIndex
     {

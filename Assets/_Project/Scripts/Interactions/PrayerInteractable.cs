@@ -1,16 +1,23 @@
+using Morae.Game.Core;
 using Morae.Game.Data;
+using Morae.Game.Gauges;
 using Morae.Game.Player;
 using UnityEngine;
 
 namespace Morae.Game.Interactions
 {
     /// <summary>
-    /// 기도 (명세 §3 — 불상 앞, E 홀드 + 방향키로 귀퉁이 지정, 3초 채널).
-    /// E를 떼면 취소. 채널 중 방향키는 이동이 아니라 귀퉁이 조준 (Praying 상태에서 이동 입력 차단됨).
-    /// [껍데기] 완료 시 SaltCorners 정화·전조 상쇄 연결은 §4 순서 4에서 (직접 호출 — 같은 계층).
+    /// 기도 (명세 §2·§3 — 불상 앞, E 홀드 + 방향키로 귀퉁이 지정, 3초 채널. E를 떼면 취소).
+    /// 채널 중 방향키는 이동이 아니라 조준 — 대각 입력만 귀퉁이로 매핑 (Praying 상태라 이동 입력은 차단됨).
+    /// 완료: 조준 귀퉁이에 활성 전조가 있으면 즉시 상쇄(AttackScheduler.TryCounter — 능동 방어),
+    ///       없으면 사후 정화(SaltCorners.Purify −1). 같은 계층 직접 호출 (§1.2).
+    /// AimedCorner 규약: 0=좌상 1=우상 2=좌하 3=우하 (CornerIndex).
     /// </summary>
     public sealed class PrayerInteractable : Interactable
     {
+        [SerializeField] private SaltCorners salt;
+        [SerializeField] private AttackScheduler scheduler;
+
         private int _aimedCorner = CornerIndex.None;
 
         public override InteractionKind Kind => InteractionKind.HoldComplete;
@@ -40,8 +47,21 @@ namespace Morae.Game.Interactions
 
         public override void OnComplete(PlayerController player)
         {
-            Debug.Log($"[PRAY] 기도 완료 — 조준 귀퉁이 {_aimedCorner} (정화/상쇄 적용은 SaltCorners 연결 후 — §4 순서 4)");
             player.ReturnToIdle();
+
+            if (_aimedCorner == CornerIndex.None)
+            {
+                Debug.Log("[PRAY] 기도 완료 — 조준 귀퉁이 없음, 효과 없음");
+                return;
+            }
+            if (scheduler != null && scheduler.TryCounter(_aimedCorner))
+            {
+                return; // 전조 상쇄 성공 — 능동 방어 (로그·이벤트는 scheduler가 발행)
+            }
+            if (salt != null)
+            {
+                salt.Purify(_aimedCorner); // 전조 없음 — 사후 정화 −1
+            }
         }
 
         public override void OnCancel(PlayerController player)

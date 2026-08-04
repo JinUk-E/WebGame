@@ -1,4 +1,5 @@
 using Morae.Game.Data;
+using Morae.Game.Gauges;
 using Morae.Game.Player;
 using UnityEngine;
 
@@ -6,10 +7,12 @@ namespace Morae.Game.Interactions
 {
     /// <summary>
     /// 요강 (명세 §3 — E로 시작, 5초 무방비 채널, 취소 불가. 요의 해소).
-    /// [껍데기] 상태 잠금만. 요의 이벤트(id="urge") 발생/해소·회복 무효 연동은 §4 순서 5 (FR-15, 컷 1순위).
+    /// 요의 발생은 EventDirector(Epic 2)가 "urge" 이벤트에서 Sanity.SetUrgeActive(true) — 여기서는 해소만 담당.
     /// </summary>
     public sealed class JarInteractable : Interactable
     {
+        [SerializeField] private Sanity sanity;
+
         public override InteractionKind Kind => InteractionKind.ChannelLocked;
         public override float Duration => Config.JarLockSec;
 
@@ -21,7 +24,8 @@ namespace Morae.Game.Interactions
 
         public override void OnComplete(PlayerController player)
         {
-            Debug.Log("[JAR] 요강 사용 완료 — 요의 해소 연동은 §4 순서 5");
+            if (sanity != null) sanity.SetUrgeActive(false); // 요의 해소 — 회복 재개
+            Debug.Log("[JAR] 요강 사용 완료 — 요의 해소");
             player.ReturnToIdle();
         }
     }

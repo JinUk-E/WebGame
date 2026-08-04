@@ -1,4 +1,5 @@
 using Morae.Game.Data;
+using Morae.Game.Gauges;
 using Morae.Game.Player;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -6,27 +7,35 @@ using UnityEngine.SceneManagement;
 namespace Morae.Game.Core
 {
     /// <summary>
-    /// GameState 전환 골격 (architecture §3.2). Title/Prologue/MainLoop/Ending/GameOver 소유.
-    /// 아래 방향 제어는 SerializeField 직접 참조(§1.2) — §4 순서 4~6에서 AttackScheduler·EventDirector 참조 추가 예정.
-    /// 재시작 = 씬 리로드 + SessionContext(시드·프롤로그 스킵)만 생존.
+    /// GameState 전환 (architecture §3.2). Title/Prologue/MainLoop/Ending/GameOver 소유.
+    /// 아래 방향 제어는 SerializeField 직접 참조(§1.2) — 시퀀서·스케줄러·게이지의 시작/정지.
+    /// 재시작 = 씬 리로드 + SessionContext(시드·프롤로그 스킵)만 생존 — 새 시드가 곧 지터 변주.
+    /// TrueSignalFired: P7 진짜 신호 발화 여부 (게임 흐름 상태 — DoorInteractable의 개문 분기 기준).
     /// </summary>
     public sealed class GameFlowController : MonoBehaviour
     {
         [SerializeField] private BalanceConfig config;
         [SerializeField] private PhaseSequencer phaseSequencer;
+        [SerializeField] private AttackScheduler attackScheduler;
+        [SerializeField] private Sanity sanity;
+        [SerializeField] private PlayerController player;
 
         public GameState State { get; private set; } = GameState.Title;
+        /// <summary>P7 진짜 신호 발화 여부 — 개문 시 사망/엔딩 분기 기준 (§1.4 DoorState).</summary>
+        public bool TrueSignalFired { get; private set; }
 
         private void OnEnable()
         {
             GameEvents.GameOver += HandleGameOver;
             GameEvents.EndingStarted += HandleEndingStarted;
+            GameEvents.TrueSignalStarted += HandleTrueSignalStarted;
         }
 
         private void OnDisable()
         {
             GameEvents.GameOver -= HandleGameOver;
             GameEvents.EndingStarted -= HandleEndingStarted;
+            GameEvents.TrueSignalStarted -= HandleTrueSignalStarted;
         }
 
         private void Start()
@@ -62,14 +71,24 @@ namespace Morae.Game.Core
         private void EnterMainLoop()
         {
             SetState(GameState.MainLoop);
-            phaseSequencer.Begin();
+            TrueSignalFired = false;
+            phaseSequencer.Begin(); // 시퀀서 먼저 — 스케줄러·게이지가 페이즈를 읽는 쪽 (§4 의존 방향)
+            if (attackScheduler != null) attackScheduler.Begin(SessionContext.Seed);
+            if (sanity != null) sanity.Begin();
+        }
+
+        private void HandleTrueSignalStarted()
+        {
+            TrueSignalFired = true;
+            Debug.Log("[FLOW] 진짜 신호 발화 — 이제 개문 = 엔딩");
         }
 
         private void HandleGameOver(GameOverReason reason)
         {
             if (State != GameState.MainLoop) return;
             SetState(GameState.GameOver);
-            phaseSequencer.StopSequence();
+            StopMainLoop();
+            if (player != null) player.EnterTerminalState(PlayerState.Dead);
             Debug.Log($"[FLOW] 게임오버: {reason} — E로 재시작");
         }
 
@@ -77,8 +96,16 @@ namespace Morae.Game.Core
         {
             if (State != GameState.MainLoop) return;
             SetState(GameState.Ending);
+            StopMainLoop();
+            if (player != null) player.EnterTerminalState(PlayerState.Escaped);
+            Debug.Log($"[FLOW] 엔딩: {kind} — E로 재시작");
+        }
+
+        private void StopMainLoop()
+        {
             phaseSequencer.StopSequence();
-            Debug.Log($"[FLOW] 엔딩: {kind}");
+            if (attackScheduler != null) attackScheduler.Stop();
+            if (sanity != null) sanity.Stop();
         }
 
         private void Update()
@@ -99,7 +126,7 @@ namespace Morae.Game.Core
 #endif
         }
 
-        /// <summary>재시작 = 씬 리로드 (§3.2 — 손 리셋 금지). 프롤로그 스킵 + 새 시드.</summary>
+        /// <summary>재시작 = 씬 리로드 (§3.2 — 손 리셋 금지). 프롤로그 스킵 + 새 시드(지터 변주).</summary>
         public void Restart()
         {
             SessionContext.PrepareRestart(config == null || config.PrologueSkipAvailable);

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using Morae.Game.Core;
 using Morae.Game.Data;
+using Morae.Game.Gauges;
 using Morae.Game.Interactions;
 using Morae.Game.Player;
 using Morae.Game.Presentation;
@@ -37,12 +38,35 @@ namespace Morae.EditorTools
         private const float RoomH = 9f;
         private const float WallT = 0.4f;
 
+        /// <summary>씬 구성 참조 다발 — 배선 단계 전달용.</summary>
+        private sealed class SystemsRefs
+        {
+            public GameFlowController Flow;
+            public PhaseSequencer Sequencer;
+            public AttackScheduler Scheduler;
+            public SaltCorners Salt;
+            public Sanity Sanity;
+            public Talisman Talisman;
+            public DebugHud Hud;
+        }
+
+        private sealed class RoomRefs
+        {
+            public DoorInteractable Door;
+            public TvInteractable Tv;
+            public PrayerInteractable Prayer;
+            public JarInteractable Jar;
+            public Transform ClockRoot;
+            public readonly Transform[] SaltCorners = new Transform[CornerIndex.Count];
+        }
+
         [MenuItem("Morae/Build Main Scene")]
         public static void Build()
         {
             DataAssetBuilder.Ensure(); // SO 4종 선행 (기존 튜닝 보존)
 
             var phaseTable = AssetDatabase.LoadAssetAtPath<PhaseTable>(DataAssetBuilder.PhaseTablePath);
+            var attackTable = AssetDatabase.LoadAssetAtPath<AttackTable>(DataAssetBuilder.AttackTablePath);
             var balance = AssetDatabase.LoadAssetAtPath<BalanceConfig>(DataAssetBuilder.BalanceConfigPath);
             Sprite white = EnsureWhiteSprite();
             var fontAsset = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontAssetPath);
@@ -54,24 +78,66 @@ namespace Morae.EditorTools
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
             BuildCamera();
-            var systems = BuildSystems();
-            BuildRoom(white, out DoorInteractable door, out Transform clockRoot);
+            SystemsRefs systems = BuildSystems();
+            RoomRefs room = BuildRoom(white);
             var player = BuildPlayer(white, balance);
             BuildLighting();
             BuildAudio();
             BuildUi();
             BuildScreensAndDirectors();
-            BuildVolume();
+            BuildVolume(); // GlobalVolume + SanityFeedback (volume 배선은 내부에서)
             BuildEventSystem();
-            var clockView = BuildClockText(clockRoot, fontAsset);
+            var clockView = BuildClockText(room.ClockRoot, fontAsset);
 
             // ---- 배선 (SerializedObject — 프리팹/씬 직렬화에 안전하게 기록) ----
-            Wire(systems.sequencer, "phaseTable", phaseTable);
-            Wire(systems.flow, "config", balance);
-            Wire(systems.flow, "phaseSequencer", systems.sequencer);
+            Wire(systems.Sequencer, "phaseTable", phaseTable);
+            Wire(systems.Flow, "config", balance);
+            Wire(systems.Flow, "phaseSequencer", systems.Sequencer);
+            Wire(systems.Flow, "attackScheduler", systems.Scheduler);
+            Wire(systems.Flow, "sanity", systems.Sanity);
+            Wire(systems.Flow, "player", player);
             Wire(player, "config", balance);
             WireInteractableConfigs(balance);
-            Wire(clockView, "sequencer", systems.sequencer);
+            Wire(clockView, "sequencer", systems.Sequencer);
+
+            // 순서 4 — 소금·공격
+            Wire(systems.Scheduler, "attackTable", attackTable);
+            Wire(systems.Scheduler, "phaseTable", phaseTable);
+            Wire(systems.Scheduler, "config", balance);
+            Wire(systems.Scheduler, "sequencer", systems.Sequencer);
+            Wire(systems.Scheduler, "salt", systems.Salt);
+            Wire(systems.Scheduler, "sanity", systems.Sanity);
+            Wire(systems.Scheduler, "player", player);
+            Wire(systems.Scheduler, "tv", room.Tv);
+            Wire(systems.Salt, "talisman", systems.Talisman);
+            WireArray(systems.Salt, "cornerTransforms", room.SaltCorners);
+            Wire(room.Prayer, "salt", systems.Salt);
+            Wire(room.Prayer, "scheduler", systems.Scheduler);
+
+            // 순서 5 — 이성·부적
+            Wire(systems.Sanity, "config", balance);
+            Wire(systems.Sanity, "sequencer", systems.Sequencer);
+            Wire(systems.Sanity, "player", player);
+            Wire(systems.Sanity, "tv", room.Tv);
+            Wire(systems.Sanity, "talisman", systems.Talisman);
+            Wire(systems.Talisman, "config", balance);
+            Wire(systems.Talisman, "salt", systems.Salt);
+            Wire(systems.Talisman, "sanity", systems.Sanity);
+            Wire(room.Jar, "sanity", systems.Sanity);
+
+            // 순서 6 — 문·게임오버
+            Wire(room.Door, "flow", systems.Flow);
+            Wire(room.Door, "talisman", systems.Talisman);
+
+            // 디버그 HUD (개발 빌드 한정 — 필드는 UNITY_EDITOR에서 존재)
+            Wire(systems.Hud, "flow", systems.Flow);
+            Wire(systems.Hud, "sequencer", systems.Sequencer);
+            Wire(systems.Hud, "scheduler", systems.Scheduler);
+            Wire(systems.Hud, "salt", systems.Salt);
+            Wire(systems.Hud, "sanity", systems.Sanity);
+            Wire(systems.Hud, "talisman", systems.Talisman);
+            Wire(systems.Hud, "player", player);
+            Wire(systems.Hud, "door", room.Door);
 
             Directory.CreateDirectory(Path.GetDirectoryName(ScenePath));
             EditorSceneManager.SaveScene(scene, ScenePath);
@@ -82,20 +148,29 @@ namespace Morae.EditorTools
 
         // ---------- Systems ----------
 
-        private static (GameFlowController flow, PhaseSequencer sequencer) BuildSystems()
+        private static SystemsRefs BuildSystems()
         {
             var go = new GameObject("Systems");
-            var sequencer = go.AddComponent<PhaseSequencer>();
-            var flow = go.AddComponent<GameFlowController>();
-            go.AddComponent<DebugTimeScale>(); // F1 배속 (에디터·개발 빌드 전용)
-            // §4 순서 4~6에서 추가: AttackScheduler, EventDirector, SoundRouter
-            return (flow, sequencer);
+            var refs = new SystemsRefs();
+            refs.Sequencer = go.AddComponent<PhaseSequencer>();
+            refs.Flow = go.AddComponent<GameFlowController>();
+            refs.Scheduler = go.AddComponent<AttackScheduler>();
+            refs.Salt = go.AddComponent<SaltCorners>();
+            refs.Sanity = go.AddComponent<Sanity>();
+            refs.Talisman = go.AddComponent<Talisman>();
+            go.AddComponent<DebugTimeScale>();   // F1 배속 (에디터·개발 빌드 전용)
+            go.AddComponent<DebugEventLogger>(); // GameEvents 전량 로그 — D2 완주 판정 근거
+            go.AddComponent<DebugCheats>();      // F2 진짜 신호 강제 발화 (EventDirector 전 임시)
+            refs.Hud = go.AddComponent<DebugHud>();
+            // §4 순서 7↑(Epic 2)에서 추가: EventDirector, SoundRouter
+            return refs;
         }
 
         // ---------- Room (소품 = 도형) ----------
 
-        private static void BuildRoom(Sprite white, out DoorInteractable door, out Transform clockRoot)
+        private static RoomRefs BuildRoom(Sprite white)
         {
+            var refs = new RoomRefs();
             var mat = AssetDatabase.LoadAssetAtPath<Material>(SpriteLitMatPath);
             var root = new GameObject("Room");
 
@@ -110,21 +185,21 @@ namespace Morae.EditorTools
             // 소품 (§3.4 기준 크기, 위치는 도형 단계 가안) — 트리거 = 상호작용 범위
             var doorGo = MakeProp(root.transform, "Door", white, mat, new Vector2(-6.6f, 0f),
                 new Vector2(0.4f, 1.6f), new Color(0.35f, 0.24f, 0.15f), new Vector2(2.2f, 3.0f));
-            door = doorGo.AddComponent<DoorInteractable>();
+            refs.Door = doorGo.AddComponent<DoorInteractable>(); // pushDirection 기본값 left = 좌측 벽 배치와 일치
 
             MakeProp(root.transform, "Window", white, mat, new Vector2(0f, 4.3f),
                 new Vector2(1.8f, 0.4f), new Color(0.25f, 0.3f, 0.42f), Vector2.zero); // 상호작용 없음 — 시각물
 
-            clockRoot = MakeProp(root.transform, "Clock", white, mat, new Vector2(2.5f, 4.05f),
+            refs.ClockRoot = MakeProp(root.transform, "Clock", white, mat, new Vector2(2.5f, 4.05f),
                 new Vector2(0.8f, 0.8f), new Color(0.55f, 0.5f, 0.4f), Vector2.zero).transform;
 
             var tvGo = MakeProp(root.transform, "TV", white, mat, new Vector2(4.8f, -2.2f),
                 new Vector2(1.2f, 0.8f), new Color(0.2f, 0.22f, 0.25f), new Vector2(2.6f, 2.2f));
-            tvGo.AddComponent<TvInteractable>();
+            refs.Tv = tvGo.AddComponent<TvInteractable>();
 
             var buddhaGo = MakeProp(root.transform, "Buddha", white, mat, new Vector2(-2.5f, 2.2f),
                 new Vector2(0.8f, 0.8f), new Color(0.7f, 0.6f, 0.35f), new Vector2(2.2f, 2.2f));
-            buddhaGo.AddComponent<PrayerInteractable>();
+            refs.Prayer = buddhaGo.AddComponent<PrayerInteractable>();
 
             var blanketGo = MakeProp(root.transform, "Blanket", white, mat, new Vector2(1.5f, -3f),
                 new Vector2(2f, 1.4f), new Color(0.4f, 0.3f, 0.35f), new Vector2(3.2f, 2.6f));
@@ -132,15 +207,17 @@ namespace Morae.EditorTools
 
             var jarGo = MakeProp(root.transform, "Jar", white, mat, new Vector2(-4.8f, -3.2f),
                 new Vector2(0.5f, 0.5f), new Color(0.65f, 0.65f, 0.6f), new Vector2(1.8f, 1.8f));
-            jarGo.AddComponent<JarInteractable>();
+            refs.Jar = jarGo.AddComponent<JarInteractable>();
 
             // 소금 4귀퉁이 — Interactable 아님(시각물, §3.1). CornerIndex 규약: 0=좌상 1=우상 2=좌하 3=우하
+            // Transform은 SaltCorners.cornerTransforms에 배선 (FarthestFromPlayer 해석 기준점)
             Vector2[] corners = { new Vector2(-6f, 3.5f), new Vector2(6f, 3.5f), new Vector2(-6f, -3.5f), new Vector2(6f, -3.5f) };
             for (int i = 0; i < corners.Length; i++)
             {
-                MakeProp(root.transform, $"SaltCorner_{i}", white, mat, corners[i],
-                    new Vector2(0.6f, 0.6f), new Color(0.95f, 0.95f, 0.92f), Vector2.zero);
+                refs.SaltCorners[i] = MakeProp(root.transform, $"SaltCorner_{i}", white, mat, corners[i],
+                    new Vector2(0.6f, 0.6f), new Color(0.95f, 0.95f, 0.92f), Vector2.zero).transform;
             }
+            return refs;
         }
 
         // ---------- Player ----------
@@ -290,7 +367,7 @@ namespace Morae.EditorTools
                 AssetDatabase.CreateAsset(profile, VolumeProfilePath);
                 var vignette = profile.Add<Vignette>(true);
                 vignette.name = "Vignette";
-                vignette.intensity.Override(0.35f); // 기본값 — SanityFeedback이 §4 순서 5에서 제어
+                vignette.intensity.Override(0.35f); // 기본값(calm) — 런타임 제어는 SanityFeedback
                 vignette.smoothness.Override(0.4f);
                 AssetDatabase.AddObjectToAsset(vignette, profile);
                 EditorUtility.SetDirty(profile);
@@ -300,6 +377,10 @@ namespace Morae.EditorTools
             var volume = go.AddComponent<Volume>();
             volume.isGlobal = true;
             volume.sharedProfile = profile;
+
+            // §4 순서 5 — 이성의 유일한 표현 (SanityChanged 구독, volume.profile 런타임 복제본에만 씀)
+            var feedback = go.AddComponent<SanityFeedback>();
+            Wire(feedback, "volume", volume);
         }
 
         private static void BuildEventSystem()
@@ -417,6 +498,23 @@ namespace Morae.EditorTools
                 return;
             }
             prop.objectReferenceValue = value;
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static void WireArray(Component target, string fieldName, Object[] values)
+        {
+            var so = new SerializedObject(target);
+            SerializedProperty prop = so.FindProperty(fieldName);
+            if (prop == null || !prop.isArray)
+            {
+                Debug.LogError($"[MAIN-BUILDER] 배열 배선 실패 — {target.GetType().Name}.{fieldName} 배열 프로퍼티 없음");
+                return;
+            }
+            prop.arraySize = values.Length;
+            for (int i = 0; i < values.Length; i++)
+            {
+                prop.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
+            }
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 

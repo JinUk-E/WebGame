@@ -23,6 +23,8 @@ namespace Morae.Game.Core
         public static event Action<bool> TVToggled;
         public static event Action<GameOverReason> GameOver;                        // OpenedDoor / SealCollapsed / Panic
         public static event Action<EndingKind> EndingStarted;                       // Perfect / Survived / Rescued(07:40)
+        // v1.3 추가 (2026-08-04 문 입력 규칙 확정에 따름 — _shared.md 기록): 걸쇠 개방 진행률 0~1. 취소 시 0 발행
+        public static event Action<float /*0~1*/> DoorLatchProgressChanged;
 
         // ---- 발행 (게임플레이 모듈 전용) ----
 
@@ -39,5 +41,6 @@ namespace Morae.Game.Core
         public static void RaiseTVToggled(bool isOn) => TVToggled?.Invoke(isOn);
         public static void RaiseGameOver(GameOverReason reason) => GameOver?.Invoke(reason);
         public static void RaiseEndingStarted(EndingKind kind) => EndingStarted?.Invoke(kind);
+        public static void RaiseDoorLatchProgressChanged(float progress01) => DoorLatchProgressChanged?.Invoke(progress01);
     }
 }

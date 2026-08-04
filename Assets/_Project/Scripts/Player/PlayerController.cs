@@ -58,6 +58,17 @@ namespace Morae.Game.Player
             return true;
         }
 
+        /// <summary>
+        /// 행동 상태 간 직접 전환 (문: 귀 대기 ↔ 걸쇠 개방). 현재 상태가 from일 때만 허용.
+        /// </summary>
+        public bool SwitchActionState(PlayerState from, PlayerState to)
+        {
+            if (State != from) return false;
+            if (to == PlayerState.Dead || to == PlayerState.Escaped) return false; // 종단은 EnterTerminalState로만
+            SetState(to);
+            return true;
+        }
+
         /// <summary>행동 상태에서 Idle 복귀. Dead/Escaped는 종단 상태 — 복귀 불가.</summary>
         public void ReturnToIdle()
         {

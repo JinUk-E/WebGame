@@ -18,6 +18,8 @@ namespace Morae.Game.Core
 
         public bool IsRunning { get; private set; }
         public PhaseId CurrentPhase => _current != null ? _current.PhaseId : PhaseId.P1;
+        /// <summary>PhaseTable 행 인덱스 — AttackScheduler의 페이즈 전이 폴링·스케줄 비교용.</summary>
+        public int CurrentPhaseIndex => _phaseIndex;
         public PhaseDef CurrentPhaseDef => _current;
         public float TotalElapsed { get; private set; }
         public float PhaseElapsed { get; private set; }
