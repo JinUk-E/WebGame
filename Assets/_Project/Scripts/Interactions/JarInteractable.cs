@@ -1,3 +1,4 @@
+using Morae.Game.Core;
 using Morae.Game.Data;
 using Morae.Game.Gauges;
 using Morae.Game.Player;
@@ -22,8 +23,16 @@ namespace Morae.Game.Interactions
             Debug.Log("[JAR] 요강 사용 시작 — 5초 무방비 (취소 불가)");
         }
 
+        public override void OnHoldTick(PlayerController player, float heldSeconds)
+        {
+            // v1.5 — 채널 진행 바 (ChannelBarView 구독)
+            float progress = Duration > 0f ? Mathf.Clamp01(heldSeconds / Duration) : 1f;
+            GameEvents.RaiseJarChannelChanged(progress);
+        }
+
         public override void OnComplete(PlayerController player)
         {
+            GameEvents.RaiseJarChannelChanged(0f);
             if (sanity != null) sanity.SetUrgeActive(false); // 요의 해소 — 회복 재개
             Debug.Log("[JAR] 요강 사용 완료 — 요의 해소");
             player.ReturnToIdle();

@@ -1,3 +1,4 @@
+using Morae.Game.Core;
 using Morae.Game.Data;
 using Morae.Game.Player;
 using UnityEngine;
@@ -39,8 +40,16 @@ namespace Morae.Game.Interactions
         {
             if (_exitTimer < 0f) return;
             _exitTimer -= Time.deltaTime;
-            if (_exitTimer >= 0f) return;
 
+            if (_exitTimer >= 0f)
+            {
+                // v1.5 — 이탈 진행 바 (ChannelBarView 구독)
+                float total = Config.BlanketExitSec;
+                GameEvents.RaiseBlanketExitChanged(total > 0f ? Mathf.Clamp01(1f - _exitTimer / total) : 1f);
+                return;
+            }
+
+            GameEvents.RaiseBlanketExitChanged(0f);
             if (_exitingPlayer != null)
             {
                 _exitingPlayer.ReturnToIdle(); // 종단 상태(Dead/Escaped)면 내부에서 무시됨

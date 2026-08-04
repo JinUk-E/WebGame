@@ -28,6 +28,10 @@ namespace Morae.Game.Core
         // v1.4 추가 (2026-08-04 기도 시각 피드백 — _shared.md 기록 필요): 채널 진행률 0~1 + 조준 귀퉁이(-1=미지정).
         // 채널 중 매 틱 발행, 종료(완료·취소) 시 (0, -1) 발행
         public static event Action<float /*0~1*/, int /*aimedCorner*/> PrayerChannelChanged;
+        // v1.5 추가 (2026-08-04 채널 진행 바 일반화 — _shared.md 기록 필요): 요강 5s·이불 이탈 1s 진행률.
+        // 발행 규약은 걸쇠·기도와 동일 — 진행 중 매 틱, 종료 시 0
+        public static event Action<float /*0~1*/> JarChannelChanged;
+        public static event Action<float /*0~1*/> BlanketExitChanged;
 
         // ---- 발행 (게임플레이 모듈 전용) ----
 
@@ -47,5 +51,7 @@ namespace Morae.Game.Core
         public static void RaiseDoorLatchProgressChanged(float progress01) => DoorLatchProgressChanged?.Invoke(progress01);
         public static void RaisePrayerChannelChanged(float progress01, int aimedCorner)
             => PrayerChannelChanged?.Invoke(progress01, aimedCorner);
+        public static void RaiseJarChannelChanged(float progress01) => JarChannelChanged?.Invoke(progress01);
+        public static void RaiseBlanketExitChanged(float progress01) => BlanketExitChanged?.Invoke(progress01);
     }
 }

@@ -30,6 +30,8 @@ namespace Morae.Game.Core
             GameEvents.EndingStarted += OnEndingStarted;
             GameEvents.DoorLatchProgressChanged += OnDoorLatchProgressChanged;
             GameEvents.PrayerChannelChanged += OnPrayerChannelChanged;
+            GameEvents.JarChannelChanged += OnJarChannelChanged;
+            GameEvents.BlanketExitChanged += OnBlanketExitChanged;
         }
 
         private void OnDisable()
@@ -48,6 +50,8 @@ namespace Morae.Game.Core
             GameEvents.EndingStarted -= OnEndingStarted;
             GameEvents.DoorLatchProgressChanged -= OnDoorLatchProgressChanged;
             GameEvents.PrayerChannelChanged -= OnPrayerChannelChanged;
+            GameEvents.JarChannelChanged -= OnJarChannelChanged;
+            GameEvents.BlanketExitChanged -= OnBlanketExitChanged;
         }
 
         private static void OnPhaseChanged(PhaseId phase) => Debug.Log($"[EVT] PhaseChanged → {phase}");
@@ -82,6 +86,8 @@ namespace Morae.Game.Core
         }
 
         private int _prayerBucket = int.MinValue; // 25% 단위 — 연속 값 스팸 방지 규약 동일
+        private int _jarBucket = int.MinValue;
+        private int _blanketBucket = int.MinValue;
 
         private void OnPrayerChannelChanged(float p01, int aimedCorner)
         {
@@ -89,6 +95,22 @@ namespace Morae.Game.Core
             if (bucket == _prayerBucket) return;
             _prayerBucket = bucket;
             Debug.Log($"[EVT] PrayerChannel ≈ {p01 * 100f:F0}% aim={aimedCorner}");
+        }
+
+        private void OnJarChannelChanged(float p01)
+        {
+            int bucket = Mathf.FloorToInt(p01 * 4f);
+            if (bucket == _jarBucket) return;
+            _jarBucket = bucket;
+            Debug.Log($"[EVT] JarChannel ≈ {p01 * 100f:F0}%");
+        }
+
+        private void OnBlanketExitChanged(float p01)
+        {
+            int bucket = Mathf.FloorToInt(p01 * 4f);
+            if (bucket == _blanketBucket) return;
+            _blanketBucket = bucket;
+            Debug.Log($"[EVT] BlanketExit ≈ {p01 * 100f:F0}%");
         }
 #endif
     }

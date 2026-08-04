@@ -34,7 +34,7 @@ namespace Morae.EditorTools
             SetupSubtitleView();
             SetupSaltCornersView();
             SetupLightingController();
-            SetupPrayerView();
+            SetupChannelBars();
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
@@ -124,22 +124,37 @@ namespace Morae.EditorTools
             WireArray(controller, "cornerLights", corners);
         }
 
-        private static void SetupPrayerView()
+        private static void SetupChannelBars()
         {
-            var buddha = GameObject.Find("Room/Buddha");
-            var view = buddha.GetComponent<PrayerView>();
-            if (view == null) view = buddha.AddComponent<PrayerView>();
+            SetupBar("Room/Buddha", ChannelBarView.Source.Prayer, new Vector3(0f, 0.75f, 0f));
+            SetupBar("Room/Door", ChannelBarView.Source.DoorLatch, new Vector3(0.55f, 1.1f, 0f));
+            SetupBar("Room/Jar", ChannelBarView.Source.Jar, new Vector3(0f, 0.65f, 0f));
+            SetupBar("Room/Blanket", ChannelBarView.Source.BlanketExit, new Vector3(0f, 1.05f, 0f));
+        }
 
-            var barTr = buddha.transform.Find("PrayerBar");
+        private static void SetupBar(string propPath, ChannelBarView.Source source, Vector3 localPos)
+        {
+            var prop = GameObject.Find(propPath);
+
+            // v1.4 잔재 마이그레이션 — PrayerView(삭제된 스크립트)·PrayerBar는 ChannelBarView·ChannelBar로 대체됨
+            int removed = GameObjectUtility.RemoveMonoBehavioursWithMissingScript(prop);
+            if (removed > 0) Debug.Log($"[D3-SETUP] {prop.name}: 누락 스크립트 {removed}개 제거 (구 PrayerView)");
+            var legacyBar = prop.transform.Find("PrayerBar");
+            if (legacyBar != null) Object.DestroyImmediate(legacyBar.gameObject);
+
+            var view = prop.GetComponent<ChannelBarView>();
+            if (view == null) view = prop.AddComponent<ChannelBarView>();
+
+            var barTr = prop.transform.Find("ChannelBar");
             GameObject barRoot;
             Transform fill;
             if (barTr == null)
             {
                 var white = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/_Project/Art/Smoke/white32.png");
 
-                barRoot = new GameObject("PrayerBar");
-                barRoot.transform.SetParent(buddha.transform, false);
-                barRoot.transform.localPosition = new Vector3(0f, 0.75f, 0f);
+                barRoot = new GameObject("ChannelBar");
+                barRoot.transform.SetParent(prop.transform, false);
+                barRoot.transform.localPosition = localPos;
 
                 var bg = new GameObject("BG");
                 bg.transform.SetParent(barRoot.transform, false);
@@ -151,10 +166,10 @@ namespace Morae.EditorTools
 
                 var fillGo = new GameObject("Fill");
                 fillGo.transform.SetParent(barRoot.transform, false);
-                fillGo.transform.localScale = new Vector3(0f, 0.1f, 1f); // x = PrayerView가 진행률로 제어
+                fillGo.transform.localScale = new Vector3(0f, 0.1f, 1f); // x = ChannelBarView가 진행률로 제어
                 var fillSr = fillGo.AddComponent<SpriteRenderer>();
                 fillSr.sprite = white;
-                fillSr.color = new Color(1f, 0.85f, 0.3f); // 조준 하이라이트와 동일 금빛
+                fillSr.color = new Color(1f, 0.85f, 0.3f); // 기도 조준 하이라이트와 동일 금빛
                 fillSr.sortingOrder = 7;
 
                 fill = fillGo.transform;
@@ -166,6 +181,9 @@ namespace Morae.EditorTools
                 fill = barTr.Find("Fill");
             }
 
+            var so = new SerializedObject(view);
+            so.FindProperty("source").enumValueIndex = (int)source;
+            so.ApplyModifiedPropertiesWithoutUndo();
             Wire(view, "barRoot", barRoot);
             Wire(view, "fill", fill);
         }

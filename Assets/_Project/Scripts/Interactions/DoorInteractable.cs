@@ -106,6 +106,7 @@ namespace Morae.Game.Interactions
         {
             Door = DoorState.Open;
             _latchHeld = 0f;
+            GameEvents.RaiseDoorLatchProgressChanged(0f); // 진행 바 정리 (v1.5 ChannelBarView)
 
             bool trueSignal = flow != null && flow.TrueSignalFired;
             if (trueSignal)
