@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 346aa6326d4f00749b309b1e02f97ba6, type: 3}
+  m_Name: PhaseTable
+  m_EditorClassIdentifier: Morae.Game::Morae.Game.Data.PhaseTable
+  phases:
+  - phaseId: 0
+    duration: 60
+    gameTimeStartMin: 60
+    gameTimeEndMin: 150
+    clockMode: 0
+    clockParamMin: 0
+    dawnStart: 0
+    dawnEnd: 0
+    passiveSanityDrain: 0
+  - phaseId: 1
+    duration: 75
+    gameTimeStartMin: 150
+    gameTimeEndMin: 240
+    clockMode: 1
+    clockParamMin: -5
+    dawnStart: 0
+    dawnEnd: 0
+    passiveSanityDrain: 0
+  - phaseId: 2
+    duration: 105
+    gameTimeStartMin: 240
+    gameTimeEndMin: 360
+    clockMode: 2
+    clockParamMin: 40
+    dawnStart: 0
+    dawnEnd: 0
+    passiveSanityDrain: 0
+  - phaseId: 3
+    duration: 75
+    gameTimeStartMin: 360
+    gameTimeEndMin: 410
+    clockMode: 2
+    clockParamMin: -30
+    dawnStart: 0
+    dawnEnd: 0.35
+    passiveSanityDrain: 0.5
+  - phaseId: 4
+    duration: 30
+    gameTimeStartMin: 410
+    gameTimeEndMin: 420
+    clockMode: 3
+    clockParamMin: 445
+    dawnStart: 0.35
+    dawnEnd: 0.45
+    passiveSanityDrain: 0.5
+  - phaseId: 5
+    duration: 45
+    gameTimeStartMin: 420
+    gameTimeEndMin: 450
+    clockMode: 3
+    clockParamMin: 445
+    dawnStart: 0.45
+    dawnEnd: 0.85
+    passiveSanityDrain: 0.5
+  - phaseId: 6
+    duration: 30
+    gameTimeStartMin: 450
+    gameTimeEndMin: 460
+    clockMode: 3
+    clockParamMin: 445
+    dawnStart: 0.85
+    dawnEnd: 1
+    passiveSanityDrain: 0.5

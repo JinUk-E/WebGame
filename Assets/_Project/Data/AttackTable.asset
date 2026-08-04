@@ -1,0 +1,87 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ada9f0a3c05d78d419d63e1b95958770, type: 3}
+  m_Name: AttackTable
+  m_EditorClassIdentifier: Morae.Game::Morae.Game.Data.AttackTable
+  attacks:
+  - id: atk-p1-1
+    phaseId: 0
+    baseOffset: 30
+    jitterRatio: 0.2
+    dualCorner: 0
+    targetRule: 0
+    telegraphDuration: 3
+    resolves: 1
+  - id: atk-p2-1
+    phaseId: 1
+    baseOffset: 40
+    jitterRatio: 0.2
+    dualCorner: 0
+    targetRule: 0
+    telegraphDuration: 3
+    resolves: 1
+  - id: atk-p3-1
+    phaseId: 2
+    baseOffset: 20
+    jitterRatio: 0.2
+    dualCorner: 0
+    targetRule: 0
+    telegraphDuration: 3
+    resolves: 1
+  - id: atk-p3-2
+    phaseId: 2
+    baseOffset: 48
+    jitterRatio: 0.2
+    dualCorner: 0
+    targetRule: 0
+    telegraphDuration: 3
+    resolves: 1
+  - id: atk-p3-3
+    phaseId: 2
+    baseOffset: 78
+    jitterRatio: 0.2
+    dualCorner: 1
+    targetRule: 0
+    telegraphDuration: 3
+    resolves: 1
+  - id: atk-p4-1
+    phaseId: 3
+    baseOffset: 15
+    jitterRatio: 0.2
+    dualCorner: 1
+    targetRule: 0
+    telegraphDuration: 3
+    resolves: 1
+  - id: atk-p4-2
+    phaseId: 3
+    baseOffset: 35
+    jitterRatio: 0.2
+    dualCorner: 0
+    targetRule: 0
+    telegraphDuration: 3
+    resolves: 1
+  - id: atk-p4-3
+    phaseId: 3
+    baseOffset: 55
+    jitterRatio: 0.2
+    dualCorner: 1
+    targetRule: 0
+    telegraphDuration: 3
+    resolves: 1
+  - id: atk-p5-1
+    phaseId: 4
+    baseOffset: 10
+    jitterRatio: 0.2
+    dualCorner: 0
+    targetRule: 1
+    telegraphDuration: 3
+    resolves: 1

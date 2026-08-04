@@ -1,0 +1,183 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9a85af221a91844d93f76e13f664c86, type: 3}
+  m_Name: EventTable
+  m_EditorClassIdentifier: Morae.Game::Morae.Game.Data.EventTable
+  events:
+  - id: tv-hint
+    phaseId: 0
+    offset: 15
+    kind: 4
+    audioClip: {fileID: 0}
+    channel: 2
+    audioClipMuffled: {fileID: 0}
+    subtitleLines:
+    - speaker: "\uB098"
+      text: "\u2026TV\uB77C\uB3C4 \uCF1C \uB450\uBA74 \uC880 \uB098\uC744\uC9C0 \uBAB0\uB77C."
+      duration: 3
+    detailLines: []
+    sanityDelta: 0
+    isTrueSignal: 0
+  - id: window-knock
+    phaseId: 0
+    offset: 40
+    kind: 2
+    audioClip: {fileID: 0}
+    channel: 1
+    audioClipMuffled: {fileID: 0}
+    subtitleLines:
+    - speaker: 
+      text: "\u2026\uD1B5, \uD1B5."
+      duration: 2.5
+    detailLines: []
+    sanityDelta: 0
+    isTrueSignal: 0
+  - id: fake-voice-1
+    phaseId: 1
+    offset: 35
+    kind: 0
+    audioClip: {fileID: 0}
+    channel: 0
+    audioClipMuffled: {fileID: 0}
+    subtitleLines:
+    - speaker: ???
+      text: "\uC598\uC57C\u2026 \uD560\uC560\uBE44\uB2E4. \uBB38 \uC880 \uC5F4\uC5B4\uBCF4\uAC70\uB77C."
+      duration: 3.5
+    detailLines:
+    - speaker: ???
+      text: "\u2026\uD560\uC560\uBE44\uB2E4. \uC774 \uBB38 \uC880\u2026 \uC5F4\uC5B4\uBCF4\uAC70\uB77C.
+        \uC751\u2026?"
+      duration: 4
+    sanityDelta: 0
+    isTrueSignal: 0
+  - id: popopo
+    phaseId: 2
+    offset: 15
+    kind: 2
+    audioClip: {fileID: 0}
+    channel: 0
+    audioClipMuffled: {fileID: 0}
+    subtitleLines:
+    - speaker: 
+      text: "\u2026\uD3EC, \uD3EC, \uD3EC\u2026"
+      duration: 3
+    detailLines: []
+    sanityDelta: -10
+    isTrueSignal: 0
+  - id: silhouette
+    phaseId: 2
+    offset: 45
+    kind: 2
+    audioClip: {fileID: 0}
+    channel: 1
+    audioClipMuffled: {fileID: 0}
+    subtitleLines:
+    - speaker: 
+      text: "(\uCC3D\uBC16\uC73C\uB85C \uC637\uC790\uB77D \uAC19\uC740 \uAC83\uC774
+        \uC2A4\uCCD0 \uC9C0\uB098\uAC04\uB2E4)"
+      duration: 3
+    detailLines: []
+    sanityDelta: -10
+    isTrueSignal: 0
+  - id: window-rattle
+    phaseId: 2
+    offset: 75
+    kind: 2
+    audioClip: {fileID: 0}
+    channel: 1
+    audioClipMuffled: {fileID: 0}
+    subtitleLines:
+    - speaker: 
+      text: "(\uC720\uB9AC\uCC3D\uC774 \uB4DC\uB974\uB975 \uB5A8\uB9B0\uB2E4)"
+      duration: 2.5
+    detailLines: []
+    sanityDelta: -10
+    isTrueSignal: 0
+  - id: urge
+    phaseId: 3
+    offset: 20
+    kind: 3
+    audioClip: {fileID: 0}
+    channel: 2
+    audioClipMuffled: {fileID: 0}
+    subtitleLines:
+    - speaker: "\uB098"
+      text: "\u2026\uC544\uB7AB\uBC30\uAC00 \uBB34\uAC81\uB2E4. \uC5B8\uC81C\uAE4C\uC9C0
+        \uCC38\uC744 \uC218 \uC788\uC744\uAE4C."
+      duration: 3
+    detailLines: []
+    sanityDelta: 0
+    isTrueSignal: 0
+  - id: triple-assault
+    phaseId: 3
+    offset: 45
+    kind: 2
+    audioClip: {fileID: 0}
+    channel: 0
+    audioClipMuffled: {fileID: 0}
+    subtitleLines:
+    - speaker: 
+      text: "(\uC190\uC7A1\uC774\uAC00 \uB35C\uCEF9\uAC70\uB9B0\uB2E4 \u2014 \uC804\uD654\uBCA8
+        \u2014 \uB178\uD06C \uC18C\uB9AC\uAC00 \uB3D9\uC2DC\uC5D0 \uC6B8\uB9B0\uB2E4)"
+      duration: 4
+    detailLines: []
+    sanityDelta: -10
+    isTrueSignal: 0
+  - id: fake-voice-2
+    phaseId: 4
+    offset: 5
+    kind: 0
+    audioClip: {fileID: 0}
+    channel: 0
+    audioClipMuffled: {fileID: 0}
+    subtitleLines:
+    - speaker: ???
+      text: "\uC598\uC57C! \uD560\uC560\uBE44\uB2E4! \uBC8C\uC368 \uC544\uCE68\uC774\uC57C,
+        \uC5B4\uC11C \uBB38 \uC5F4\uC5B4\uB77C! \uC2DC\uACC4\uB97C \uBCF4\uAC70\uB77C!"
+      duration: 4.5
+    detailLines:
+    - speaker: ???
+      text: "\u2026\uC544\uCE68\uC774\uB77C\uB2C8\uAE4C! \uC2DC\uACC4\uAC00 \uC548
+        \uBCF4\uC774\uB290\uB0D0! \uC5B4\uC11C, \uC5B4\uC11C!"
+      duration: 4
+    sanityDelta: 0
+    isTrueSignal: 0
+  - id: true-signal
+    phaseId: 6
+    offset: 0
+    kind: 1
+    audioClip: {fileID: 0}
+    channel: 0
+    audioClipMuffled: {fileID: 0}
+    subtitleLines:
+    - speaker: 
+      text: "(\uD560\uBA38\uB2C8\uC758 \uC6B8\uC74C\uC18C\uB9AC\uC640 \uC5FC\uBD88
+        \uC18C\uB9AC\uAC00 \uACB9\uCCD0 \uB4E4\uB9B0\uB2E4 \u2014 \uCC3D\uBC16\uC774
+        \uBC1D\uB2E4)"
+      duration: 4
+    detailLines: []
+    sanityDelta: 0
+    isTrueSignal: 1
+  - id: rescue-open
+    phaseId: 6
+    offset: 60
+    kind: 3
+    audioClip: {fileID: 0}
+    channel: 0
+    audioClipMuffled: {fileID: 0}
+    subtitleLines:
+    - speaker: K
+      text: "\uBB38 \uC5F4\uACA0\uB124. \u2026\uBC24\uC0C8 \uC798 \uBC84\uD17C\uAD6C\uBA3C."
+      duration: 3
+    detailLines: []
+    sanityDelta: 0
+    isTrueSignal: 0

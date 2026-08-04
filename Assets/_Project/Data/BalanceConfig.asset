@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92dd7afcf7041944a98d6c356e6e3b78, type: 3}
+  m_Name: BalanceConfig
+  m_EditorClassIdentifier: Morae.Game::Morae.Game.Data.BalanceConfig
+  moveSpeed: 3.5
+  sanityMax: 100
+  sanityTvRegenPerSec: 1
+  sanityBlanketRegenPerSec: 3
+  sanityDoorDrainPerSec: 3
+  sanityTelegraphHit: 8
+  prayerChannelSec: 3
+  doorOpenHoldSec: 1.5
+  jarLockSec: 5
+  blanketExitSec: 1
+  tvAttackClockRate: 1.333333
+  talismanSaltRestore: 1
+  talismanSanityRestore: 30
+  talismanFxSec: 3
+  rescueAutoOpenDelaySec: 60
+  prologueSkipAvailable: 1
