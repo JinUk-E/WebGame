@@ -149,7 +149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 223fc2f6ea73fe748abe8120080968e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Morae.Game::Morae.Game.Interactions.TvInteractable
-  config: {fileID: 0}
+  config: {fileID: 11400000, guid: 94b5dc86590437d44b3fc3c6aa682afa, type: 2}
 --- !u!61 &4671687
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -687,7 +687,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bee9a7209be0974a85704bad9756ad3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Morae.Game::Morae.Game.Interactions.JarInteractable
-  config: {fileID: 0}
+  config: {fileID: 11400000, guid: 94b5dc86590437d44b3fc3c6aa682afa, type: 2}
   sanity: {fileID: 638019699}
 --- !u!61 &70227975
 BoxCollider2D:
@@ -807,8 +807,8 @@ MonoBehaviour:
   m_ShadowVolumeIntensityEnabled: 0
   m_ShadowVolumeIntensity: 0.75
   m_LocalBounds:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
+    m_Center: {x: 0, y: -0.00000011920929, z: 0}
+    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0.3
@@ -1330,7 +1330,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4290763238
   m_fontColor: {r: 0.9, g: 0.85, b: 0.75, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -1343,7 +1343,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -1491,7 +1491,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aaf99cf99d3853144ac1e0f524bb10c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Morae.Game::Morae.Game.Interactions.BlanketInteractable
-  config: {fileID: 0}
+  config: {fileID: 11400000, guid: 94b5dc86590437d44b3fc3c6aa682afa, type: 2}
 --- !u!61 &470752967
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1780,7 +1780,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bcdf7e9995817a248aa922a60a93f858, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Morae.Game::Morae.Game.Player.PlayerController
-  config: {fileID: 0}
+  config: {fileID: 11400000, guid: 94b5dc86590437d44b3fc3c6aa682afa, type: 2}
 --- !u!58 &499805495
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -2296,7 +2296,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9dfa71f09e13c9b4e9bc553382f8fa05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Morae.Game::Morae.Game.Gauges.Sanity
-  config: {fileID: 0}
+  config: {fileID: 11400000, guid: 94b5dc86590437d44b3fc3c6aa682afa, type: 2}
   sequencer: {fileID: 638019702}
   player: {fileID: 499805494}
   tv: {fileID: 4671686}
@@ -2313,7 +2313,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 477846f0df67a164c90941e9b819e75d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Morae.Game::Morae.Game.Gauges.Talisman
-  config: {fileID: 0}
+  config: {fileID: 11400000, guid: 94b5dc86590437d44b3fc3c6aa682afa, type: 2}
   salt: {fileID: 638019701}
   sanity: {fileID: 638019699}
 --- !u!114 &638019701
@@ -2346,7 +2346,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc8504026935fa94aaab2e29f1998530, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Morae.Game::Morae.Game.Core.PhaseSequencer
-  phaseTable: {fileID: 0}
+  phaseTable: {fileID: 11400000, guid: 808cf6929993e01418f40c7cebf8504e, type: 2}
 --- !u!114 &638019703
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2359,9 +2359,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79ff5160589df0d429a44d0145f68520, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Morae.Game::Morae.Game.Core.AttackScheduler
-  attackTable: {fileID: 0}
-  phaseTable: {fileID: 0}
-  config: {fileID: 0}
+  attackTable: {fileID: 11400000, guid: 4b175c3971ccab240ac7aa1de8c78f1a, type: 2}
+  phaseTable: {fileID: 11400000, guid: 808cf6929993e01418f40c7cebf8504e, type: 2}
+  config: {fileID: 11400000, guid: 94b5dc86590437d44b3fc3c6aa682afa, type: 2}
   sequencer: {fileID: 638019702}
   salt: {fileID: 638019701}
   sanity: {fileID: 638019699}
@@ -2379,7 +2379,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df2a71779e18670478f89cb0bf3e9457, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Morae.Game::Morae.Game.Core.GameFlowController
-  config: {fileID: 0}
+  config: {fileID: 11400000, guid: 94b5dc86590437d44b3fc3c6aa682afa, type: 2}
   phaseSequencer: {fileID: 638019702}
   attackScheduler: {fileID: 638019703}
   sanity: {fileID: 638019699}
@@ -2666,8 +2666,8 @@ MonoBehaviour:
   m_ShadowVolumeIntensityEnabled: 0
   m_ShadowVolumeIntensity: 0.75
   m_LocalBounds:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
+    m_Center: {x: 0, y: -0.00000011920929, z: 0}
+    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0.3
@@ -2896,8 +2896,8 @@ MonoBehaviour:
   m_ShadowVolumeIntensityEnabled: 0
   m_ShadowVolumeIntensity: 0.75
   m_LocalBounds:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
+    m_Center: {x: 0, y: -0.00000011920929, z: 0}
+    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0.3
@@ -3062,8 +3062,8 @@ MonoBehaviour:
   m_ShadowVolumeIntensityEnabled: 0
   m_ShadowVolumeIntensity: 0.75
   m_LocalBounds:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
+    m_Center: {x: 0, y: -0.00000011920929, z: 0}
+    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0.3
@@ -3255,8 +3255,8 @@ MonoBehaviour:
   m_ShadowVolumeIntensityEnabled: 0
   m_ShadowVolumeIntensity: 0.75
   m_LocalBounds:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
+    m_Center: {x: 0, y: -0.00000011920929, z: 0}
+    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0.3
@@ -3441,6 +3441,66 @@ Transform:
   - {fileID: 240323629}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1190147235
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1190147236}
+  - component: {fileID: 1190147237}
+  m_Layer: 0
+  m_Name: SoundManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1190147236
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1190147235}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1688697243}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1190147237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1190147235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92ee0b1232371a429d880addef37333, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Morae.Game::Morae.Game.Presentation.SoundManager
+  bgmMain: {fileID: 8300000, guid: 71dc4012b2ea8bf46b9507e0ac6c1463, type: 3}
+  bgmIntro: {fileID: 8300000, guid: 7832f23bb2dbd304ab5ee4b1a742910a, type: 3}
+  bgmNight:
+  - {fileID: 8300000, guid: 5ceece3a92c04bf468f0a050cd369538, type: 3}
+  - {fileID: 8300000, guid: 4bbcebb15e2ac7f4aa870a4cbdc19f2e, type: 3}
+  bgmEnding: {fileID: 8300000, guid: 1b23b1360faa7e548a0c6077104dd96c, type: 3}
+  sfxClock: {fileID: 8300000, guid: 08a83676deeacbf48a624c5f963d1a65, type: 3}
+  sfxDoorClose: {fileID: 8300000, guid: 4438079b3ca90374696d35ae36e8d5ce, type: 3}
+  sfxDoorTry: {fileID: 8300000, guid: a8c93d658ac83b349ab0b6529889519e, type: 3}
+  sfxFear:
+  - {fileID: 8300000, guid: 1b1988e028dc1e34fae37035e53462e4, type: 3}
+  - {fileID: 8300000, guid: b56d05dc98a917e49955ea49bb056ec7, type: 3}
+  - {fileID: 8300000, guid: a62af305a65062e499c718b24d64969a, type: 3}
+  bgmVolume: 0.5
+  sfxVolume: 0.9
+  bgmFadeSec: 1.5
 --- !u!1 &1193063372
 GameObject:
   m_ObjectHideFlags: 0
@@ -4622,7 +4682,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4fb3e7768119d704f81e762b70b279f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Morae.Game::Morae.Game.Interactions.PrayerInteractable
-  config: {fileID: 0}
+  config: {fileID: 11400000, guid: 94b5dc86590437d44b3fc3c6aa682afa, type: 2}
   salt: {fileID: 638019701}
   scheduler: {fileID: 638019703}
 --- !u!61 &1587754978
@@ -4717,7 +4777,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9985c33d910370d4682c3e17239f5bbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Morae.Game::Morae.Game.Interactions.DoorInteractable
-  config: {fileID: 0}
+  config: {fileID: 11400000, guid: 94b5dc86590437d44b3fc3c6aa682afa, type: 2}
   flow: {fileID: 638019704}
   talisman: {fileID: 638019700}
   pushDirection: {x: -1, y: 0}
@@ -5035,8 +5095,8 @@ MonoBehaviour:
   m_ShadowVolumeIntensityEnabled: 0
   m_ShadowVolumeIntensity: 0.75
   m_LocalBounds:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
+    m_Center: {x: 0, y: -0.00000011920929, z: 0}
+    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
   m_PointLightInnerAngle: 360
   m_PointLightOuterAngle: 360
   m_PointLightInnerRadius: 0.3
@@ -5104,6 +5164,7 @@ Transform:
   - {fileID: 268653839}
   - {fileID: 1837217507}
   - {fileID: 1576776167}
+  - {fileID: 1190147236}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1701590788

@@ -63,6 +63,16 @@ namespace Morae.EditorTools
         [MenuItem("Morae/Build Main Scene")]
         public static void Build()
         {
+            // 경고: 씬 전체 재생성 — 수동 배선이 전부 사라진다. 게다가 이 빌더의 SO 에셋 배선(config/phaseTable/
+            // attackTable)은 유실되는 미해결 문제가 있어(2026-08-04), 재생성 후 SO 참조를 수동으로 다시 넣어야 한다.
+            if (!Application.isBatchMode &&
+                !EditorUtility.DisplayDialog("Main 씬 재생성",
+                    "Main.unity를 처음부터 다시 만듭니다.\n수동으로 넣은 배선이 전부 사라지며, SO 에셋 참조는 재생성 후 수동 재배선이 필요합니다.\n계속할까요?",
+                    "재생성", "취소"))
+            {
+                return;
+            }
+
             DataAssetBuilder.Ensure(); // SO 4종 선행 (기존 튜닝 보존)
 
             var phaseTable = AssetDatabase.LoadAssetAtPath<PhaseTable>(DataAssetBuilder.PhaseTablePath);

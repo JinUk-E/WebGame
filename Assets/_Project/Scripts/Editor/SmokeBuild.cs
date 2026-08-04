@@ -27,8 +27,8 @@ namespace Morae.EditorTools
         [MenuItem("Morae/Build WebGL Main")]
         public static void BuildMain()
         {
-            // 최신 빌더 코드 기준으로 씬 재생성 (멱등)
-            MainSceneBuilder.Build();
+            // 주의: 씬 재생성 없이 저장된 Main.unity 그대로 빌드 —
+            // MainSceneBuilder 재생성은 SO 에셋 배선을 유실시키는 문제가 있어(수동 배선 보존) 호출하지 않는다.
             BuildScene("Assets/_Project/Scenes/Main.unity");
         }
 
