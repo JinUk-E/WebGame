@@ -119,6 +119,9 @@ namespace Morae.EditorTools
             GameObject root = BuildScreenUi(screenGo, 30, new Color(0.02f, 0.02f, 0.03f, 1f),
                 "밀실 버티기", "문이 잠긴 뒤, 문밖의 소리는 전부 의심하라", null, out _, out _);
             root.AddComponent<GraphicRaycaster>(); // 버튼 클릭
+            // 버그 수정(2026-08-04): BuildScreenUi 공통값 blocksRaycasts=false가 자식 버튼 클릭 전부 차단 —
+            // 버튼 있는 타이틀만 해제 (게임오버/엔딩은 버튼 없음 — false 유지)
+            root.GetComponent<CanvasGroup>().blocksRaycasts = true;
             root.transform.Find("BG").GetComponent<Image>().raycastTarget = true; // 뒤 클릭 차단
             root.SetActive(false); // GameFlow.Show가 켠다
 
