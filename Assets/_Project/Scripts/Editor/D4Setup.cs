@@ -110,13 +110,85 @@ namespace Morae.EditorTools
             var view = screenGo.GetComponent<TitleScreenView>();
             if (view == null) view = screenGo.AddComponent<TitleScreenView>();
 
+            // 타이틀은 레이아웃 개편(버튼·토글·도움말)이 잦다 — 항상 부수고 새로 만든다 (수동 편집 없음 전제)
+            var oldRoot = screenGo.transform.Find("Root");
+            if (oldRoot != null) Object.DestroyImmediate(oldRoot.gameObject);
+
+            var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontAssetPath);
+
             GameObject root = BuildScreenUi(screenGo, 30, new Color(0.02f, 0.02f, 0.03f, 1f),
-                "밀실 버티기", "문이 잠긴 뒤, 문밖의 소리는 전부 의심하라",
-                "아무 키나 눌러 밤을 시작한다", out _, out _);
-            root.SetActive(false); // GameFlow.Show가 켠다 — 재시작 시엔 안 보임
+                "밀실 버티기", "문이 잠긴 뒤, 문밖의 소리는 전부 의심하라", null, out _, out _);
+            root.AddComponent<GraphicRaycaster>(); // 버튼 클릭
+            root.transform.Find("BG").GetComponent<Image>().raycastTarget = true; // 뒤 클릭 차단
+            root.SetActive(false); // GameFlow.Show가 켠다
+
+            (Button startBtn, _) = MakeButton(root.transform, "StartButton", font, "게임 시작",
+                new Vector2(0f, -150f), new Vector2(340f, 76f), 36f);
+
+            // 프롤로그 스킵 토글 — 첫 엔딩 후에만 노출 (TitleScreenView.Show가 제어)
+            (Button skipBtn, TMP_Text skipLabel) = MakeButton(root.transform, "SkipRow", font, "인트로 스킵: 꺼짐",
+                new Vector2(0f, -250f), new Vector2(300f, 54f), 26f);
+            skipBtn.gameObject.SetActive(false);
+
+            (Button helpBtn, _) = MakeButton(root.transform, "HelpButton", font, "?",
+                new Vector2(880f, 460f), new Vector2(64f, 64f), 34f);
+
+            // 도움말 패널 (좌우 페이징)
+            var panel = new GameObject("HelpPanel");
+            panel.transform.SetParent(root.transform, false);
+            var panelRect = panel.AddComponent<RectTransform>();
+            panelRect.anchoredPosition = Vector2.zero;
+            panelRect.sizeDelta = new Vector2(1160f, 760f);
+            var panelBg = panel.AddComponent<Image>();
+            panelBg.color = new Color(0.05f, 0.05f, 0.07f, 0.98f);
+
+            TMP_Text helpText = MakeText(panel.transform, "HelpText", font, "", 28f,
+                new Vector2(0f, 30f), new Vector2(960f, 560f), new Color(0.88f, 0.85f, 0.78f));
+            helpText.alignment = TextAlignmentOptions.TopLeft;
+            TMP_Text pageLabel = MakeText(panel.transform, "PageLabel", font, "1 / 4", 24f,
+                new Vector2(0f, -330f), new Vector2(200f, 40f), new Color(0.6f, 0.58f, 0.52f));
+            (Button prevBtn, _) = MakeButton(panel.transform, "PrevButton", font, "<",
+                new Vector2(-500f, -330f), new Vector2(72f, 56f), 30f);
+            (Button nextBtn, _) = MakeButton(panel.transform, "NextButton", font, ">",
+                new Vector2(500f, -330f), new Vector2(72f, 56f), 30f);
+            (Button closeBtn, _) = MakeButton(panel.transform, "CloseButton", font, "X",
+                new Vector2(540f, 340f), new Vector2(56f, 56f), 26f);
+            panel.SetActive(false);
 
             Wire(view, "root", root);
+            Wire(view, "startButton", startBtn);
+            Wire(view, "skipRow", skipBtn.gameObject);
+            Wire(view, "skipButton", skipBtn);
+            Wire(view, "skipLabel", skipLabel);
+            Wire(view, "helpButton", helpBtn);
+            Wire(view, "helpPanel", panel);
+            Wire(view, "helpText", helpText);
+            Wire(view, "helpPageLabel", pageLabel);
+            Wire(view, "helpPrevButton", prevBtn);
+            Wire(view, "helpNextButton", nextBtn);
+            Wire(view, "helpCloseButton", closeBtn);
             Wire(Object.FindFirstObjectByType<GameFlowController>(), "titleScreen", view);
+        }
+
+        private static (Button, TMP_Text) MakeButton(Transform parent, string name, TMP_FontAsset font,
+            string label, Vector2 anchoredPos, Vector2 size, float fontSize)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            var rect = go.AddComponent<RectTransform>();
+            rect.anchoredPosition = anchoredPos;
+            rect.sizeDelta = size;
+            var image = go.AddComponent<Image>();
+            image.color = new Color(0.16f, 0.15f, 0.17f, 0.95f);
+            var button = go.AddComponent<Button>();
+            var colors = button.colors;
+            colors.highlightedColor = new Color(0.3f, 0.28f, 0.3f);
+            colors.pressedColor = new Color(0.42f, 0.38f, 0.35f);
+            button.colors = colors;
+
+            TMP_Text text = MakeText(go.transform, "Label", font, label, fontSize,
+                Vector2.zero, size, new Color(0.9f, 0.87f, 0.8f));
+            return (button, text);
         }
 
         private static void SetupGameOver()
@@ -126,7 +198,7 @@ namespace Morae.EditorTools
             if (view == null) view = screenGo.AddComponent<GameOverScreenView>();
 
             GameObject root = BuildScreenUi(screenGo, 25, new Color(0.03f, 0f, 0.01f, 0.96f),
-                "…", null, "E — 다시 밤이 시작된다", out CanvasGroup group, out TMP_Text title);
+                "…", null, "E — 타이틀로", out CanvasGroup group, out TMP_Text title);
             root.SetActive(false);
 
             Wire(view, "root", root);
@@ -141,7 +213,7 @@ namespace Morae.EditorTools
             if (view == null) view = screenGo.AddComponent<EndingScreenView>();
 
             GameObject root = BuildScreenUi(screenGo, 25, new Color(0.35f, 0.33f, 0.28f, 0.96f),
-                "…", null, "E — 처음부터", out CanvasGroup group, out TMP_Text title);
+                "…", null, "E — 타이틀로", out CanvasGroup group, out TMP_Text title);
             root.SetActive(false);
 
             Wire(view, "root", root);
@@ -158,6 +230,11 @@ namespace Morae.EditorTools
             {
                 group = rootTr.GetComponent<CanvasGroup>();
                 titleLabel = rootTr.Find("Title").GetComponent<TMP_Text>();
+                var hint = rootTr.Find("Hint");
+                if (hint != null && !string.IsNullOrEmpty(hintText))
+                {
+                    hint.GetComponent<TMP_Text>().text = hintText; // 문구 개정 반영 (멱등 재실행)
+                }
                 return rootTr.gameObject;
             }
 
@@ -194,8 +271,11 @@ namespace Morae.EditorTools
                 MakeText(root.transform, "Sub", font, subText, 34f,
                     new Vector2(0f, -40f), new Vector2(1600f, 80f), new Color(0.7f, 0.66f, 0.58f));
             }
-            MakeText(root.transform, "Hint", font, hintText, 30f,
-                new Vector2(0f, -320f), new Vector2(1200f, 60f), new Color(0.62f, 0.6f, 0.54f));
+            if (!string.IsNullOrEmpty(hintText))
+            {
+                MakeText(root.transform, "Hint", font, hintText, 30f,
+                    new Vector2(0f, -320f), new Vector2(1200f, 60f), new Color(0.62f, 0.6f, 0.54f));
+            }
 
             return root;
         }

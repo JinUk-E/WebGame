@@ -44,8 +44,8 @@ namespace Morae.Game.Core
         {
             SessionContext.EnsureInitialized();
             Debug.Log($"[FLOW] 세션 시작 — seed={SessionContext.Seed}, skipPrologue={SessionContext.SkipPrologue}");
-            // 첫 실행 = 타이틀(오디오 게이트 §8.2) 입력 대기. 재시작은 게이트 불필요(이미 통과) — 즉시 본편
-            if (titleScreen != null && !SessionContext.SkipPrologue)
+            // 항상 타이틀부터 — 게임 시작 버튼으로만 진입 (2026-08-04 타이틀 개편. 오디오 게이트 §8.2 겸용)
+            if (titleScreen != null)
             {
                 titleScreen.Show(BeginFromTitle);
             }
@@ -103,8 +103,9 @@ namespace Morae.Game.Core
             if (State != GameState.MainLoop) return;
             SetState(GameState.GameOver);
             StopMainLoop();
+            SessionContext.MarkEnded(); // 첫 엔딩 기록 — 타이틀 스킵 토글 노출
             if (player != null) player.EnterTerminalState(PlayerState.Dead);
-            Debug.Log($"[FLOW] 게임오버: {reason} — E로 재시작");
+            Debug.Log($"[FLOW] 게임오버: {reason} — E로 타이틀 복귀");
         }
 
         private void HandleEndingStarted(EndingKind kind)
@@ -112,8 +113,9 @@ namespace Morae.Game.Core
             if (State != GameState.MainLoop) return;
             SetState(GameState.Ending);
             StopMainLoop();
+            SessionContext.MarkEnded();
             if (player != null) player.EnterTerminalState(PlayerState.Escaped);
-            Debug.Log($"[FLOW] 엔딩: {kind} — E로 재시작");
+            Debug.Log($"[FLOW] 엔딩: {kind} — E로 타이틀 복귀");
         }
 
         private void StopMainLoop()
@@ -141,10 +143,10 @@ namespace Morae.Game.Core
 #endif
         }
 
-        /// <summary>재시작 = 씬 리로드 (§3.2 — 손 리셋 금지). 프롤로그 스킵 + 새 시드(지터 변주).</summary>
+        /// <summary>재시작 = 씬 리로드 (§3.2 — 손 리셋 금지). 새 시드(지터 변주), 리로드 후 타이틀부터.</summary>
         public void Restart()
         {
-            SessionContext.PrepareRestart(config == null || config.PrologueSkipAvailable);
+            SessionContext.PrepareRestart();
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 

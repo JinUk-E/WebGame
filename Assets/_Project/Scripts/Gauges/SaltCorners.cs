@@ -19,6 +19,8 @@ namespace Morae.Game.Gauges
 
         public bool IsCollapsed { get; private set; }
         public int GetStage(int corner) => _stages[corner];
+        /// <summary>흑(2단계) = 이미 죽은 결계 — 공격 대상 제외 (2026-08-04 결정: 죽은 귀퉁이 공격은 낭비).</summary>
+        public bool IsDead(int corner) => _stages[corner] >= (int)CornerStage.Black;
 
         public Vector2 GetCornerPosition(int corner)
         {
@@ -26,7 +28,10 @@ namespace Morae.Game.Gauges
             return t != null ? (Vector2)t.position : Vector2.zero;
         }
 
-        /// <summary>기준 위치에서 가장 먼 귀퉁이(dual이면 2곳)를 고른다 — P5 원거리 전조 (§2.2 FarthestFromPlayer).</summary>
+        /// <summary>
+        /// 기준 위치에서 가장 먼 귀퉁이(dual이면 2곳)를 고른다 — P5 원거리 전조 (§2.2 FarthestFromPlayer).
+        /// 흑화(사망) 귀퉁이는 후보 제외 — 살아있는 곳이 부족하면 그만큼 None.
+        /// </summary>
         public void SelectFarthestCorners(Vector2 from, bool dual, out int cornerA, out int cornerB)
         {
             cornerA = CornerIndex.None;
@@ -35,6 +40,7 @@ namespace Morae.Game.Gauges
             float bestB = -1f;
             for (int i = 0; i < CornerIndex.Count; i++)
             {
+                if (IsDead(i)) continue;
                 float sqr = (GetCornerPosition(i) - from).sqrMagnitude;
                 if (sqr > bestA)
                 {

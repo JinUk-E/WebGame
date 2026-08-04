@@ -198,5 +198,40 @@ namespace Morae.Game.Tests.EditMode
             Assert.AreEqual(CornerIndex.BottomRight, a);
             Assert.AreEqual(CornerIndex.TopRight, b);
         }
+
+        [Test]
+        public void Salt_SelectFarthestCorners_ExcludesDeadCorners()
+        {
+            // 흑화(사망) 귀퉁이는 공격 대상 제외 (2026-08-04 결정)
+            Vector2[] positions = { new Vector2(-6f, 3.5f), new Vector2(6f, 3.5f), new Vector2(-6f, -3.5f), new Vector2(6f, -3.5f) };
+            var transforms = new Transform[CornerIndex.Count];
+            for (int i = 0; i < positions.Length; i++)
+            {
+                var go = new GameObject($"corner{i}");
+                _cleanup.Add(go);
+                go.transform.position = positions[i];
+                transforms[i] = go.transform;
+            }
+            Wire(_salt, "cornerTransforms", transforms);
+
+            // 우하(3) 흑화 — 좌상 기준 원래 최원거리였지만 제외되어야 한다
+            _salt.Contaminate(CornerIndex.BottomRight);
+            _salt.Contaminate(CornerIndex.BottomRight);
+            Assert.IsTrue(_salt.IsDead(CornerIndex.BottomRight));
+
+            _salt.SelectFarthestCorners(positions[0], dual: true, out int a, out int b);
+            Assert.AreEqual(CornerIndex.TopRight, a);    // 살아있는 곳 중 최원거리 (가로 12 > 세로 7)
+            Assert.AreEqual(CornerIndex.BottomLeft, b);
+
+            // 좌상(0)만 남기고 전부 흑화 — 후보 1곳뿐이면 A만, dual이어도 B는 None
+            _salt.Contaminate(CornerIndex.TopRight);
+            _salt.Contaminate(CornerIndex.TopRight);
+            _salt.Contaminate(CornerIndex.BottomLeft);
+            _salt.Contaminate(CornerIndex.BottomLeft);
+
+            _salt.SelectFarthestCorners(positions[0], dual: true, out a, out b);
+            Assert.AreEqual(CornerIndex.TopLeft, a);
+            Assert.AreEqual(CornerIndex.None, b);
+        }
     }
 }

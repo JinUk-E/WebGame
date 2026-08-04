@@ -147,6 +147,22 @@ namespace Morae.Game.Core
                 salt.SelectFarthestCorners(from, attack.DualCorner, out cornerA, out cornerB);
             }
 
+            // 흑화 귀퉁이 공격 제외 (2026-08-04 결정): 사전 배정(RandomCorner)이 죽은 곳을 가리키면
+            // 살아있는 귀퉁이로 재지정 — 죽은 결계를 또 때리는 낭비 공격 방지, 압박 유지
+            if (cornerA != CornerIndex.None && salt.IsDead(cornerA)) cornerA = RetargetToLiving(cornerB);
+            if (cornerB != CornerIndex.None && (salt.IsDead(cornerB) || cornerB == cornerA)) cornerB = RetargetToLiving(cornerA);
+            if (cornerB == cornerA) cornerB = CornerIndex.None;
+            if (cornerA == CornerIndex.None)
+            {
+                cornerA = cornerB;
+                cornerB = CornerIndex.None;
+            }
+            if (cornerA == CornerIndex.None)
+            {
+                Debug.Log($"[ATTACK] {attack.Id} 스킵 — 살아있는 귀퉁이 없음 (붕괴 판정 대기)");
+                return;
+            }
+
             StartTelegraph(cornerA, attack.TelegraphDuration, attack.Resolves);
             if (cornerB != CornerIndex.None)
             {
@@ -159,6 +175,45 @@ namespace Morae.Game.Core
             Debug.Log($"[ATTACK] {attack.Id} 전조 시작 — corner {cornerA}"
                       + (cornerB != CornerIndex.None ? $"+{cornerB}" : "")
                       + $" (판정까지 {attack.TelegraphDuration:F1}s)");
+        }
+
+        /// <summary>
+        /// 살아있는 귀퉁이 중 재지정 대상 선택 — 활성 전조가 없는 곳 중 플레이어 최원거리 우선
+        /// (P5 원거리 규칙과 동일 성향: 확인하러 갈 수 없는 곳이 가장 위협적). 후보가 전조뿐이면 겹침 허용.
+        /// </summary>
+        private int RetargetToLiving(int exclude)
+        {
+            Vector2 from = player != null ? (Vector2)player.transform.position : Vector2.zero;
+            int best = CornerIndex.None;
+            float bestSqr = -1f;
+            int bestAny = CornerIndex.None;
+            float bestAnySqr = -1f;
+            for (int i = 0; i < CornerIndex.Count; i++)
+            {
+                if (i == exclude || salt.IsDead(i)) continue;
+                float sqr = (salt.GetCornerPosition(i) - from).sqrMagnitude;
+                if (sqr > bestAnySqr)
+                {
+                    bestAnySqr = sqr;
+                    bestAny = i;
+                }
+                if (HasActiveTelegraph(i)) continue;
+                if (sqr > bestSqr)
+                {
+                    bestSqr = sqr;
+                    best = i;
+                }
+            }
+            return best != CornerIndex.None ? best : bestAny;
+        }
+
+        private bool HasActiveTelegraph(int corner)
+        {
+            for (int i = 0; i < _telegraphs.Count; i++)
+            {
+                if (_telegraphs[i].Corner == corner) return true;
+            }
+            return false;
         }
 
         private void StartTelegraph(int corner, float duration, bool resolves)
