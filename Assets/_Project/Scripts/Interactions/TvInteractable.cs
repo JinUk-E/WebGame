@@ -15,6 +15,7 @@ namespace Morae.Game.Interactions
         public bool IsOn { get; private set; }
 
         public override InteractionKind Kind => InteractionKind.Tap;
+        public override string PromptLabel => IsOn ? "TV 끄기" : "TV 켜기";
 
         public override void OnTap(PlayerController player)
         {

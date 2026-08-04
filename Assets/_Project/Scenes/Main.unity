@@ -1893,6 +1893,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 485091939}
+  - component: {fileID: 485091940}
   m_Layer: 0
   m_Name: PrologueDirector
   m_TagString: Untagged
@@ -1915,6 +1916,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1187066849}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &485091940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 485091938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9d82d8dc4cfe1442a96866b00baeff0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Morae.Game::Morae.Game.Core.PrologueDirector
+  linePauseSec: 0.4
+  lines:
+  - speaker: "\uD560\uC544\uBC84\uC9C0"
+    text: "\uC624\uB298 \uBC24\u2026 \uADF8\uAC83\uC774 \uB110 \uCC3E\uC544\uC62C
+      \uAC8C\uB2E4."
+    duration: 3.5
+  - speaker: "\uD560\uC544\uBC84\uC9C0"
+    text: "\uC774 \uBC29\uC5D0\uC11C \uB098\uAC00\uC9C0 \uB9C8\uB77C. \uB124 \uADC0\uD241\uC774\uC758
+      \uC18C\uAE08\uC774 \uACB0\uACC4\uB2E4 \u2014 \uAC80\uAC8C \uBB3C\uB4E4\uBA74
+      \uBD88\uC0C1 \uC55E\uC5D0\uC11C \uAE30\uB3C4\uD574\uB77C."
+    duration: 5
+  - speaker: "\uD560\uC544\uBC84\uC9C0"
+    text: "\uBD80\uC801\uC740 \uB110 \uD55C \uBC88\uB9CC \uB300\uC2E0 \uC9C0\uCF1C\uC900\uB2E4.
+      \uBD80\uC801\uC774 \uAC80\uAC8C \uD0C0\uBA74\u2026 \uADF8\uAC8C \uB9C8\uC9C0\uB9C9
+      \uACBD\uACE0\uB2E4."
+    duration: 4.5
+  - speaker: "\uD560\uC544\uBC84\uC9C0"
+    text: "\uBA85\uC2EC\uD574\uB77C. \uBB38\uC774 \uC7A0\uAE34 \uB4A4, \uBB38\uBC16\uC5D0\uC11C
+      \uB4E4\uB9AC\uB294 \uC18C\uB9AC\uB294 \uC804\uBD80 \uC758\uC2EC\uD574\uB77C.
+      \uADF8\uAC83\uC740 \uBAA9\uC18C\uB9AC\uB97C \uD6D4\uCE5C\uB2E4."
+    duration: 5
+  - speaker: "\uD560\uC544\uBC84\uC9C0"
+    text: "\uC9C4\uC9DC \uC544\uCE68\uC740 \uC18C\uB9AC\uAC00 \uC544\uB2C8\uB77C
+      \uBE5B\uC73C\uB85C \uC628\uB2E4. \uCC3D\uBC16\uC774 \uBC1D\uC544\uC57C \uC544\uCE68\uC774\uB2E4.
+      \uC2DC\uACC4\uB3C4 \uBBFF\uC9C0 \uB9C8\uB77C."
+    duration: 5
+  - speaker: "\uD560\uC544\uBC84\uC9C0"
+    text: "07\uC2DC \uBC18, \uD560\uBA48\uACFC \uD568\uAED8 \uB370\uB9AC\uB7EC \uC624\uB9C8.
+      \uADF8\uB54C\uAE4C\uC9C0\u2026 \uBC84\uD168\uB77C."
+    duration: 4
+  - speaker: "\uB098"
+    text: "(\uAC78\uC1E0\uB97C \uAC78\uC5C8\uB2E4. \uC774\uC81C \uC774 \uBC29\uC774
+      \uC804\uBD80\uB2E4.)"
+    duration: 3
 --- !u!1 &492195761
 GameObject:
   m_ObjectHideFlags: 0
@@ -2690,6 +2737,7 @@ MonoBehaviour:
   attackScheduler: {fileID: 638019703}
   sanity: {fileID: 638019699}
   player: {fileID: 499805494}
+  prologueDirector: {fileID: 485091940}
 --- !u!114 &638019705
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6594,6 +6642,143 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!1 &1905227132
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1905227133}
+  - component: {fileID: 1905227135}
+  - component: {fileID: 1905227134}
+  m_Layer: 0
+  m_Name: Label
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1905227133
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1905227132}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2100936302}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 0, y: 245}
+  m_SizeDelta: {x: 900, y: 50}
+  m_Pivot: {x: 0.5, y: 0}
+--- !u!114 &1905227134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1905227132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: 
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 1cb313fd9da28094e8ff0b01a81f0ecc, type: 2}
+  m_sharedMaterial: {fileID: -4605665207049783508, guid: 1cb313fd9da28094e8ff0b01a81f0ecc, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 0.8, g: 0.78, b: 0.7, a: 0.9}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: 0
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 30
+  m_fontSizeBase: 30
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 1024
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &1905227135
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1905227132}
+  m_CullTransparentMesh: 1
 --- !u!1 &1923678447
 GameObject:
   m_ObjectHideFlags: 0
@@ -7180,6 +7365,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2100936302}
+  - component: {fileID: 2100936303}
   m_Layer: 0
   m_Name: InteractPrompt
   m_TagString: Untagged
@@ -7198,7 +7384,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1905227133}
   m_Father: {fileID: 1655400909}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -7206,6 +7393,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2100936303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100936301}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca4126bcf5a82484c8c50d7beb21e85e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Morae.Game::Morae.Game.Presentation.InteractPromptView
+  interaction: {fileID: 499805493}
+  label: {fileID: 1905227134}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

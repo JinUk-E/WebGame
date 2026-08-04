@@ -15,6 +15,7 @@ namespace Morae.Game.Interactions
         [SerializeField] private Sanity sanity;
 
         public override InteractionKind Kind => InteractionKind.ChannelLocked;
+        public override string PromptLabel => "요강 (5초 무방비)";
         public override float Duration => Config.JarLockSec;
 
         public override void OnBegin(PlayerController player)

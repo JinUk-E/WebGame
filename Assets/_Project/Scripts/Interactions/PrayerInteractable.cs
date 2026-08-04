@@ -21,6 +21,7 @@ namespace Morae.Game.Interactions
         private int _aimedCorner = CornerIndex.None;
 
         public override InteractionKind Kind => InteractionKind.HoldComplete;
+        public override string PromptLabel => "기도 (홀드+대각 조준)";
         public override float Duration => Config.PrayerChannelSec;
 
         /// <summary>현재 조준 중인 귀퉁이 (0~3, 미지정 -1) — 표현·후속 로직용 읽기 프로퍼티.</summary>

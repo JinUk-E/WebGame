@@ -1,6 +1,7 @@
 using Morae.Game.Core;
 using Morae.Game.Data;
 using Morae.Game.Gauges;
+using Morae.Game.Player;
 using Morae.Game.Presentation;
 using TMPro;
 using UnityEditor;
@@ -35,6 +36,8 @@ namespace Morae.EditorTools
             SetupSaltCornersView();
             SetupLightingController();
             SetupChannelBars();
+            SetupPrologue();
+            SetupInteractPrompt();
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
@@ -186,6 +189,52 @@ namespace Morae.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
             Wire(view, "barRoot", barRoot);
             Wire(view, "fill", fill);
+        }
+
+        private static void SetupPrologue()
+        {
+            var directorGo = GameObject.Find("Directors/PrologueDirector");
+            var director = directorGo.GetComponent<PrologueDirector>();
+            if (director == null) director = directorGo.AddComponent<PrologueDirector>();
+
+            var flow = Object.FindFirstObjectByType<GameFlowController>();
+            Wire(flow, "prologueDirector", director);
+        }
+
+        private static void SetupInteractPrompt()
+        {
+            var holder = GameObject.Find("UI/InteractPrompt");
+            var view = holder.GetComponent<InteractPromptView>();
+            if (view == null) view = holder.AddComponent<InteractPromptView>();
+
+            var labelTr = holder.transform.Find("Label");
+            TextMeshProUGUI label;
+            if (labelTr == null)
+            {
+                var labelGo = new GameObject("Label");
+                labelGo.transform.SetParent(holder.transform, false);
+                label = labelGo.AddComponent<TextMeshProUGUI>();
+                var rect = label.rectTransform;
+                rect.anchorMin = new Vector2(0.5f, 0f);
+                rect.anchorMax = new Vector2(0.5f, 0f);
+                rect.pivot = new Vector2(0.5f, 0f);
+                rect.anchoredPosition = new Vector2(0f, 245f); // 자막(90~230) 위
+                rect.sizeDelta = new Vector2(900f, 50f);
+                label.fontSize = 30f;
+                label.alignment = TextAlignmentOptions.Bottom;
+                label.color = new Color(0.8f, 0.78f, 0.7f, 0.9f);
+                label.text = string.Empty;
+            }
+            else
+            {
+                label = labelTr.GetComponent<TextMeshProUGUI>();
+            }
+
+            var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontAssetPath);
+            if (font != null) label.font = font;
+
+            Wire(view, "interaction", Object.FindFirstObjectByType<PlayerInteraction>());
+            Wire(view, "label", label);
         }
 
         private static Light2D FindLight(string path)

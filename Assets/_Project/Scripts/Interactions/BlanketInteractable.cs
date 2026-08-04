@@ -16,6 +16,7 @@ namespace Morae.Game.Interactions
         private PlayerController _exitingPlayer;
 
         public override InteractionKind Kind => InteractionKind.Tap;
+        public override string PromptLabel => "이불";
 
         // InBlanket에서도 이탈 탭이 가능해야 함 — 단 이탈 지연 중에는 불가
         public override bool CanInteract(PlayerController player)

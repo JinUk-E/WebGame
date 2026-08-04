@@ -19,6 +19,7 @@ namespace Morae.Game.Core
         [SerializeField] private AttackScheduler attackScheduler;
         [SerializeField] private Sanity sanity;
         [SerializeField] private PlayerController player;
+        [SerializeField] private PrologueDirector prologueDirector;
 
         public GameState State { get; private set; } = GameState.Title;
         /// <summary>P7 진짜 신호 발화 여부 — 개문 시 사망/엔딩 분기 기준 (§1.4 DoorState).</summary>
@@ -64,8 +65,14 @@ namespace Morae.Game.Core
         private void EnterPrologue()
         {
             SetState(GameState.Prologue);
-            // PrologueDirector(Epic 2) 완료(걸쇠 잠금) 콜백이 EnterMainLoop()를 호출할 예정 — 지금은 즉시 본편 진입
-            EnterMainLoop();
+            if (prologueDirector != null)
+            {
+                prologueDirector.Play(EnterMainLoop); // 완료(걸쇠 잠금) 콜백 = 본편 진입
+            }
+            else
+            {
+                EnterMainLoop();
+            }
         }
 
         private void EnterMainLoop()

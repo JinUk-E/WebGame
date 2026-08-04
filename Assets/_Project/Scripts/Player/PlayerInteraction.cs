@@ -18,6 +18,9 @@ namespace Morae.Game.Player
 
         public Interactable ActiveTarget { get; private set; }
         public float HoldElapsed { get; private set; }
+
+        /// <summary>프롬프트 표시용 — 진행 중이면 그 대상, 아니면 범위 내 최근접 후보 (InteractPromptView가 소비).</summary>
+        public Interactable CurrentCandidate => ActiveTarget != null ? ActiveTarget : FindNearestTarget();
         public float HoldProgress01
         {
             get

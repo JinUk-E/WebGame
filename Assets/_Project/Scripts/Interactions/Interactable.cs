@@ -18,6 +18,9 @@ namespace Morae.Game.Interactions
 
         public abstract InteractionKind Kind { get; }
 
+        /// <summary>E 프롬프트에 표시되는 행동명 (InteractPromptView가 소비 — D4).</summary>
+        public virtual string PromptLabel => "상호작용";
+
         /// <summary>HoldComplete/ChannelLocked의 소요 시간. 파생이 BalanceConfig 값으로 구현.</summary>
         public virtual float Duration => 0f;
 

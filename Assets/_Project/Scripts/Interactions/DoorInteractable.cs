@@ -29,6 +29,7 @@ namespace Morae.Game.Interactions
             : 0f;
 
         public override InteractionKind Kind => InteractionKind.HoldMaintain;
+        public override string PromptLabel => "귀 대기 (홀드)";
 
         public override bool CanInteract(PlayerController player)
             => Door != DoorState.Open && player.IsMovable;
