@@ -1,0 +1,25 @@
+# 줄바꿈 정규화 (회사/집 왕복 대비)
+* text=auto
+
+# Unity YAML — 텍스트로 취급
+*.meta text
+*.unity text
+*.asset text
+*.prefab text
+*.mat text
+*.anim text
+*.controller text
+*.physicsMaterial2D text
+*.inputactions text
+*.asmdef text
+
+# 바이너리
+*.png binary
+*.jpg binary
+*.psd binary
+*.wav binary
+*.ogg binary
+*.mp3 binary
+*.ttf binary
+*.otf binary
+*.fbx binary
