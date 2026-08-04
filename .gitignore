@@ -12,6 +12,8 @@
 [Oo]bj/
 [Bb]uild/
 [Bb]uilds/
+# 예외: WebGL 배포 산출물(docs/Build)은 Pages 서빙용으로 커밋한다
+!docs/[Bb]uild/
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
 *.log
