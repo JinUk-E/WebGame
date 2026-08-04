@@ -974,6 +974,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 235126998}
+  - component: {fileID: 235126999}
   m_Layer: 0
   m_Name: Room
   m_TagString: Untagged
@@ -1012,6 +1013,29 @@ Transform:
   - {fileID: 1519598325}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &235126999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 235126997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82c09a769f6b77749aa803e3741b77e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Morae.Game::Morae.Game.Presentation.SaltCornersView
+  cornerRenderers:
+  - {fileID: 1527508202}
+  - {fileID: 18134756}
+  - {fileID: 1999488395}
+  - {fileID: 343819908}
+  stageWhite: {r: 0.95, g: 0.95, b: 0.92, a: 1}
+  stageGray: {r: 0.55, g: 0.53, b: 0.5, a: 1}
+  stageBlack: {r: 0.14, g: 0.12, b: 0.12, a: 1}
+  telegraphColor: {r: 0.9, g: 0.15, b: 0.1, a: 1}
+  telegraphPulseHz: 3
+  counterFlashSec: 0.4
 --- !u!1 &240323628
 GameObject:
   m_ObjectHideFlags: 0
@@ -1961,6 +1985,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 509141390}
+  - component: {fileID: 509141391}
   m_Layer: 0
   m_Name: Lighting
   m_TagString: Untagged
@@ -1990,6 +2015,32 @@ Transform:
   - {fileID: 72316559}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &509141391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 509141389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd31f37ed3707364999918c15414017d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Morae.Game::Morae.Game.Presentation.LightingController
+  sequencer: {fileID: 638019702}
+  globalLight: {fileID: 471914745}
+  tvLight: {fileID: 721163029}
+  windowDawnLight: {fileID: 72316560}
+  cornerLights:
+  - {fileID: 1107523508}
+  - {fileID: 1032297868}
+  - {fileID: 1686789153}
+  - {fileID: 835402636}
+  dawnMaxIntensity: 2.5
+  globalBase: 0.12
+  globalDawnBoost: 0.18
+  tvIntensity: 1.1
+  cornerBaseIntensity: 0.25
 --- !u!1 &621296094
 GameObject:
   m_ObjectHideFlags: 0
@@ -2277,6 +2328,7 @@ GameObject:
   - component: {fileID: 638019707}
   - component: {fileID: 638019706}
   - component: {fileID: 638019705}
+  - component: {fileID: 638019710}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -2455,6 +2507,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &638019710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 638019698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7e1192af959607458adb928d07b4b75, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Morae.Game::Morae.Game.Core.EventDirector
+  eventTable: {fileID: 11400000, guid: 943bdf190af0c044db1825f5c60646cb, type: 2}
+  config: {fileID: 11400000, guid: 94b5dc86590437d44b3fc3c6aa682afa, type: 2}
+  sequencer: {fileID: 638019702}
+  sanity: {fileID: 638019699}
 --- !u!1 &641437697
 GameObject:
   m_ObjectHideFlags: 0
@@ -3732,6 +3800,143 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!1 &1289833419
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1289833420}
+  - component: {fileID: 1289833422}
+  - component: {fileID: 1289833421}
+  m_Layer: 0
+  m_Name: Label
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1289833420
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1289833419}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1446345038}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 0, y: 90}
+  m_SizeDelta: {x: 1500, y: 140}
+  m_Pivot: {x: 0.5, y: 0}
+--- !u!114 &1289833421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1289833419}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: 
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 1cb313fd9da28094e8ff0b01a81f0ecc, type: 2}
+  m_sharedMaterial: {fileID: -4605665207049783508, guid: 1cb313fd9da28094e8ff0b01a81f0ecc, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 0.93, g: 0.9, b: 0.85, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: 0
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 40
+  m_fontSizeBase: 40
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 1024
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &1289833422
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1289833419}
+  m_CullTransparentMesh: 1
 --- !u!1 &1329042749
 GameObject:
   m_ObjectHideFlags: 0
@@ -3999,6 +4204,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1446345038}
+  - component: {fileID: 1446345039}
   m_Layer: 0
   m_Name: SubtitleView
   m_TagString: Untagged
@@ -4017,7 +4223,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1289833420}
   m_Father: {fileID: 1655400909}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -4025,6 +4232,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1446345039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1446345037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5923dabadac531b4b9f45b53bc4017c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Morae.Game::Morae.Game.Presentation.SubtitleView
+  label: {fileID: 1289833421}
+  gapSec: 0.15
 --- !u!1 &1457101871
 GameObject:
   m_ObjectHideFlags: 0
