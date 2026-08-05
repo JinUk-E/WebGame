@@ -22,6 +22,8 @@ MonoBehaviour:
     dawnStart: 0
     dawnEnd: 0
     passiveSanityDrain: 0
+    roomLightBiasStart: 0
+    roomLightBiasEnd: 0
   - phaseId: 1
     duration: 60
     gameTimeStartMin: 140
@@ -31,8 +33,10 @@ MonoBehaviour:
     dawnStart: 0
     dawnEnd: 0
     passiveSanityDrain: 0
+    roomLightBiasStart: 0
+    roomLightBiasEnd: 0
   - phaseId: 2
-    duration: 75
+    duration: 70
     gameTimeStartMin: 220
     gameTimeEndMin: 300
     clockMode: 2
@@ -40,8 +44,10 @@ MonoBehaviour:
     dawnStart: 0
     dawnEnd: 0
     passiveSanityDrain: 0
+    roomLightBiasStart: 0
+    roomLightBiasEnd: 0
   - phaseId: 3
-    duration: 40
+    duration: 60
     gameTimeStartMin: 300
     gameTimeEndMin: 340
     clockMode: 2
@@ -49,6 +55,8 @@ MonoBehaviour:
     dawnStart: 0
     dawnEnd: 0
     passiveSanityDrain: 0
+    roomLightBiasStart: 0
+    roomLightBiasEnd: 0.1
   - phaseId: 4
     duration: 85
     gameTimeStartMin: 340
@@ -58,6 +66,8 @@ MonoBehaviour:
     dawnStart: 0
     dawnEnd: 0.3
     passiveSanityDrain: 0.5
+    roomLightBiasStart: 0.02
+    roomLightBiasEnd: -0.06
   - phaseId: 5
     duration: 40
     gameTimeStartMin: 410
@@ -67,8 +77,10 @@ MonoBehaviour:
     dawnStart: 0.3
     dawnEnd: 0.5
     passiveSanityDrain: 0.5
+    roomLightBiasStart: -0.1
+    roomLightBiasEnd: -0.13
   - phaseId: 6
-    duration: 40
+    duration: 30
     gameTimeStartMin: 420
     gameTimeEndMin: 450
     clockMode: 3
@@ -76,8 +88,10 @@ MonoBehaviour:
     dawnStart: 0.5
     dawnEnd: 0.85
     passiveSanityDrain: 0.5
+    roomLightBiasStart: -0.13
+    roomLightBiasEnd: -0.04
   - phaseId: 7
-    duration: 20
+    duration: 15
     gameTimeStartMin: 450
     gameTimeEndMin: 470
     clockMode: 3
@@ -85,3 +99,5 @@ MonoBehaviour:
     dawnStart: 0.85
     dawnEnd: 1
     passiveSanityDrain: 0.5
+    roomLightBiasStart: 0
+    roomLightBiasEnd: 0

@@ -19,6 +19,8 @@ namespace Morae.Game.Player
 
         public PlayerState State { get; private set; } = PlayerState.Idle;
         public bool IsMovable => State == PlayerState.Idle || State == PlayerState.Move;
+        /// <summary>마지막 이동 방향(정규화). 멈춰도 유지 — 표현 계층(PlayerSpriteView)이 읽는 값.</summary>
+        public Vector2 Facing { get; private set; } = Vector2.down;
 
         private void Awake()
         {
@@ -32,6 +34,9 @@ namespace Morae.Game.Player
         private void Update()
         {
             _moveInput = IsMovable ? InputReader.MoveAxis : Vector2.zero;
+
+            // 멈춘 순간의 방향을 유지한다 — 정지 시 스프라이트가 기본 방향으로 튀지 않게
+            if (_moveInput.sqrMagnitude > 0.0001f) Facing = _moveInput.normalized;
 
             if (State == PlayerState.Idle && _moveInput.sqrMagnitude > 0f)
             {

@@ -120,15 +120,19 @@ namespace Morae.EditorTools
         {
             table.EditorSetPhases(new[]
             {
-                //           id         dur  시작   끝    시계 모드          param  dawnS  dawnE  drain
-                new PhaseDef(PhaseId.P1, 60f,  60, 140, ClockMode.Sync,      0,    0f,    0f,    0f),   // 시동 01:00~02:20 정상
-                new PhaseDef(PhaseId.P2, 60f, 140, 220, ClockMode.Frozen,   -5,    0f,    0f,    0f),   // 교란 02:20~03:40 — 03:35에서 멈춤 (5분 멈춤)
-                new PhaseDef(PhaseId.P3, 75f, 220, 300, ClockMode.Offset,   40,    0f,    0f,    0f),   // 본색 03:40~05:00 — +40분 점프 (노골)
-                new PhaseDef(PhaseId.P4, 40f, 300, 340, ClockMode.Offset,  -30,    0f,    0f,    0f),   // 소강 05:00~05:40 — −30분 역행
-                new PhaseDef(PhaseId.P5, 85f, 340, 410, ClockMode.Offset,  -30,    0f,    0.3f,  0.5f), // 절정 05:40~06:50 — 표시 혼란 지속, 상시 −0.5/s 시작
-                new PhaseDef(PhaseId.P6, 40f, 410, 420, ClockMode.Fixed,   445,    0.3f,  0.5f,  0.5f), // 최후의 함정 06:50~07:00 — 07:25 표시 (핵심 기만), 애매한 여명
-                new PhaseDef(PhaseId.P7, 40f, 420, 450, ClockMode.Fixed,   445,    0.5f,  0.85f, 0.5f), // 정적 07:00~07:30 — 시계 정지(07:25 유지), 여명 진행
-                new PhaseDef(PhaseId.P8, 20f, 450, 470, ClockMode.Fixed,   445,    0.85f, 1f,    0.5f), // 탈출 07:30~ — 완연한 아침 밝기
+                // v0.4 개정: P4 소강 40→60s(체감 확보), 총 420s 유지 위해 P3 75→70 / P7 40→30 / P8 20→15.
+                // roomBias = 실내 전역광 가감(연출). 창밖 여명(dawn)은 진실 채널이라 건드리지 않는다.
+                //   P4에서 +0.10까지 밝혀 "힘이 빠졌다"고 착각시키고, P5 진입에서 단차로 떨어뜨린 뒤
+                //   P6에서 기준값보다도 어둡게 만든다 — "해 뜨기 직전이 가장 어둡다".
+                //           id         dur  시작   끝    시계 모드          param  dawnS  dawnE  drain  roomBiasS roomBiasE
+                new PhaseDef(PhaseId.P1, 60f,  60, 140, ClockMode.Sync,      0,    0f,    0f,    0f,    0f,     0f),     // 시동 01:00~02:20 정상
+                new PhaseDef(PhaseId.P2, 60f, 140, 220, ClockMode.Frozen,   -5,    0f,    0f,    0f,    0f,     0f),     // 교란 02:20~03:40 — 03:35에서 멈춤 (5분 멈춤)
+                new PhaseDef(PhaseId.P3, 70f, 220, 300, ClockMode.Offset,   40,    0f,    0f,    0f,    0f,     0f),     // 본색 03:40~05:00 — +40분 점프 (노골)
+                new PhaseDef(PhaseId.P4, 60f, 300, 340, ClockMode.Offset,  -30,    0f,    0f,    0f,    0f,     0.10f),  // 소강 05:00~05:40 — 서서히 밝아짐(안심 유도)
+                new PhaseDef(PhaseId.P5, 85f, 340, 410, ClockMode.Offset,  -30,    0f,    0.3f,  0.5f,  0.02f, -0.06f),  // 절정 05:40~06:50 — 진입 즉시 단차 하강, 상시 −0.5/s 시작
+                new PhaseDef(PhaseId.P6, 40f, 410, 420, ClockMode.Fixed,   445,    0.3f,  0.5f,  0.5f, -0.10f, -0.13f),  // 최후의 함정 06:50~07:00 — 가장 어두움 + 07:25 표시(핵심 기만)
+                new PhaseDef(PhaseId.P7, 30f, 420, 450, ClockMode.Fixed,   445,    0.5f,  0.85f, 0.5f, -0.13f, -0.04f),  // 정적 07:00~07:30 — 여명이 어둠을 밀어냄
+                new PhaseDef(PhaseId.P8, 15f, 450, 470, ClockMode.Fixed,   445,    0.85f, 1f,    0.5f,  0f,     0f),     // 탈출 07:30~ — 완연한 아침 밝기
             });
             EditorUtility.SetDirty(table);
         }
@@ -152,12 +156,15 @@ namespace Morae.EditorTools
                 new AttackDef("atk-p3-1", PhaseId.P3, 12f, jitter, 2, 3, AttackTargetRule.RandomCorner, telegraph, true), // 2~3동시 랜덤 ×3
                 new AttackDef("atk-p3-2", PhaseId.P3, 32f, jitter, 2, 3, AttackTargetRule.RandomCorner, telegraph, true),
                 new AttackDef("atk-p3-3", PhaseId.P3, 55f, jitter, 2, 3, AttackTargetRule.RandomCorner, telegraph, true),
-                new AttackDef("atk-p4-1", PhaseId.P4,  6f, jitter, 1, 2, AttackTargetRule.RandomCorner, telegraph, true), // 1~2동시 ×2, 간격 넓게 (소강 착각)
-                new AttackDef("atk-p4-2", PhaseId.P4, 30f, jitter, 1, 2, AttackTargetRule.RandomCorner, telegraph, true),
-                new AttackDef("atk-p5-1", PhaseId.P5, 10f, jitter, 1, 4, AttackTargetRule.RandomCorner, telegraph, true), // 1~4동시 랜덤 ×4 (절정)
-                new AttackDef("atk-p5-2", PhaseId.P5, 30f, jitter, 1, 4, AttackTargetRule.RandomCorner, telegraph, true),
-                new AttackDef("atk-p5-3", PhaseId.P5, 50f, jitter, 1, 4, AttackTargetRule.RandomCorner, telegraph, true),
-                new AttackDef("atk-p5-4", PhaseId.P5, 67f, jitter, 1, 4, AttackTargetRule.RandomCorner, telegraph, true),
+                // P4(60s) — 공격 2회를 앞쪽에 몰아 마지막 ~20초를 완전 무공격으로 비운다.
+                // 그 침묵 구간에 조명이 최대로 밝아진다 = "힘이 빠졌다"는 착각의 실체.
+                new AttackDef("atk-p4-1", PhaseId.P4,  8f, jitter, 1, 2, AttackTargetRule.RandomCorner, telegraph, true), // 1~2동시 ×2, 간격 넓게 (소강 착각)
+                new AttackDef("atk-p4-2", PhaseId.P4, 34f, jitter, 1, 2, AttackTargetRule.RandomCorner, telegraph, true),
+                // P5 — 진입 직후 즉시 2~4동시로 배신 (조명 단차 하강과 같은 타이밍). 이후 간격도 좁힘.
+                new AttackDef("atk-p5-1", PhaseId.P5,  5f, jitter, 2, 4, AttackTargetRule.RandomCorner, telegraph, true), // 절정 진입 — 최소 2동시 확정
+                new AttackDef("atk-p5-2", PhaseId.P5, 24f, jitter, 1, 4, AttackTargetRule.RandomCorner, telegraph, true),
+                new AttackDef("atk-p5-3", PhaseId.P5, 44f, jitter, 1, 4, AttackTargetRule.RandomCorner, telegraph, true),
+                new AttackDef("atk-p5-4", PhaseId.P5, 66f, jitter, 1, 4, AttackTargetRule.RandomCorner, telegraph, true),
                 // P6 최후의 함정은 스케줄 행 없음 — AttackScheduler 전용 시퀀스(TrapTimeline + BalanceConfig trap*)
             });
             EditorUtility.SetDirty(table);
@@ -201,8 +208,9 @@ namespace Morae.EditorTools
 
                 new EventDef("true-signal", PhaseId.P8, 0f, GameEventKind.TrueSignal, AudioChannel.Door, 0f, true,
                     Lines(Line("", "(할머니의 울음소리와 염불 소리가 겹쳐 들린다 — 창밖이 밝다)", 4f))),
+                // v0.4: 무응답을 "잘 버틴 결말"로 칭찬하지 않는다 — 판별을 포기한 대가를 뒷맛으로 남긴다.
                 new EventDef("rescue-open", PhaseId.P8, 60f, GameEventKind.Scripted, AudioChannel.Door, 0f, false,
-                    Lines(Line("K", "문 열겠네. …밤새 잘 버텼구먼.", 3f))), // P8은 종단 페이즈 — duration(20) 초과 offset 허용 (07:40 K씨 개문)
+                    Lines(Line("K", "…왜 대답이 없었나. 밖에서 한참을 불렀는데.", 3.5f))), // P8은 종단 페이즈 — duration 초과 offset 허용 (07:40 K씨 개문)
             });
             EditorUtility.SetDirty(table);
         }

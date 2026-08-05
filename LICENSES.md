@@ -20,9 +20,11 @@ NHN NAN 2026 사전과제 규정에 따른 AI 생성·외부 에셋 기록.
 
 ## 외부 에셋
 
-| 에셋 | 라이선스 |
-|------|----------|
-| Pretendard 폰트 | SIL OFL 1.1 |
-| `Audio/BGM_*`, `Audio/SFX_Clock`, `Audio/SFX_Door`(원본 m4a), `Audio/SFX_Fear` | 사용자 수급분 — 출처 확인 후 기재 예정 |
+| 에셋 | 출처 | 라이선스 |
+|------|------|----------|
+| Pretendard 폰트 | [github.com/orioncactus/pretendard](https://github.com/orioncactus/pretendard) | SIL OFL 1.1 |
+| **음향 효과·BGM** — `Audio/BGM_01_Main`, `BGM_02_Intro`, `BGM_03_Night`, `BGM_04_Ending`, `SFX_Clock`, `SFX_Door`(원본 m4a → ffmpeg mp3 변환), `SFX_Fear` | **Pixabay** (https://pixabay.com) | Pixabay Content License — 상업적 이용 무료, 출처 표기 불요(기록 목적으로 기재) |
+
+**음성(`Audio/Voice/*`)은 Pixabay 수급분이 아니며 전량 자체 생성물이다** — 위 "AI 생성 오디오" 표 참조. 마찬가지로 `SFX_Heartbeat`·`SFX_Window`는 Python 절차 합성물이다.
 
 AI 코딩: 개발 전 과정에 Claude Code(Anthropic) 사용 — AI 활용 기술 문서에 상세 기록 예정.

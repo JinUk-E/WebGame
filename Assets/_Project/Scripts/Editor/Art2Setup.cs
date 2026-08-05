@@ -145,8 +145,9 @@ namespace Morae.EditorTools
 
         private static void SetupPlayer()
         {
-            // 소년 탑뷰 1장 (70×90px = 0.7×0.9u) — PlayerController가 이동 방향 회전을 하지 않으므로
-            // 방향 중립 스프라이트 단일 배선. SwapSprite가 localScale 1 복원(white32 시대 0.7×0.9 스케일 폐기).
+            // 소년 탑뷰 1장 (70×90px = 0.7×0.9u). 스프라이트 기본 방향은 화면 위(+Y)이며,
+            // 이동 방향 회전은 PlayerSpriteView가 Visual의 로컬 회전으로 처리한다 (루트는 회전 금지 — 콜라이더 유지).
+            // SwapSprite가 localScale 1 복원(white32 시대 0.7×0.9 스케일 폐기).
             var player = GameObject.Find("Player");
             var visual = FindChild(player, "Visual");
             if (player == null || visual == null)
@@ -165,6 +166,7 @@ namespace Morae.EditorTools
             var view = player.GetComponent<PlayerSpriteView>();
             if (view == null) view = player.AddComponent<PlayerSpriteView>();
             Wire(view, "body", sr);
+            Wire(view, "player", player.GetComponent<Morae.Game.Player.PlayerController>()); // 이동 방향 회전용
         }
 
         private static void SetupSaltCorners()
@@ -309,8 +311,11 @@ namespace Morae.EditorTools
             TMP_Text nameLabel = MakeText(namePanel.transform, "NameLabel", font, 32f,
                 Vector2.zero, new Vector2(340f, 80f), new Color(0.93f, 0.9f, 0.85f));
 
+            // 본문은 프레임(1600×360, 로컬 y −180~180) 안에 들어와야 한다.
+            // y=175는 텍스트 박스 절반이 프레임 위로 솟고 NamePanel(y 125~215)과도 겹쳤다 — 중앙 약간 아래로 내림.
+            // x는 초상(오른쪽 끝 −454) 오른편에서 시작하도록 유지.
             TMP_Text body = MakeText(root.transform, "Body", font, 36f,
-                new Vector2(160f, 175f), new Vector2(1140f, 200f), new Color(0.93f, 0.9f, 0.85f));
+                new Vector2(170f, -20f), new Vector2(1120f, 250f), new Color(0.93f, 0.9f, 0.85f));
             body.alignment = TextAlignmentOptions.MidlineLeft;
 
             root.SetActive(false); // DialogueBoxView가 켠다

@@ -176,8 +176,9 @@ MonoBehaviour:
     audioClipMuffled: {fileID: 8300000, guid: d9f7c49a9017e7e4f862eaa43de91f18, type: 3}
     subtitleLines:
     - speaker: K
-      text: "\uBB38 \uC5F4\uACA0\uB124. \u2026\uBC24\uC0C8 \uC798 \uBC84\uD17C\uAD6C\uBA3C."
-      duration: 3
+      text: "\u2026\uC65C \uB300\uB2F5\uC774 \uC5C6\uC5C8\uB098. \uBC16\uC5D0\uC11C
+        \uD55C\uCC38\uC744 \uBD88\uB800\uB294\uB370."
+      duration: 3.5
     detailLines: []
     sanityDelta: 0
     isTrueSignal: 0

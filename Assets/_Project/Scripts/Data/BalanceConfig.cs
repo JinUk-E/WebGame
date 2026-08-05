@@ -46,6 +46,9 @@ namespace Morae.Game.Data
 
         [Header("게임 흐름")]
         [SerializeField] private float rescueAutoOpenDelaySec = 60f;   // 진짜 신호 → K씨 개문 (초안 60)
+        // v0.4 — 진짜 신호를 듣고도 문을 열지 않는 동안 이성 추가 하락.
+        // "끝까지 안 열면 안전"을 깨서 판별 축에 실질 위험을 부여한다 (무응답 60s = 총 −120 상당).
+        [SerializeField] private float trueSignalIgnoreDrainPerSec = 2f;
         [SerializeField] private bool prologueSkipAvailable = true;
 
         public float MoveSpeed => moveSpeed;
@@ -69,6 +72,7 @@ namespace Morae.Game.Data
         public float TalismanSanityRestore => talismanSanityRestore;
         public float TalismanFxSec => talismanFxSec;
         public float RescueAutoOpenDelaySec => rescueAutoOpenDelaySec;
+        public float TrueSignalIgnoreDrainPerSec => trueSignalIgnoreDrainPerSec;
         public bool PrologueSkipAvailable => prologueSkipAvailable;
     }
 }

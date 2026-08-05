@@ -22,6 +22,7 @@ namespace Morae.Game.Presentation
         [SerializeField] private float dawnMaxIntensity = 2.5f;   // 여명 최대 (Dawn01 = 1)
         [SerializeField] private float globalBase = 0.12f;        // §3.1 골격값
         [SerializeField] private float globalDawnBoost = 0.18f;   // 아침이 방 전체를 서서히 밝힌다
+        [SerializeField] private float globalMinIntensity = 0.05f; // 연출 가감이 겹쳐도 암전되지 않는 하한
         [SerializeField] private float tvIntensity = 1.1f;
         [SerializeField] private float cornerBaseIntensity = 0.25f; // 단계별 ×1 / ×0.45 / ×0.1
 
@@ -53,8 +54,14 @@ namespace Morae.Game.Presentation
         {
             if (sequencer == null) return;
             float dawn = sequencer.Dawn01;
+            // 창밖 여명은 진실 채널 — RoomLightBias(연출)를 절대 섞지 않는다.
             if (windowDawnLight != null) windowDawnLight.intensity = dawn * dawnMaxIntensity;
-            if (globalLight != null) globalLight.intensity = globalBase + dawn * globalDawnBoost;
+            // 실내 전역광에만 연출 가감을 얹는다 (P4 밝음 → P5·P6 어두움).
+            if (globalLight != null)
+            {
+                globalLight.intensity = Mathf.Max(globalMinIntensity,
+                    globalBase + dawn * globalDawnBoost + sequencer.RoomLightBias);
+            }
         }
     }
 }

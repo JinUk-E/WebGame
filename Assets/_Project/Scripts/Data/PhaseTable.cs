@@ -16,6 +16,10 @@ namespace Morae.Game.Data
         [SerializeField, Range(0f, 1f)] private float dawnStart; // 창밖 여명 진행도(진실 채널)
         [SerializeField, Range(0f, 1f)] private float dawnEnd;
         [SerializeField] private float passiveSanityDrain;   // 상시 이성 감소(/s) — P4 이후 0.5
+        // 실내 전역광 가감 (창밖 여명과 별개 — 여명은 진실 채널이라 절대 연출로 건드리지 않는다).
+        // P4 소강에서 +로 밝혀 안심시키고 P5~P6에서 −로 떨어뜨린다 ("해 뜨기 직전이 가장 어둡다").
+        [SerializeField] private float roomLightBiasStart;
+        [SerializeField] private float roomLightBiasEnd;
 
         public PhaseId PhaseId => phaseId;
         public float Duration => duration;
@@ -26,13 +30,18 @@ namespace Morae.Game.Data
         public float DawnStart => dawnStart;
         public float DawnEnd => dawnEnd;
         public float PassiveSanityDrain => passiveSanityDrain;
+        public float RoomLightBiasStart => roomLightBiasStart;
+        public float RoomLightBiasEnd => roomLightBiasEnd;
 
         public PhaseDef() { }
 
         /// <summary>에디터 빌더·EditMode 테스트용 생성자. 런타임 게임 코드는 SO 에셋만 읽는다.</summary>
         public PhaseDef(PhaseId phaseId, float duration, int gameTimeStartMin, int gameTimeEndMin,
-            ClockMode clockMode, int clockParamMin, float dawnStart, float dawnEnd, float passiveSanityDrain)
+            ClockMode clockMode, int clockParamMin, float dawnStart, float dawnEnd, float passiveSanityDrain,
+            float roomLightBiasStart = 0f, float roomLightBiasEnd = 0f)
         {
+            this.roomLightBiasStart = roomLightBiasStart;
+            this.roomLightBiasEnd = roomLightBiasEnd;
             this.phaseId = phaseId;
             this.duration = duration;
             this.gameTimeStartMin = gameTimeStartMin;

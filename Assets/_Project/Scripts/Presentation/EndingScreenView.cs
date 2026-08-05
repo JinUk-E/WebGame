@@ -34,11 +34,15 @@ namespace Morae.Game.Presentation
         {
             if (titleLabel != null)
             {
+                // v0.4 — 등급 서열을 명시한다. 무응답(Rescued)은 "버텼지만 판별에 실패한" 하위 결말.
                 titleLabel.text = kind switch
                 {
-                    EndingKind.Perfect => "아침 — 완벽한 밤샘.\n부적은 끝내 타지 않았다.",
-                    EndingKind.Survived => "아침.\n부적이 너 대신 탔다.",
-                    _ => "07:40 — 구조.\nK씨가 문을 열었다. 밤은 끝났다.",
+                    EndingKind.Perfect =>
+                        "완전한 아침\n\n부적은 끝내 타지 않았다.\n너는 진짜 아침을 스스로 알아봤다.",
+                    EndingKind.Survived =>
+                        "아침\n\n부적이 너 대신 탔다.\n그래도 문을 연 것은 너였다.",
+                    _ =>
+                        "구조됨\n\n07:40. 네가 열지 않은 문을 K씨가 열었다.\n진짜 아침은 이미 와 있었다.",
                 };
             }
             _timer = 0f;

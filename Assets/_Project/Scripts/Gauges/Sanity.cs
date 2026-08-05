@@ -23,6 +23,18 @@ namespace Morae.Game.Gauges
         [SerializeField] private Talisman talisman;
 
         private bool _handlingZero;
+        // 진짜 신호가 온 뒤 아직 문을 열지 않은 상태 — 이 동안 추가 드레인 (v0.4, 판별 축 위험 부여)
+        private bool _trueSignalPending;
+
+        private void OnEnable() => GameEvents.TrueSignalStarted += HandleTrueSignalStarted;
+        private void OnDisable() => GameEvents.TrueSignalStarted -= HandleTrueSignalStarted;
+
+        private void HandleTrueSignalStarted()
+        {
+            if (!IsRunning) return;
+            _trueSignalPending = true;
+            Debug.Log("[SANITY] 진짜 신호 — 무응답 드레인 시작");
+        }
 
         public bool IsRunning { get; private set; }
         public float Value { get; private set; }
@@ -40,6 +52,7 @@ namespace Morae.Game.Gauges
             }
             Value = config.SanityMax;
             UrgeActive = false;
+            _trueSignalPending = false;
             IsRunning = true;
             GameEvents.RaiseSanityChanged(1f);
         }
@@ -78,6 +91,9 @@ namespace Morae.Game.Gauges
 
             PhaseDef phase = sequencer != null ? sequencer.CurrentPhaseDef : null;
             if (phase != null) delta -= phase.PassiveSanityDrain * dt;
+
+            // 진짜 신호를 듣고도 문을 열지 않는 동안 — "기다리기만 하면 안전"을 깬다
+            if (_trueSignalPending) delta -= config.TrueSignalIgnoreDrainPerSec * dt;
 
             PlayerState state = player.State;
             if (state == PlayerState.ListeningAtDoor || state == PlayerState.OpeningDoor)

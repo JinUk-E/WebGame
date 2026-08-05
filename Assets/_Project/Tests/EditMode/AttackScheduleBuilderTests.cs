@@ -21,12 +21,12 @@ namespace Morae.Game.Tests.EditMode
         {
             new PhaseDef(PhaseId.P1, 60f,  60, 140, ClockMode.Sync,    0, 0f,   0f,   0f),
             new PhaseDef(PhaseId.P2, 60f, 140, 220, ClockMode.Frozen, -5, 0f,   0f,   0f),
-            new PhaseDef(PhaseId.P3, 75f, 220, 300, ClockMode.Offset, 40, 0f,   0f,   0f),
-            new PhaseDef(PhaseId.P4, 40f, 300, 340, ClockMode.Offset, -30, 0f,  0f,   0f),
+            new PhaseDef(PhaseId.P3, 70f, 220, 300, ClockMode.Offset, 40, 0f,   0f,   0f),
+            new PhaseDef(PhaseId.P4, 60f, 300, 340, ClockMode.Offset, -30, 0f,  0f,   0f),
             new PhaseDef(PhaseId.P5, 85f, 340, 410, ClockMode.Offset, -30, 0f,  0.3f, 0.5f),
             new PhaseDef(PhaseId.P6, 40f, 410, 420, ClockMode.Fixed, 445, 0.3f, 0.5f, 0.5f),
-            new PhaseDef(PhaseId.P7, 40f, 420, 450, ClockMode.Fixed, 445, 0.5f, 0.85f, 0.5f),
-            new PhaseDef(PhaseId.P8, 20f, 450, 470, ClockMode.Fixed, 445, 0.85f, 1f,  0.5f),
+            new PhaseDef(PhaseId.P7, 30f, 420, 450, ClockMode.Fixed, 445, 0.5f, 0.85f, 0.5f),
+            new PhaseDef(PhaseId.P8, 15f, 450, 470, ClockMode.Fixed, 445, 0.85f, 1f,  0.5f),
         };
 
         // 명세 v0.3 공격 열: 3/3/3/2/4 = 15행 (P6 함정 2웨이브는 코드 시퀀스 — 테이블 밖)
@@ -41,12 +41,12 @@ namespace Morae.Game.Tests.EditMode
             new AttackDef("atk-p3-1", PhaseId.P3, 12f, Jitter, 2, 3, AttackTargetRule.RandomCorner, Telegraph, true),
             new AttackDef("atk-p3-2", PhaseId.P3, 32f, Jitter, 2, 3, AttackTargetRule.RandomCorner, Telegraph, true),
             new AttackDef("atk-p3-3", PhaseId.P3, 55f, Jitter, 2, 3, AttackTargetRule.RandomCorner, Telegraph, true),
-            new AttackDef("atk-p4-1", PhaseId.P4,  6f, Jitter, 1, 2, AttackTargetRule.RandomCorner, Telegraph, true),
-            new AttackDef("atk-p4-2", PhaseId.P4, 30f, Jitter, 1, 2, AttackTargetRule.RandomCorner, Telegraph, true),
-            new AttackDef("atk-p5-1", PhaseId.P5, 10f, Jitter, 1, 4, AttackTargetRule.RandomCorner, Telegraph, true),
-            new AttackDef("atk-p5-2", PhaseId.P5, 30f, Jitter, 1, 4, AttackTargetRule.RandomCorner, Telegraph, true),
-            new AttackDef("atk-p5-3", PhaseId.P5, 50f, Jitter, 1, 4, AttackTargetRule.RandomCorner, Telegraph, true),
-            new AttackDef("atk-p5-4", PhaseId.P5, 67f, Jitter, 1, 4, AttackTargetRule.RandomCorner, Telegraph, true),
+            new AttackDef("atk-p4-1", PhaseId.P4,  8f, Jitter, 1, 2, AttackTargetRule.RandomCorner, Telegraph, true),
+            new AttackDef("atk-p4-2", PhaseId.P4, 34f, Jitter, 1, 2, AttackTargetRule.RandomCorner, Telegraph, true),
+            new AttackDef("atk-p5-1", PhaseId.P5,  5f, Jitter, 2, 4, AttackTargetRule.RandomCorner, Telegraph, true),
+            new AttackDef("atk-p5-2", PhaseId.P5, 24f, Jitter, 1, 4, AttackTargetRule.RandomCorner, Telegraph, true),
+            new AttackDef("atk-p5-3", PhaseId.P5, 44f, Jitter, 1, 4, AttackTargetRule.RandomCorner, Telegraph, true),
+            new AttackDef("atk-p5-4", PhaseId.P5, 66f, Jitter, 1, 4, AttackTargetRule.RandomCorner, Telegraph, true),
         };
 
         private static float PhaseDuration(PhaseDef[] phases, PhaseId id)

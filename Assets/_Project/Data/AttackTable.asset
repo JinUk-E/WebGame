@@ -96,7 +96,7 @@ MonoBehaviour:
     resolves: 1
   - id: atk-p4-1
     phaseId: 3
-    baseOffset: 6
+    baseOffset: 8
     jitterRatio: 0.2
     minCorners: 1
     maxCorners: 2
@@ -105,7 +105,7 @@ MonoBehaviour:
     resolves: 1
   - id: atk-p4-2
     phaseId: 3
-    baseOffset: 30
+    baseOffset: 34
     jitterRatio: 0.2
     minCorners: 1
     maxCorners: 2
@@ -114,16 +114,16 @@ MonoBehaviour:
     resolves: 1
   - id: atk-p5-1
     phaseId: 4
-    baseOffset: 10
+    baseOffset: 5
     jitterRatio: 0.2
-    minCorners: 1
+    minCorners: 2
     maxCorners: 4
     targetRule: 0
     telegraphDuration: 3
     resolves: 1
   - id: atk-p5-2
     phaseId: 4
-    baseOffset: 30
+    baseOffset: 24
     jitterRatio: 0.2
     minCorners: 1
     maxCorners: 4
@@ -132,7 +132,7 @@ MonoBehaviour:
     resolves: 1
   - id: atk-p5-3
     phaseId: 4
-    baseOffset: 50
+    baseOffset: 44
     jitterRatio: 0.2
     minCorners: 1
     maxCorners: 4
@@ -141,7 +141,7 @@ MonoBehaviour:
     resolves: 1
   - id: atk-p5-4
     phaseId: 4
-    baseOffset: 67
+    baseOffset: 66
     jitterRatio: 0.2
     minCorners: 1
     maxCorners: 4

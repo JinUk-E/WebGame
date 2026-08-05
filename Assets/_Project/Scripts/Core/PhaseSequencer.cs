@@ -30,6 +30,8 @@ namespace Morae.Game.Core
         public int DisplayedClockMin { get; private set; }
         /// <summary>창밖 여명 진행도 0~1 (진실 채널) — LightingController가 읽는 값.</summary>
         public float Dawn01 { get; private set; }
+        /// <summary>실내 전역광 가감(연출 채널) — 여명과 무관. P4 +밝음 → P5·P6 −어두움.</summary>
+        public float RoomLightBias { get; private set; }
 
         private void Awake()
         {
@@ -86,6 +88,7 @@ namespace Morae.Game.Core
             float t = _current.Duration > 0f ? Mathf.Clamp01(PhaseElapsed / _current.Duration) : 1f;
             TrueGameTimeMin = Mathf.Lerp(_current.GameTimeStartMin, _current.GameTimeEndMin, t);
             Dawn01 = Mathf.Lerp(_current.DawnStart, _current.DawnEnd, t);
+            RoomLightBias = Mathf.Lerp(_current.RoomLightBiasStart, _current.RoomLightBiasEnd, t);
             DisplayedClockMin = ClockDisplayModel.DisplayedMinutes(TrueGameTimeMin, _current);
         }
     }
