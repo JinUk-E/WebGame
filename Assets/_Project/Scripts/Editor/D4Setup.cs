@@ -19,6 +19,11 @@ namespace Morae.EditorTools
         private const string ScenePath = "Assets/_Project/Scenes/Main.unity";
         private const string FontAssetPath = "Assets/_Project/Art/Fonts/Pretendard-Regular SDF.asset";
         private const string HeartSpritePath = "Assets/_Project/Art/UI/heart128.png";
+        // 아트 2단계 — 절차 생성 UI 스킨 (붓 자국 빈 판. 절차생성-스프라이트 노트 참조)
+        private const string ButtonNormalPath = "Assets/_Project/Art/UI/ui_button_normal.png";
+        private const string ButtonHoverPath = "Assets/_Project/Art/UI/ui_button_hover.png";
+        private const string SliderTrackPath = "Assets/_Project/Art/UI/ui_slider_track.png";
+        private const string SliderHandlePath = "Assets/_Project/Art/UI/ui_slider_handle.png";
 
         [MenuItem("Morae/Setup D4 (심장 UI·화면 3종)")]
         public static void Setup()
@@ -126,12 +131,14 @@ namespace Morae.EditorTools
             root.SetActive(false); // GameFlow.Show가 켠다
 
             (Button startBtn, _) = MakeButton(root.transform, "StartButton", font, "게임 시작",
-                new Vector2(0f, -150f), new Vector2(340f, 76f), 36f);
+                new Vector2(0f, -150f), new Vector2(340f, 76f), 36f, skinned: true);
 
             // 프롤로그 스킵 토글 — 첫 엔딩 후에만 노출 (TitleScreenView.Show가 제어)
             (Button skipBtn, TMP_Text skipLabel) = MakeButton(root.transform, "SkipRow", font, "인트로 스킵: 꺼짐",
-                new Vector2(0f, -250f), new Vector2(300f, 54f), 26f);
+                new Vector2(0f, -250f), new Vector2(300f, 54f), 26f, skinned: true);
             skipBtn.gameObject.SetActive(false);
+
+            BuildVolumeSlider(root.transform, font);
 
             (Button helpBtn, _) = MakeButton(root.transform, "HelpButton", font, "?",
                 new Vector2(880f, 460f), new Vector2(64f, 64f), 34f);
@@ -174,7 +181,7 @@ namespace Morae.EditorTools
         }
 
         private static (Button, TMP_Text) MakeButton(Transform parent, string name, TMP_FontAsset font,
-            string label, Vector2 anchoredPos, Vector2 size, float fontSize)
+            string label, Vector2 anchoredPos, Vector2 size, float fontSize, bool skinned = false)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
@@ -182,16 +189,84 @@ namespace Morae.EditorTools
             rect.anchoredPosition = anchoredPos;
             rect.sizeDelta = size;
             var image = go.AddComponent<Image>();
-            image.color = new Color(0.16f, 0.15f, 0.17f, 0.95f);
             var button = go.AddComponent<Button>();
-            var colors = button.colors;
-            colors.highlightedColor = new Color(0.3f, 0.28f, 0.3f);
-            colors.pressedColor = new Color(0.42f, 0.38f, 0.35f);
-            button.colors = colors;
+
+            var normalSprite = skinned ? AssetDatabase.LoadAssetAtPath<Sprite>(ButtonNormalPath) : null;
+            var hoverSprite = skinned ? AssetDatabase.LoadAssetAtPath<Sprite>(ButtonHoverPath) : null;
+            if (normalSprite != null && hoverSprite != null)
+            {
+                // 아트 2단계 — 붓 자국 판 스킨 (normal/hover 같은 시드라 상태 전환 시 형태 안 튐)
+                image.sprite = normalSprite;
+                image.color = Color.white;
+                button.transition = Selectable.Transition.SpriteSwap;
+                button.spriteState = new SpriteState
+                {
+                    highlightedSprite = hoverSprite,
+                    pressedSprite = hoverSprite,
+                    selectedSprite = hoverSprite,
+                };
+            }
+            else
+            {
+                image.color = new Color(0.16f, 0.15f, 0.17f, 0.95f);
+                var colors = button.colors;
+                colors.highlightedColor = new Color(0.3f, 0.28f, 0.3f);
+                colors.pressedColor = new Color(0.42f, 0.38f, 0.35f);
+                button.colors = colors;
+            }
 
             TMP_Text text = MakeText(go.transform, "Label", font, label, fontSize,
                 Vector2.zero, size, new Color(0.9f, 0.87f, 0.8f));
             return (button, text);
+        }
+
+        /// <summary>타이틀 볼륨 슬라이더 (아트 2단계 — 스킨 트랙/핸들 + VolumeSliderView(AudioListener.volume)).</summary>
+        private static void BuildVolumeSlider(Transform parent, TMP_FontAsset font)
+        {
+            var go = new GameObject("VolumeSlider");
+            go.transform.SetParent(parent, false);
+            var rect = go.AddComponent<RectTransform>();
+            rect.anchoredPosition = new Vector2(30f, -340f);
+            rect.sizeDelta = new Vector2(400f, 36f);
+
+            var track = new GameObject("Track");
+            track.transform.SetParent(go.transform, false);
+            var trackRect = track.AddComponent<RectTransform>();
+            trackRect.anchorMin = new Vector2(0f, 0.5f);
+            trackRect.anchorMax = new Vector2(1f, 0.5f);
+            trackRect.offsetMin = new Vector2(0f, -12f);
+            trackRect.offsetMax = new Vector2(0f, 12f);
+            var trackImage = track.AddComponent<Image>();
+            trackImage.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(SliderTrackPath);
+            trackImage.raycastTarget = true; // 트랙 클릭 점프 이동
+
+            var handleArea = new GameObject("HandleArea");
+            handleArea.transform.SetParent(go.transform, false);
+            var areaRect = handleArea.AddComponent<RectTransform>();
+            areaRect.anchorMin = Vector2.zero;
+            areaRect.anchorMax = Vector2.one;
+            areaRect.offsetMin = new Vector2(18f, 0f);
+            areaRect.offsetMax = new Vector2(-18f, 0f);
+
+            var handle = new GameObject("Handle");
+            handle.transform.SetParent(handleArea.transform, false);
+            var handleRect = handle.AddComponent<RectTransform>();
+            handleRect.sizeDelta = new Vector2(36f, 36f);
+            var handleImage = handle.AddComponent<Image>();
+            handleImage.sprite = AssetDatabase.LoadAssetAtPath<Sprite>(SliderHandlePath);
+
+            var slider = go.AddComponent<Slider>();
+            slider.targetGraphic = handleImage;
+            slider.handleRect = handleRect;
+            slider.minValue = 0f;
+            slider.maxValue = 1f;
+            slider.value = 1f;
+
+            var view = go.AddComponent<VolumeSliderView>();
+            Wire(view, "slider", slider);
+
+            MakeText(parent, "VolumeLabel", font, "소리", 26f,
+                new Vector2(-260f, -340f), new Vector2(120f, 40f), new Color(0.62f, 0.6f, 0.54f));
         }
 
         private static void SetupGameOver()

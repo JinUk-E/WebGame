@@ -16,6 +16,8 @@ namespace Morae.Game.Presentation
     {
         [SerializeField] private TMP_Text label;
         [SerializeField] private float gapSec = 0.15f; // 줄 사이 공백 — 줄 바뀜을 시각적으로 구분
+        // 아트 2단계 — 이 prefix의 이벤트는 DialogueBoxView(프롤로그 대화상자)가 소화한다 (id 규약: _shared.md)
+        [SerializeField] private string dialogueIdPrefix = "prologue-";
 
         private readonly Queue<SubtitleLine> _queue = new Queue<SubtitleLine>();
         private float _remaining;
@@ -44,6 +46,11 @@ namespace Morae.Game.Presentation
 
         private void HandleGameEventFired(EventDef def)
         {
+            if (!string.IsNullOrEmpty(dialogueIdPrefix) && def.Id != null
+                && def.Id.StartsWith(dialogueIdPrefix, System.StringComparison.Ordinal))
+            {
+                return; // 프롤로그 대사 — 대화상자 담당 (이중 표시 방지)
+            }
             bool detail = _listening && !_tvOn && def.DetailLines != null && def.DetailLines.Length > 0;
             SubtitleLine[] lines = detail ? def.DetailLines : def.SubtitleLines;
             if (lines == null) return;

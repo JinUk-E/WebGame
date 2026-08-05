@@ -6,13 +6,16 @@ namespace Morae.Game.Presentation
 {
     /// <summary>
     /// 소금 귀퉁이 시각화 (표현 계층 — 구독만, §1.2. D3).
-    /// 오염 단계 3색(백/회/흑) + 전조 중 적색 펄스 + 상쇄 성공 백색 플래시.
+    /// 오염 단계는 스프라이트 4종 스왑(백/회/흑/심화 — 아트 2단계) + 전조 중 적색 펄스 + 상쇄 성공 백색 플래시.
+    /// stageSprites 미배선 시 구 방식(색 틴트) 폴백 — 스프라이트 스왑 시 틴트는 white 기준 곱연산.
     /// 인덱스 규약: 0=좌상 1=우상 2=좌하 3=우하 (CornerIndex — SaltCorners와 동일).
     /// 전조·플래시 타이밍은 게임플레이 시간(Time.time) — F1 배속과 동기.
     /// </summary>
     public sealed class SaltCornersView : MonoBehaviour
     {
         [SerializeField] private SpriteRenderer[] cornerRenderers = new SpriteRenderer[CornerIndex.Count];
+        // 아트 2단계 — 단계별 스프라이트 (0=백 1=회 2=흑 3=심화). 비어 있으면 색 틴트 폴백
+        [SerializeField] private Sprite[] stageSprites = new Sprite[4];
         [SerializeField] private Color stageWhite = new Color(0.95f, 0.95f, 0.92f);
         [SerializeField] private Color stageGray = new Color(0.55f, 0.53f, 0.5f);
         [SerializeField] private Color stageBlack = new Color(0.14f, 0.12f, 0.12f);
@@ -73,9 +76,22 @@ namespace Morae.Game.Presentation
                 if (sr == null) continue;
 
                 // stage 3 = 흑+심화 (CornerStage.DeepBlack — SaltCorners가 심화 시 발행, v0.3)
-                Color baseColor = _stages[i] >= 3 ? stageDeepBlack
-                    : _stages[i] == 2 ? stageBlack
-                    : _stages[i] == 1 ? stageGray : stageWhite;
+                int stage = Mathf.Clamp(_stages[i], 0, 3);
+                Sprite stageSprite = stageSprites != null && stage < stageSprites.Length ? stageSprites[stage] : null;
+
+                Color baseColor;
+                if (stageSprite != null)
+                {
+                    // 스프라이트 스왑 방식 — 틴트는 white 기준 (전조·플래시·조준 블렌드가 곱으로 얹힘)
+                    if (sr.sprite != stageSprite) sr.sprite = stageSprite;
+                    baseColor = Color.white;
+                }
+                else
+                {
+                    baseColor = stage >= 3 ? stageDeepBlack
+                        : stage == 2 ? stageBlack
+                        : stage == 1 ? stageGray : stageWhite;
+                }
 
                 Color color;
                 if (Time.time < _telegraphUntil[i])
