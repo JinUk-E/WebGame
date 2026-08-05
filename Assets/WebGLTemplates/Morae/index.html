@@ -111,12 +111,18 @@
       var canvas = document.querySelector("#unity-canvas");
 
       // ---- 모바일 제스처 차단 (touch-action만으로 안 막히는 것들) ----
-      document.addEventListener("touchmove", function (e) {
-        if (e.touches.length > 1) e.preventDefault(); // 핀치 줌
-      }, { passive: false });
-      document.addEventListener("gesturestart", function (e) { e.preventDefault(); }, { passive: false });
-      document.addEventListener("dblclick", function (e) { e.preventDefault(); }, { passive: false });
-      document.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+      // 데스크톱 동작 유지를 위해 터치 기기에서만 건다 — 우클릭 메뉴·더블클릭은 데스크톱에 그대로 둔다
+      var isTouchDevice = !!(window.matchMedia
+        && window.matchMedia('(pointer: coarse)').matches
+        && window.matchMedia('(hover: none)').matches);
+      if (isTouchDevice) {
+        document.addEventListener("touchmove", function (e) {
+          if (e.touches.length > 1) e.preventDefault(); // 핀치 줌
+        }, { passive: false });
+        document.addEventListener("gesturestart", function (e) { e.preventDefault(); }, { passive: false });
+        document.addEventListener("dblclick", function (e) { e.preventDefault(); }, { passive: false });
+        document.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+      }
       document.getElementById("rotate-dismiss").addEventListener("click", function () {
         document.body.classList.add("rotate-dismissed");
       });
