@@ -12,7 +12,7 @@ from artgen_common import (
     CHAR, HANJI_BRIGHT, HANJI_DIM, TALISMAN_PAPER, TALISMAN_RED, TV_GLOW,
     WOOD_DARK, WOOD_LIGHT, apply_grain, apply_streaks, blob_poly, canvas,
     clip_to, contact_shadow, downscale, merge, mix, mul, overlay,
-    radial_mask, rgba, save, vgrad, wobble_rect_poly,
+    radial_mask, rgba, rim_from_mask, save, vgrad, wobble_rect_poly,
 )
 
 S = 4  # 슈퍼샘플 배율 (공통)
@@ -522,6 +522,114 @@ def gen_talisman_wall():
     save(img, "Props/prop_talisman_wall.png")
 
 
+# ---------------------------------------------------------------- 플레이어 소년 (0.7×0.9u → 70x90, 탑뷰)
+# 어두운 티셔츠 톤 — 밤 남색(NIGHT_LIGHT)보다 반 톤 밝게, 장판(한지)과 명도 분리
+PLAYER_TEE = (56, 60, 76)
+PLAYER_TEE_HI = (80, 86, 106)
+PLAYER_TEE_SH = (36, 39, 50)
+PLAYER_HAIR = (46, 38, 31)        # 까까머리 — 짧은 모발 아래 두피가 비치는 갈흑
+PLAYER_HAIR_HI = (96, 80, 63)
+PLAYER_SKIN = (186, 158, 126)
+PLAYER_PANTS = (34, 34, 42)
+
+
+def gen_player():
+    """탑뷰(정수리+어깨) 소년. PlayerController는 이동 방향 회전을 하지 않으므로
+    방향 중립(좌우 대칭·정수리 중심) 1장으로 제작 — 회전 도입 시에도 이 1장을 Z회전만 하면 됨."""
+    rng = random.Random(42060)
+    W, H = 70, 90
+    w, h = W * S, H * S
+    img = canvas(w, h)
+    cx = w / 2
+
+    # --- 발끝 힌트 (어깨 밑으로 살짝 — 좌우 대칭) ---
+    feet, fd = overlay(img)
+    for sx in (-1, 1):
+        fx = cx + sx * 9 * S
+        fd.ellipse([fx - 6 * S, h * 0.86 - 4 * S, fx + 6 * S, h * 0.86 + 5 * S],
+                   fill=rgba(PLAYER_PANTS, 255))
+    img = merge(img, feet)
+
+    # --- 어깨·등 (위에서 본 티셔츠) ---
+    t_cy, t_rx, t_ry = h * 0.58, w * 0.43, h * 0.27
+    t_poly = blob_poly(rng, cx, t_cy, t_rx, t_ry, irregularity=0.05, n=32)
+    t_mask = Image.new("L", (w, h), 0)
+    ImageDraw.Draw(t_mask).polygon(t_poly, fill=255)
+    torso = vgrad(w, h, PLAYER_TEE_HI, PLAYER_TEE_SH).convert("RGBA")
+    torso.putalpha(t_mask)
+    # 등 중앙 능선광 (위에서 조명 — 척추 라인 살짝 밝게)
+    ridge = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    ImageDraw.Draw(ridge).ellipse(
+        [cx - t_rx * 0.30, t_cy - t_ry * 0.55, cx + t_rx * 0.30, t_cy + t_ry * 0.75],
+        fill=rgba(mix(PLAYER_TEE_HI, (255, 255, 255), 0.12), 90))
+    ridge = ridge.filter(ImageFilter.GaussianBlur(4 * S))
+    clip_to(ridge, t_mask)
+    torso = Image.alpha_composite(torso, ridge)
+    # 티셔츠 주름 — 어깨선 따라 얕은 그늘 줄 (좌우 대칭 쌍)
+    folds, fo = overlay(torso)
+    for sx in (-1, 1):
+        fo.arc([cx + sx * t_rx * 0.15 - t_rx * 0.55, t_cy - t_ry * 0.9,
+                cx + sx * t_rx * 0.15 + t_rx * 0.55, t_cy + t_ry * 0.5],
+               200 if sx < 0 else 280, 340 if sx < 0 else 60,
+               fill=rgba(mul(PLAYER_TEE, 0.62), 70), width=2 * S)
+    folds.paste(folds.filter(ImageFilter.GaussianBlur(S)), (0, 0))
+    clip_to(folds, t_mask)
+    torso = Image.alpha_composite(torso, folds)
+    img = Image.alpha_composite(img, torso)
+
+    # --- 머리 (정수리 — 까까머리) ---
+    h_cy, h_r = h * 0.33, w * 0.285
+    head_mask = Image.new("L", (w, h), 0)
+    hd = ImageDraw.Draw(head_mask)
+    hd.ellipse([cx - h_r, h_cy - h_r, cx + h_r, h_cy + h_r], fill=255)
+    # 귀 — 좌우 대칭 (소년 실루엣 읽힘 포인트)
+    for sx in (-1, 1):
+        hd.ellipse([cx + sx * h_r - 4 * S, h_cy - 5 * S, cx + sx * h_r + 4 * S, h_cy + 7 * S], fill=255)
+    head = vgrad(w, h, mix(PLAYER_HAIR, PLAYER_HAIR_HI, 0.35), mul(PLAYER_HAIR, 0.8)).convert("RGBA")
+    head.putalpha(head_mask)
+    # 귀만 피부톤 덮기
+    ears, ed = overlay(head)
+    for sx in (-1, 1):
+        ed.ellipse([cx + sx * h_r - 3 * S, h_cy - 4 * S, cx + sx * h_r + 3 * S, h_cy + 6 * S],
+                   fill=rgba(mul(PLAYER_SKIN, 0.82), 235))
+    head = merge(head, ears, blur=S // 2)
+    # 정수리 하이라이트 (두피 비침 — 중앙 위 약간 좌측)
+    crown = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    ImageDraw.Draw(crown).ellipse(
+        [cx - h_r * 0.55 - 3 * S, h_cy - h_r * 0.62 - 3 * S, cx + h_r * 0.35 - 3 * S, h_cy + h_r * 0.05],
+        fill=rgba(mix(PLAYER_HAIR_HI, PLAYER_SKIN, 0.35), 105))
+    crown = crown.filter(ImageFilter.GaussianBlur(3 * S))
+    clip_to(crown, head_mask)
+    head = Image.alpha_composite(head, crown)
+    # 가마 — 정수리 소용돌이 점
+    whorl, wd = overlay(head)
+    wd.ellipse([cx + 2 * S - 2 * S, h_cy - h_r * 0.30 - 2 * S, cx + 2 * S + 2 * S, h_cy - h_r * 0.30 + 2 * S],
+               fill=rgba(mul(PLAYER_HAIR, 0.65), 150))
+    head = merge(head, whorl, blur=S // 2)
+    # 머리가 어깨 위에 얹힘 + 머리 밑 접촉 그늘
+    neck_sh = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    ImageDraw.Draw(neck_sh).ellipse(
+        [cx - h_r * 1.05, h_cy - h_r * 0.2, cx + h_r * 1.05, h_cy + h_r * 1.35],
+        fill=rgba((0, 0, 0), 80))
+    neck_sh = neck_sh.filter(ImageFilter.GaussianBlur(4 * S))
+    clip_to(neck_sh, t_mask)
+    img = Image.alpha_composite(img, neck_sh)
+    img = Image.alpha_composite(img, head)
+
+    # --- 미세 림라이트 (좌상단 청백 — 초상·소품과 동일 방향) ---
+    sil = ImageChops.lighter(t_mask, head_mask)
+    rim = rim_from_mask(sil, dx=2 * S, dy=3 * S, blur=2 * S)
+    rim_layer = Image.new("RGBA", (w, h), rgba(mix(TV_GLOW, (255, 255, 255), 0.25), 0))
+    rim_layer.putalpha(rim.point(lambda v: v * 68 // 255))
+    img = Image.alpha_composite(img, rim_layer)
+
+    # --- 접지 그림자 → 질감 → 저장 ---
+    img = contact_shadow(img, [cx - t_rx * 0.95, t_cy + t_ry * 0.30, cx + t_rx * 0.95, h * 0.95],
+                         alpha=55, blur=4 * S)
+    img = apply_grain(img, opacity=0.07, sigma=26)
+    save(downscale(img, S), "Props/player_boy.png")
+
+
 def run():
     print("[Props]")
     gen_salt("white", 42001)
@@ -534,6 +642,7 @@ def run():
     gen_blanket()
     gen_clock()
     gen_talisman_wall()
+    gen_player()
 
 
 if __name__ == "__main__":

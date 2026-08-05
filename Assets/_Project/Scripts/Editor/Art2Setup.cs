@@ -12,7 +12,7 @@ namespace Morae.EditorTools
     /// <summary>
     /// 아트 2단계 — 절차 생성 스프라이트(34종)를 저장된 Main.unity에 배선 (씬 재생성 없음 — 수동 배선 보존, D3/D4 방식. 멱등).
     /// ⚠ MainSceneBuilder.Build(씬 재생성)는 호출하지 않는다.
-    /// 내용: 임포트 설정 강제 → 방·소품 스프라이트 교체 → 시계 아날로그화 → TV/이불 스왑 뷰 →
+    /// 내용: 임포트 설정 강제 → 방·소품 스프라이트 교체 → 플레이어(소년 탑뷰 + InBlanket 숨김) → 시계 아날로그화 → TV/이불 스왑 뷰 →
     ///       프롤로그 대화상자 → 부적 상태 UI → E 키캡 → D4 재실행(타이틀 버튼 스킨·볼륨 슬라이더).
     /// 소팅 순서 규약: 바닥0 / 실내 소품1 / 플레이어2 / 벽 프레임3 / 벽걸이(창·문·시계·부적)4 / 시곗바늘 5·6.
     /// CLI: -executeMethod Morae.EditorTools.Art2Setup.Setup
@@ -42,6 +42,7 @@ namespace Morae.EditorTools
 
             SetupFloorAndWalls();
             SetupWindowAndDoor();
+            SetupPlayer();
             SetupSaltCorners();
             SetupClock();
             SetupTvBlanketProps();
@@ -140,6 +141,30 @@ namespace Morae.EditorTools
             var doorVisual = FindChild(GameObject.Find("Room/Door"), "Visual");
             SwapSprite(doorVisual, Room + "room_door.png", 4);
             if (doorVisual != null) doorVisual.transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+        }
+
+        private static void SetupPlayer()
+        {
+            // 소년 탑뷰 1장 (70×90px = 0.7×0.9u) — PlayerController가 이동 방향 회전을 하지 않으므로
+            // 방향 중립 스프라이트 단일 배선. SwapSprite가 localScale 1 복원(white32 시대 0.7×0.9 스케일 폐기).
+            var player = GameObject.Find("Player");
+            var visual = FindChild(player, "Visual");
+            if (player == null || visual == null)
+            {
+                Debug.LogError("[ART2-SETUP] Player/Visual 없음 — 플레이어 스프라이트 배선 실패");
+                return;
+            }
+            SwapSprite(visual, Props + "player_boy.png", 2); // 소팅 규약: 플레이어 2
+
+            // 씬 빌더가 플레이어 Visual에 라이트 머티리얼을 안 깔았음 — 2D 라이트 수광 보장
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(SpriteLitMatPath);
+            var sr = visual.GetComponent<SpriteRenderer>();
+            if (mat != null && sr.sharedMaterial != mat) sr.sharedMaterial = mat;
+
+            // InBlanket 동안 플레이어 숨김 (이불 bulge가 대신 표현) — PlayerSpriteView 구독 컴포넌트
+            var view = player.GetComponent<PlayerSpriteView>();
+            if (view == null) view = player.AddComponent<PlayerSpriteView>();
+            Wire(view, "body", sr);
         }
 
         private static void SetupSaltCorners()
