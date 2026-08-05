@@ -16,61 +16,70 @@ MonoBehaviour:
   - phaseId: 0
     duration: 60
     gameTimeStartMin: 60
-    gameTimeEndMin: 150
+    gameTimeEndMin: 140
     clockMode: 0
     clockParamMin: 0
     dawnStart: 0
     dawnEnd: 0
     passiveSanityDrain: 0
   - phaseId: 1
-    duration: 75
-    gameTimeStartMin: 150
-    gameTimeEndMin: 240
+    duration: 60
+    gameTimeStartMin: 140
+    gameTimeEndMin: 220
     clockMode: 1
     clockParamMin: -5
     dawnStart: 0
     dawnEnd: 0
     passiveSanityDrain: 0
   - phaseId: 2
-    duration: 105
-    gameTimeStartMin: 240
-    gameTimeEndMin: 360
+    duration: 75
+    gameTimeStartMin: 220
+    gameTimeEndMin: 300
     clockMode: 2
     clockParamMin: 40
     dawnStart: 0
     dawnEnd: 0
     passiveSanityDrain: 0
   - phaseId: 3
-    duration: 75
-    gameTimeStartMin: 360
+    duration: 40
+    gameTimeStartMin: 300
+    gameTimeEndMin: 340
+    clockMode: 2
+    clockParamMin: -30
+    dawnStart: 0
+    dawnEnd: 0
+    passiveSanityDrain: 0
+  - phaseId: 4
+    duration: 85
+    gameTimeStartMin: 340
     gameTimeEndMin: 410
     clockMode: 2
     clockParamMin: -30
     dawnStart: 0
-    dawnEnd: 0.35
+    dawnEnd: 0.3
     passiveSanityDrain: 0.5
-  - phaseId: 4
-    duration: 30
+  - phaseId: 5
+    duration: 40
     gameTimeStartMin: 410
     gameTimeEndMin: 420
     clockMode: 3
     clockParamMin: 445
-    dawnStart: 0.35
-    dawnEnd: 0.45
+    dawnStart: 0.3
+    dawnEnd: 0.5
     passiveSanityDrain: 0.5
-  - phaseId: 5
-    duration: 45
+  - phaseId: 6
+    duration: 40
     gameTimeStartMin: 420
     gameTimeEndMin: 450
     clockMode: 3
     clockParamMin: 445
-    dawnStart: 0.45
+    dawnStart: 0.5
     dawnEnd: 0.85
     passiveSanityDrain: 0.5
-  - phaseId: 6
-    duration: 30
+  - phaseId: 7
+    duration: 20
     gameTimeStartMin: 450
-    gameTimeEndMin: 460
+    gameTimeEndMin: 470
     clockMode: 3
     clockParamMin: 445
     dawnStart: 0.85

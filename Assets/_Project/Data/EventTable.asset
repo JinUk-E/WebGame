@@ -75,7 +75,7 @@ MonoBehaviour:
     isTrueSignal: 0
   - id: silhouette
     phaseId: 2
-    offset: 45
+    offset: 40
     kind: 2
     audioClip: {fileID: 0}
     channel: 1
@@ -90,7 +90,7 @@ MonoBehaviour:
     isTrueSignal: 0
   - id: window-rattle
     phaseId: 2
-    offset: 75
+    offset: 65
     kind: 2
     audioClip: {fileID: 8300000, guid: 4afde3f505ae01941927ea571f983262, type: 3}
     channel: 1
@@ -103,8 +103,8 @@ MonoBehaviour:
     sanityDelta: -10
     isTrueSignal: 0
   - id: urge
-    phaseId: 3
-    offset: 20
+    phaseId: 4
+    offset: 15
     kind: 3
     audioClip: {fileID: 8300000, guid: 8f8aa35be6ea0fb4892d11c7e7111f27, type: 3}
     channel: 2
@@ -118,8 +118,8 @@ MonoBehaviour:
     sanityDelta: 0
     isTrueSignal: 0
   - id: triple-assault
-    phaseId: 3
-    offset: 45
+    phaseId: 4
+    offset: 55
     kind: 2
     audioClip: {fileID: 0}
     channel: 0
@@ -133,8 +133,8 @@ MonoBehaviour:
     sanityDelta: -10
     isTrueSignal: 0
   - id: fake-voice-2
-    phaseId: 4
-    offset: 5
+    phaseId: 5
+    offset: 0
     kind: 0
     audioClip: {fileID: 8300000, guid: 4d46c3eea38a252468d51ff1a188eeb9, type: 3}
     channel: 0
@@ -152,7 +152,7 @@ MonoBehaviour:
     sanityDelta: 0
     isTrueSignal: 0
   - id: true-signal
-    phaseId: 6
+    phaseId: 7
     offset: 0
     kind: 1
     audioClip: {fileID: 8300000, guid: 84d0e34198bd5984d803f4da1f0e3771, type: 3}
@@ -168,7 +168,7 @@ MonoBehaviour:
     sanityDelta: 0
     isTrueSignal: 1
   - id: rescue-open
-    phaseId: 6
+    phaseId: 7
     offset: 60
     kind: 3
     audioClip: {fileID: 8300000, guid: 1ea9c854313ee2f43ab1216b33328cd9, type: 3}

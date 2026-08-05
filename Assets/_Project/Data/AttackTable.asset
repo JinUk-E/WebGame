@@ -15,65 +15,100 @@ MonoBehaviour:
   attacks:
   - id: atk-p1-1
     phaseId: 0
-    baseOffset: 30
+    baseOffset: 12
     jitterRatio: 0.2
-    dualCorner: 0
+    minCorners: 1
+    maxCorners: 1
+    targetRule: 0
+    telegraphDuration: 3
+    resolves: 1
+  - id: atk-p1-2
+    phaseId: 0
+    baseOffset: 28
+    jitterRatio: 0.2
+    minCorners: 1
+    maxCorners: 1
+    targetRule: 0
+    telegraphDuration: 3
+    resolves: 1
+  - id: atk-p1-3
+    phaseId: 0
+    baseOffset: 45
+    jitterRatio: 0.2
+    minCorners: 1
+    maxCorners: 1
     targetRule: 0
     telegraphDuration: 3
     resolves: 1
   - id: atk-p2-1
     phaseId: 1
-    baseOffset: 40
+    baseOffset: 10
     jitterRatio: 0.2
-    dualCorner: 0
+    minCorners: 2
+    maxCorners: 2
+    targetRule: 0
+    telegraphDuration: 3
+    resolves: 1
+  - id: atk-p2-2
+    phaseId: 1
+    baseOffset: 27
+    jitterRatio: 0.2
+    minCorners: 2
+    maxCorners: 2
+    targetRule: 0
+    telegraphDuration: 3
+    resolves: 1
+  - id: atk-p2-3
+    phaseId: 1
+    baseOffset: 44
+    jitterRatio: 0.2
+    minCorners: 2
+    maxCorners: 2
     targetRule: 0
     telegraphDuration: 3
     resolves: 1
   - id: atk-p3-1
     phaseId: 2
-    baseOffset: 20
+    baseOffset: 12
     jitterRatio: 0.2
-    dualCorner: 0
+    minCorners: 2
+    maxCorners: 3
     targetRule: 0
     telegraphDuration: 3
     resolves: 1
   - id: atk-p3-2
     phaseId: 2
-    baseOffset: 48
+    baseOffset: 32
     jitterRatio: 0.2
-    dualCorner: 0
+    minCorners: 2
+    maxCorners: 3
     targetRule: 0
     telegraphDuration: 3
     resolves: 1
   - id: atk-p3-3
     phaseId: 2
-    baseOffset: 78
+    baseOffset: 55
     jitterRatio: 0.2
-    dualCorner: 1
+    minCorners: 2
+    maxCorners: 3
     targetRule: 0
     telegraphDuration: 3
     resolves: 1
   - id: atk-p4-1
     phaseId: 3
-    baseOffset: 15
+    baseOffset: 6
     jitterRatio: 0.2
-    dualCorner: 1
+    minCorners: 1
+    maxCorners: 2
     targetRule: 0
     telegraphDuration: 3
     resolves: 1
   - id: atk-p4-2
     phaseId: 3
-    baseOffset: 35
+    baseOffset: 30
     jitterRatio: 0.2
-    dualCorner: 0
-    targetRule: 0
-    telegraphDuration: 3
-    resolves: 1
-  - id: atk-p4-3
-    phaseId: 3
-    baseOffset: 55
-    jitterRatio: 0.2
-    dualCorner: 1
+    minCorners: 1
+    maxCorners: 2
     targetRule: 0
     telegraphDuration: 3
     resolves: 1
@@ -81,7 +116,35 @@ MonoBehaviour:
     phaseId: 4
     baseOffset: 10
     jitterRatio: 0.2
-    dualCorner: 0
-    targetRule: 1
+    minCorners: 1
+    maxCorners: 4
+    targetRule: 0
+    telegraphDuration: 3
+    resolves: 1
+  - id: atk-p5-2
+    phaseId: 4
+    baseOffset: 30
+    jitterRatio: 0.2
+    minCorners: 1
+    maxCorners: 4
+    targetRule: 0
+    telegraphDuration: 3
+    resolves: 1
+  - id: atk-p5-3
+    phaseId: 4
+    baseOffset: 50
+    jitterRatio: 0.2
+    minCorners: 1
+    maxCorners: 4
+    targetRule: 0
+    telegraphDuration: 3
+    resolves: 1
+  - id: atk-p5-4
+    phaseId: 4
+    baseOffset: 67
+    jitterRatio: 0.2
+    minCorners: 1
+    maxCorners: 4
+    targetRule: 0
     telegraphDuration: 3
     resolves: 1
