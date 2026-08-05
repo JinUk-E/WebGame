@@ -16,6 +16,7 @@ namespace Morae.Game.Presentation
         [SerializeField] private Color stageWhite = new Color(0.95f, 0.95f, 0.92f);
         [SerializeField] private Color stageGray = new Color(0.55f, 0.53f, 0.5f);
         [SerializeField] private Color stageBlack = new Color(0.14f, 0.12f, 0.12f);
+        [SerializeField] private Color stageDeepBlack = new Color(0.18f, 0.04f, 0.07f); // v0.3 심화 — 검붉은 흑 (stage=3)
         [SerializeField] private Color telegraphColor = new Color(0.9f, 0.15f, 0.1f);
         [SerializeField] private Color aimColor = new Color(1f, 0.85f, 0.3f); // 기도 조준 — 금빛
         [SerializeField] private float telegraphPulseHz = 3f;
@@ -71,7 +72,10 @@ namespace Morae.Game.Presentation
                 SpriteRenderer sr = cornerRenderers[i];
                 if (sr == null) continue;
 
-                Color baseColor = _stages[i] >= 2 ? stageBlack : _stages[i] == 1 ? stageGray : stageWhite;
+                // stage 3 = 흑+심화 (CornerStage.DeepBlack — SaltCorners가 심화 시 발행, v0.3)
+                Color baseColor = _stages[i] >= 3 ? stageDeepBlack
+                    : _stages[i] == 2 ? stageBlack
+                    : _stages[i] == 1 ? stageGray : stageWhite;
 
                 Color color;
                 if (Time.time < _telegraphUntil[i])

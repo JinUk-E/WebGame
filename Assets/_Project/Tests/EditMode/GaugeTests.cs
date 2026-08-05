@@ -76,12 +76,17 @@ namespace Morae.Game.Tests.EditMode
 
         private static void Wire(object target, string field, object value)
         {
-            FieldInfo info = target.GetType().GetField(field, BindingFlags.Instance | BindingFlags.NonPublic);
+            // private 필드는 선언 타입에서만 보인다 — 기반 클래스(Interactable.config 등)까지 거슬러 탐색
+            FieldInfo info = null;
+            for (var type = target.GetType(); type != null && info == null; type = type.BaseType)
+            {
+                info = type.GetField(field, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+            }
             Assert.IsNotNull(info, $"{target.GetType().Name}.{field} 필드 없음 — 배선 계약 파괴");
             info.SetValue(target, value);
         }
 
-        // ---- 소금: 단계 클램프 ----
+        // ---- 소금: 단계 클램프 + v0.3 흑화 심화 스택 ----
 
         [Test]
         public void Salt_StageClampsBetweenWhiteAndBlack()
@@ -94,10 +99,81 @@ namespace Morae.Game.Tests.EditMode
             _salt.Contaminate(0);
             Assert.AreEqual((int)CornerStage.Black, _salt.GetStage(0));
 
-            _salt.Contaminate(0); // 흑에서 오염 — 단계 유지 (일부만 흑 — 붕괴 아님)
+            _salt.Contaminate(0); // v0.3: 흑에서 추가 피격 = 심화 플래그 (단계는 유지 — 일부만 흑, 붕괴 아님)
             Assert.AreEqual((int)CornerStage.Black, _salt.GetStage(0));
-            Assert.AreEqual(2, _cornerEvents.Count, "변화가 없으면 이벤트도 없어야 한다");
+            Assert.IsTrue(_salt.IsDeepened(0));
             Assert.IsEmpty(_gameOvers);
+        }
+
+        [Test]
+        public void Salt_DeepenOnBlackHit_RaisesDeepBlackEvent_NoStacking()
+        {
+            _salt.Contaminate(1);
+            _salt.Contaminate(1); // 흑
+            Assert.IsFalse(_salt.IsDeepened(1));
+            Assert.IsFalse(_salt.IsSaturated(1), "흑 미심화는 아직 유효 타깃 (피격 = 심화)");
+
+            _cornerEvents.Clear();
+            _salt.Contaminate(1); // 심화
+            Assert.IsTrue(_salt.IsDeepened(1));
+            Assert.IsTrue(_salt.IsSaturated(1), "흑+심화 = 포화 — 공격 대상 제외");
+            Assert.AreEqual(1, _cornerEvents.Count);
+            Assert.AreEqual((1, (int)CornerStage.DeepBlack), _cornerEvents[0], "심화는 stage=3으로 발행 (표현 계층 구분)");
+
+            _cornerEvents.Clear();
+            _salt.Contaminate(1); // 무중첩 — 재피격은 무효
+            Assert.AreEqual(0, _cornerEvents.Count, "심화는 1회 플래그 — 중첩·재발행 없음");
+            Assert.AreEqual((int)CornerStage.Black, _salt.GetStage(1), "내부 단계는 여전히 흑(2)");
+        }
+
+        [Test]
+        public void Salt_PurifyFromBlack_ClearsDeepenedFlag()
+        {
+            _salt.Contaminate(2);
+            _salt.Contaminate(2);
+            _salt.Contaminate(2); // 흑+심화
+            Assert.IsTrue(_salt.IsDeepened(2));
+
+            _salt.Purify(2); // 흑→회 — 심화 해제 (v0.3)
+            Assert.AreEqual((int)CornerStage.Gray, _salt.GetStage(2));
+            Assert.IsFalse(_salt.IsDeepened(2));
+
+            // 다시 흑까지 오염 — 심화는 새로 쌓아야 한다 (해제가 영구 면역이 아님)
+            _salt.Contaminate(2);
+            Assert.IsFalse(_salt.IsDeepened(2));
+            _salt.Contaminate(2);
+            Assert.IsTrue(_salt.IsDeepened(2));
+        }
+
+        [Test]
+        public void Salt_TalismanRestore_AlsoClearsDeepenedFlag()
+        {
+            // 귀퉁이 0을 흑+심화로 만든 뒤 전 귀퉁이 흑 → 부적 가로채기(전 귀퉁이 −1 = 흑→회)
+            _salt.Contaminate(0);
+            _salt.Contaminate(0);
+            _salt.Contaminate(0); // 심화
+            Assert.IsTrue(_salt.IsDeepened(0));
+            for (int corner = 1; corner < CornerIndex.Count; corner++)
+            {
+                _salt.Contaminate(corner);
+                _salt.Contaminate(corner);
+            }
+
+            Assert.AreEqual(1, _talismanBurnedCount, "전 귀퉁이 흑 — 부적 1회 가로채기");
+            Assert.IsFalse(_salt.IsCollapsed);
+            Assert.AreEqual((int)CornerStage.Gray, _salt.GetStage(0));
+            Assert.IsFalse(_salt.IsDeepened(0), "부적 복구(흑→회)도 심화 해제");
+        }
+
+        [Test]
+        public void Salt_CollapseJudgment_UnchangedByDeepening()
+        {
+            // 붕괴 판정은 4귀퉁이 흑(2) 그대로 — 심화는 복구 난이도만 올린다 (v0.3)
+            _salt.Contaminate(0);
+            _salt.Contaminate(0);
+            _salt.Contaminate(0); // 흑+심화 — 이것만으로 붕괴 아님
+            Assert.IsEmpty(_gameOvers);
+            Assert.AreEqual(0, _talismanBurnedCount, "심화는 붕괴 트리거가 아니다");
         }
 
         // ---- 소금: 붕괴 — 부적 1회 가로채기, 2회째 게임오버 ----
@@ -200,9 +276,9 @@ namespace Morae.Game.Tests.EditMode
         }
 
         [Test]
-        public void Salt_SelectFarthestCorners_ExcludesDeadCorners()
+        public void Salt_SelectFarthestCorners_ExcludesSaturatedCorners()
         {
-            // 흑화(사망) 귀퉁이는 공격 대상 제외 (2026-08-04 결정)
+            // v0.3: 흑 미심화는 여전히 유효 타깃(피격 = 심화) — 제외는 흑+심화(포화)만
             Vector2[] positions = { new Vector2(-6f, 3.5f), new Vector2(6f, 3.5f), new Vector2(-6f, -3.5f), new Vector2(6f, -3.5f) };
             var transforms = new Transform[CornerIndex.Count];
             for (int i = 0; i < positions.Length; i++)
@@ -214,24 +290,67 @@ namespace Morae.Game.Tests.EditMode
             }
             Wire(_salt, "cornerTransforms", transforms);
 
-            // 우하(3) 흑화 — 좌상 기준 원래 최원거리였지만 제외되어야 한다
+            // 우하(3) 흑 (미심화) — 여전히 후보: 좌상 기준 최원거리 유지
             _salt.Contaminate(CornerIndex.BottomRight);
             _salt.Contaminate(CornerIndex.BottomRight);
-            Assert.IsTrue(_salt.IsDead(CornerIndex.BottomRight));
+            Assert.IsFalse(_salt.IsSaturated(CornerIndex.BottomRight));
 
             _salt.SelectFarthestCorners(positions[0], dual: true, out int a, out int b);
-            Assert.AreEqual(CornerIndex.TopRight, a);    // 살아있는 곳 중 최원거리 (가로 12 > 세로 7)
+            Assert.AreEqual(CornerIndex.BottomRight, a, "흑 미심화는 아직 유효 타깃");
+            Assert.AreEqual(CornerIndex.TopRight, b);
+
+            // 우하(3) 심화 → 포화 — 이제 제외
+            _salt.Contaminate(CornerIndex.BottomRight);
+            Assert.IsTrue(_salt.IsSaturated(CornerIndex.BottomRight));
+
+            _salt.SelectFarthestCorners(positions[0], dual: true, out a, out b);
+            Assert.AreEqual(CornerIndex.TopRight, a);    // 비포화 중 최원거리 (가로 12 > 세로 7)
             Assert.AreEqual(CornerIndex.BottomLeft, b);
 
-            // 좌상(0)만 남기고 전부 흑화 — 후보 1곳뿐이면 A만, dual이어도 B는 None
+            // 좌상(0)만 남기고 전부 포화 — 후보 1곳뿐이면 A만, dual이어도 B는 None
             _salt.Contaminate(CornerIndex.TopRight);
             _salt.Contaminate(CornerIndex.TopRight);
+            _salt.Contaminate(CornerIndex.TopRight);
+            _salt.Contaminate(CornerIndex.BottomLeft);
             _salt.Contaminate(CornerIndex.BottomLeft);
             _salt.Contaminate(CornerIndex.BottomLeft);
 
             _salt.SelectFarthestCorners(positions[0], dual: true, out a, out b);
             Assert.AreEqual(CornerIndex.TopLeft, a);
             Assert.AreEqual(CornerIndex.None, b);
+        }
+
+        // ---- v0.3 심화 귀퉁이 기도 채널 연장 (3s → ×1.5 = 4.5s) ----
+
+        [Test]
+        public void Prayer_DeepenedCorner_ExtendsChannelDuration()
+        {
+            var prayerGo = new GameObject("TestPrayer");
+            _cleanup.Add(prayerGo);
+            var prayer = prayerGo.AddComponent<Morae.Game.Interactions.PrayerInteractable>();
+            Wire(prayer, "config", _config); // 기반 클래스(Interactable) private 필드 — 계층 탐색 Wire
+            Wire(prayer, "salt", _salt);
+
+            // 조준 없음 → 기본 3s
+            Assert.AreEqual(_config.PrayerChannelSec, prayer.Duration, 1e-4f);
+
+            // 귀퉁이 0 흑+심화 후 조준 → ×1.5
+            _salt.Contaminate(0);
+            _salt.Contaminate(0);
+            _salt.Contaminate(0);
+            Assert.IsTrue(_salt.IsDeepened(0));
+            Wire(prayer, "_aimedCorner", 0);
+            Assert.AreEqual(_config.PrayerChannelSec * _config.PrayerDeepenedMultiplier, prayer.Duration, 1e-4f,
+                "심화 귀퉁이 조준 시 채널 4.5s");
+
+            // 비심화 귀퉁이 조준 → 기본 3s
+            Wire(prayer, "_aimedCorner", 1);
+            Assert.AreEqual(_config.PrayerChannelSec, prayer.Duration, 1e-4f);
+
+            // 흑→회 정화(심화 해제) 후 다시 조준 → 기본 3s
+            _salt.Purify(0);
+            Wire(prayer, "_aimedCorner", 0);
+            Assert.AreEqual(_config.PrayerChannelSec, prayer.Duration, 1e-4f, "정화로 심화 해제 시 채널 원복");
         }
     }
 }

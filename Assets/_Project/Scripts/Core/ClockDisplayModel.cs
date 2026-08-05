@@ -19,7 +19,7 @@ namespace Morae.Game.Core
                     return trueMin;
                 case ClockMode.Frozen:
                     // 진실 시각으로 진행하다 (페이즈 종료 시각 + param)에서 정지.
-                    // 예) P2: end 240, param -5 → 03:55까지 가고 멈춤 (미세 오작동 — 불신 학습)
+                    // 예) P2: end 220, param -5 → 03:35까지 가고 멈춤 (미세 오작동 — 불신 학습, v0.3 축)
                     return Mathf.Min(trueMin, phase.GameTimeEndMin + phase.ClockParamMin);
                 case ClockMode.Offset:
                     return trueMin + phase.ClockParamMin;

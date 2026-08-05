@@ -60,7 +60,7 @@ namespace Morae.Game.Tests.EditMode
                 new EventDef("a", PhaseId.P1, 15f, GameEventKind.Hint, AudioChannel.Room, 0f, false, Lines()));
 
             var result = new List<EventDef>();
-            EventDirector.BuildPhaseQueue(table, PhaseId.P6, result); // P6 = 정적 — 이벤트 없음
+            EventDirector.BuildPhaseQueue(table, PhaseId.P7, result); // v0.3: P7 = 정적 — 이벤트 없음 (완전 무자극)
 
             Assert.AreEqual(0, result.Count);
         }
@@ -71,11 +71,11 @@ namespace Morae.Game.Tests.EditMode
             // 명세 §4 — 유일한 진짜 신호. DataAssetBuilder가 생성하는 실제 에셋 규약의 회귀 방어.
             EventTable table = Table(
                 new EventDef("fake-1", PhaseId.P2, 35f, GameEventKind.FakeVoice, AudioChannel.Door, 0f, false, Lines()),
-                new EventDef("true-signal", PhaseId.P7, 0f, GameEventKind.TrueSignal, AudioChannel.Door, 0f, true, Lines()),
-                new EventDef("rescue-open", PhaseId.P7, 60f, GameEventKind.Scripted, AudioChannel.Door, 0f, false, Lines()));
+                new EventDef("true-signal", PhaseId.P8, 0f, GameEventKind.TrueSignal, AudioChannel.Door, 0f, true, Lines()),
+                new EventDef("rescue-open", PhaseId.P8, 60f, GameEventKind.Scripted, AudioChannel.Door, 0f, false, Lines()));
 
             var result = new List<EventDef>();
-            EventDirector.BuildPhaseQueue(table, PhaseId.P7, result);
+            EventDirector.BuildPhaseQueue(table, PhaseId.P8, result); // v0.3: P8 탈출 = 종단 페이즈
 
             int trueSignals = 0;
             foreach (EventDef def in result)
@@ -83,7 +83,7 @@ namespace Morae.Game.Tests.EditMode
                 if (def.IsTrueSignal) trueSignals++;
             }
             Assert.AreEqual(1, trueSignals);
-            Assert.AreEqual("true-signal", result[0].Id); // offset 0 — P7 진입 즉시
+            Assert.AreEqual("true-signal", result[0].Id); // offset 0 — P8 진입 즉시
         }
     }
 }

@@ -5,8 +5,8 @@ namespace Morae.Game.Data
     /// <summary>게임 흐름 상태. GameFlowController가 소유.</summary>
     public enum GameState { Title, Prologue, MainLoop, Ending, GameOver }
 
-    /// <summary>본편 페이즈 (명세 §1 — 420초 배분표).</summary>
-    public enum PhaseId { P1, P2, P3, P4, P5, P6, P7 }
+    /// <summary>본편 페이즈 (명세 v0.3 — 8페이즈 420초: 시동/교란/본색/소강/절정/최후의 함정/정적/탈출).</summary>
+    public enum PhaseId { P1, P2, P3, P4, P5, P6, P7, P8 }
 
     /// <summary>플레이어 상태 머신 (명세 §5).</summary>
     public enum PlayerState
@@ -23,8 +23,12 @@ namespace Morae.Game.Data
         Escaped,
     }
 
-    /// <summary>귀퉁이 소금 단계. 전이는 AttackResolved(미상쇄) +1, 기도 −1만.</summary>
-    public enum CornerStage { White = 0, Gray = 1, Black = 2 }
+    /// <summary>
+    /// 귀퉁이 소금 단계. 전이는 AttackResolved(미상쇄) +1, 기도 −1만.
+    /// DeepBlack(3)은 이벤트 표기 전용 값 — SaltCorners 내부 단계는 0~2 유지, 흑+심화 플래그를
+    /// CornerStageChanged로 알릴 때만 3을 발행한다 (v0.3 흑화 심화 스택. 붕괴 판정은 여전히 흑(2) 기준).
+    /// </summary>
+    public enum CornerStage { White = 0, Gray = 1, Black = 2, DeepBlack = 3 }
 
     /// <summary>문 상태. Open 시점에 TrueSignalStarted 발화 여부로 사망/엔딩 분기.</summary>
     public enum DoorState { Latched, Opening, Open }

@@ -7,7 +7,7 @@ namespace Morae.Game.Core
     /// 본편 420초 진행·페이즈 전이 관리 (architecture §1.1).
     /// PhaseTable SO만 읽고, 결과는 GameEvents.PhaseChanged + 읽기 프로퍼티로 노출.
     /// 마지막 페이즈는 종료하지 않는다 — PhaseElapsed가 duration을 넘어 계속 흐른다
-    /// (P7의 duration 초과 offset 이벤트(K씨 개문 60s)를 EventDirector가 소비할 수 있게. 보간 값은 끝에서 클램프).
+    /// (P8의 duration 초과 offset 이벤트(K씨 개문 60s)를 EventDirector가 소비할 수 있게. 보간 값은 끝에서 클램프).
     /// </summary>
     public sealed class PhaseSequencer : MonoBehaviour
     {

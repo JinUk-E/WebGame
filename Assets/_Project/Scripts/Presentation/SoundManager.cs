@@ -10,7 +10,7 @@ namespace Morae.Game.Presentation
     /// AudioSource 2개(BGM 루프 / SFX 원샷)는 Awake에서 생성 — 씬 수정 최소화.
     /// WebGL은 첫 사용자 입력 전까지 브라우저가 오디오를 막는다 — Unity가 첫 클릭에 자동 재개 (§8.2).
     /// 상황 매핑:
-    ///   P1 진입 = bgmMain + 문 걸어잠금 SFX / P4 = bgmNight[0] / P6 = bgmNight[1]
+    ///   P1 진입 = bgmMain + 문 걸어잠금 SFX / P5 절정 = bgmNight[0] / P7 정적 = bgmNight[1] (v0.3 8페이즈 리매핑)
     ///   페이즈 전환 = 시계 SFX(시계 변조 순간) / 공격 전조·공포 이벤트 = fear 스팅어 랜덤
     ///   Door 채널 이벤트·걸쇠 시도 = door_try, 걸쇠 취소 = door_close
     ///   진짜 신호 = BGM 페이드아웃(정적) / 엔딩 = bgmEnding / 게임오버 = BGM 정지 + fear 스팅어
@@ -148,10 +148,10 @@ namespace Morae.Game.Presentation
                         _heart.Play();
                     }
                     break;
-                case PhaseId.P4:
+                case PhaseId.P5: // v0.3: 절정 진입 — 후반 고조 (구 P4 절정에 해당)
                     FadeTo(Pick(bgmNight, 0));
                     break;
-                case PhaseId.P6:
+                case PhaseId.P7: // v0.3: 정적 진입 (구 P6 정적에 해당)
                     FadeTo(Pick(bgmNight, 1));
                     break;
             }

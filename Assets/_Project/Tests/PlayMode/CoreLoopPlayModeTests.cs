@@ -78,8 +78,8 @@ namespace Morae.Game.Tests.PlayMode
             var attackTable = ScriptableObject.CreateInstance<AttackTable>();
             attackTable.EditorSetAttacks(new[]
             {
-                // 지터 0 — 발동 0.5s 확정, 전조 0.4s → P1 안에서 판정 완료
-                new AttackDef("mini-1", PhaseId.P1, 0.5f, 0f, false, AttackTargetRule.RandomCorner, 0.4f, true),
+                // 지터 0 — 발동 0.5s 확정, 전조 0.4s → P1 안에서 판정 완료 (v0.3 스키마: 단일 = min 1, max 1)
+                new AttackDef("mini-1", PhaseId.P1, 0.5f, 0f, 1, 1, AttackTargetRule.RandomCorner, 0.4f, true),
             });
             var config = ScriptableObject.CreateInstance<BalanceConfig>();
             _cleanup.Add(phaseTable);

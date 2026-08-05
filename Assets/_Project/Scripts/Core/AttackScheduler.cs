@@ -9,12 +9,14 @@ using UnityEngine;
 namespace Morae.Game.Core
 {
     /// <summary>
-    /// 공격 스케줄 실행 (architecture §2.2). Begin(seed)에서 AttackScheduleBuilder로 전 공격을 확정한 뒤,
+    /// 공격 스케줄 실행 (architecture §2.2, v0.3 개정). Begin(seed)에서 AttackScheduleBuilder로 전 공격을 확정한 뒤,
     /// 페이즈 로컬 공격 시계로 소비한다 — TV 켜짐 동안 시계가 ×BalanceConfig.TvAttackClockRate로 빨리 흘러
     /// 공격이 당겨질 뿐 횟수는 불변, 페이즈 경계도 넘지 않는다 (로컬 시계는 페이즈 진입 시 0 리셋).
-    /// 전조: AttackTelegraphStarted 발행 + 이성 −8 (공격 1건당 1회 — dual도 1회. "공격 전조 발생 −8"의 해석, 결정 기록).
+    /// 전조: AttackTelegraphStarted 발행 + 이성 −8 (공격 1건당 1회 — N동시도 1회. "공격 전조 발생 −8"의 해석, 결정 기록).
     /// 전조는 실시간 telegraphDuration 후 판정: 상쇄면 AttackResolved(true), 미상쇄면 AttackResolved(false) + 오염(직접 호출).
     /// 능동 방어: PrayerInteractable 완료 → TryCounter(corner) — 해당 귀퉁이 전조 활성 시 즉시 상쇄.
+    /// v0.3 함정 시퀀스(P6): 스케줄 테이블이 아닌 전용 타임라인(TrapTimeline·BalanceConfig trap*) —
+    ///   가짜 목소리 ② → 정적(무공격) → 4귀퉁이 동시 웨이브 ×trapWaveCount. PhaseElapsed 실시간 기준(TV 배속 무관).
     /// 페이즈 전이는 PhaseSequencer 폴링(직접 읽기 — 게임플레이 내부는 이벤트 경유 금지 §1.2).
     /// </summary>
     public sealed class AttackScheduler : MonoBehaviour
@@ -39,7 +41,13 @@ namespace Morae.Game.Core
         private int _next;
         private int _phaseIndex;
         private float _localClock;
-        private readonly List<ActiveTelegraph> _telegraphs = new List<ActiveTelegraph>(CornerIndex.Count);
+        private readonly List<ActiveTelegraph> _telegraphs = new List<ActiveTelegraph>(CornerIndex.Count * 2);
+        private readonly int[] _fireBuffer = new int[CornerIndex.Count];   // 발동 프레임 귀퉁이 확정 버퍼 (할당 없음)
+        private readonly bool[] _fireTaken = new bool[CornerIndex.Count];  // 같은 공격 내 중복 방지
+
+        // v0.3 최후의 함정 (P6) — 스케줄 밖 전용 시퀀스
+        private int _trapPhaseIndex = -1;
+        private int _trapWavesFired;
 
         public bool IsRunning { get; private set; }
         /// <summary>페이즈 로컬 공격 시계 (디버그 표시용).</summary>
@@ -64,6 +72,8 @@ namespace Morae.Game.Core
             _phaseIndex = sequencer.CurrentPhaseIndex;
             _localClock = 0f;
             _telegraphs.Clear();
+            _trapPhaseIndex = FindPhaseIndex(PhaseId.P6);
+            _trapWavesFired = 0;
             IsRunning = true;
             LogSchedule(seed);
         }
@@ -78,6 +88,7 @@ namespace Morae.Game.Core
         /// <summary>
         /// 능동 방어 (명세 §2): 해당 귀퉁이에 활성 전조가 있으면 즉시 상쇄 판정. true = 상쇄됨.
         /// false면 호출자(PrayerInteractable)가 사후 정화(SaltCorners.Purify)로 처리.
+        /// 함정 웨이브 전조도 동일 경로 — "사이 구간 기도·전조 상쇄는 정상 동작" (v0.3).
         /// </summary>
         public bool TryCounter(int corner)
         {
@@ -110,6 +121,7 @@ namespace Morae.Game.Core
             _localClock += dt * (tvOn ? config.TvAttackClockRate : 1f);
 
             FireDueAttacks(currentPhaseIndex);
+            TickTrapSequence(currentPhaseIndex);
             TickTelegraphs(dt);
         }
 
@@ -137,51 +149,100 @@ namespace Morae.Game.Core
             }
         }
 
+        // ---------- v0.3 최후의 함정 (P6) ----------
+
+        /// <summary>
+        /// P6 전용 타임라인 — PhaseElapsed 실시간 기준 (TV 배속·로컬 시계 무관, 연출 고정).
+        /// 스케줄 테이블에 P6 행이 없고 P5 전조는 P5 안에서 판정 완료(클램프 규칙)라
+        /// 가짜 목소리 ② + 정적 구간의 "소금 전조 절대 금지"가 구조적으로 보장된다.
+        /// 미개문 조건은 별도 검사 불필요 — 진짜 신호 전 개문은 즉시 게임오버라 스케줄러가 이미 정지한다.
+        /// </summary>
+        private void TickTrapSequence(int currentPhaseIndex)
+        {
+            if (currentPhaseIndex != _trapPhaseIndex || _trapWavesFired >= config.TrapWaveCount) return;
+
+            float waveStart = TrapTimeline.WaveStartTime(_trapWavesFired,
+                config.TrapVoiceLeadSec, config.TrapQuietSec, config.TrapTelegraphSec, config.TrapWaveGapSec);
+            if (sequencer.PhaseElapsed < waveStart) return;
+
+            _trapWavesFired++;
+            FireTrapWave();
+        }
+
+        /// <summary>4귀퉁이 동시 공격 ("유혹을 거부한 대가"). 포화(흑+심화) 귀퉁이는 전조 생략 — 변화가 없는 위협은 소음.</summary>
+        private void FireTrapWave()
+        {
+            int started = 0;
+            for (int i = 0; i < CornerIndex.Count; i++)
+            {
+                if (salt.IsSaturated(i)) continue;
+                StartTelegraph(i, config.TrapTelegraphSec, resolves: true);
+                started++;
+            }
+
+            if (started > 0 && sanity != null) sanity.ApplyDelta(-config.SanityTelegraphHit); // 웨이브 1회 = 공격 1건
+
+            Debug.Log($"[ATTACK] 함정 웨이브 {_trapWavesFired}/{config.TrapWaveCount} — 동시 전조 {started}곳" +
+                      $" (판정까지 {config.TrapTelegraphSec:F1}s)");
+        }
+
+        // ---------- 스케줄 공격 발동 ----------
+
         private void Fire(in ScheduledAttack attack)
         {
-            int cornerA = attack.CornerA;
-            int cornerB = attack.CornerB;
+            // 1) 귀퉁이 확정 — RandomCorner는 빌드 시 배정, FarthestFromPlayer는 발동 시점 해석
+            int count;
             if (attack.TargetRule == AttackTargetRule.FarthestFromPlayer)
             {
                 Vector2 from = player != null ? (Vector2)player.transform.position : Vector2.zero;
-                salt.SelectFarthestCorners(from, attack.DualCorner, out cornerA, out cornerB);
+                count = salt.SelectFarthestCorners(from, Mathf.Min(attack.CornerCount, CornerIndex.Count), _fireBuffer);
+            }
+            else
+            {
+                count = Mathf.Min(attack.CornerCount, attack.Corners.Length);
+                for (int i = 0; i < count; i++) _fireBuffer[i] = attack.Corners[i];
             }
 
-            // 흑화 귀퉁이 공격 제외 (2026-08-04 결정): 사전 배정(RandomCorner)이 죽은 곳을 가리키면
-            // 살아있는 귀퉁이로 재지정 — 죽은 결계를 또 때리는 낭비 공격 방지, 압박 유지
-            if (cornerA != CornerIndex.None && salt.IsDead(cornerA)) cornerA = RetargetToLiving(cornerB);
-            if (cornerB != CornerIndex.None && (salt.IsDead(cornerB) || cornerB == cornerA)) cornerB = RetargetToLiving(cornerA);
-            if (cornerB == cornerA) cornerB = CornerIndex.None;
-            if (cornerA == CornerIndex.None)
+            // 2) 포화(흑+심화) 재지정 (v0.3: 흑 미심화는 유효 타깃 — 피격 = 심화 스택).
+            //    사전 배정이 포화 귀퉁이를 가리키면 이 공격이 노리지 않은 비포화 귀퉁이로 돌린다 — 낭비 공격 방지, 압박 유지.
+            for (int i = 0; i < CornerIndex.Count; i++) _fireTaken[i] = false;
+            for (int i = 0; i < count; i++)
             {
-                cornerA = cornerB;
-                cornerB = CornerIndex.None;
+                if (_fireBuffer[i] != CornerIndex.None) _fireTaken[_fireBuffer[i]] = true;
             }
-            if (cornerA == CornerIndex.None)
+            int started = 0;
+            for (int i = 0; i < count; i++)
             {
-                Debug.Log($"[ATTACK] {attack.Id} 스킵 — 살아있는 귀퉁이 없음 (붕괴 판정 대기)");
+                int corner = _fireBuffer[i];
+                if (corner == CornerIndex.None) continue;
+                if (salt.IsSaturated(corner))
+                {
+                    _fireTaken[corner] = false;
+                    corner = RetargetToAvailable();
+                    if (corner == CornerIndex.None) continue; // 대체 불가 — 이 갈래는 소멸
+                    _fireTaken[corner] = true;
+                }
+                StartTelegraph(corner, attack.TelegraphDuration, attack.Resolves);
+                started++;
+            }
+
+            if (started == 0)
+            {
+                Debug.Log($"[ATTACK] {attack.Id} 스킵 — 공격 가능한 귀퉁이 없음 (붕괴 판정 대기)");
                 return;
             }
 
-            StartTelegraph(cornerA, attack.TelegraphDuration, attack.Resolves);
-            if (cornerB != CornerIndex.None)
-            {
-                StartTelegraph(cornerB, attack.TelegraphDuration, attack.Resolves);
-            }
-
-            // 전조 발생 이성 −8 — 공격 1건당 1회 (dual도 1회)
+            // 전조 발생 이성 −8 — 공격 1건당 1회 (N동시도 1회)
             if (sanity != null) sanity.ApplyDelta(-config.SanityTelegraphHit);
 
-            Debug.Log($"[ATTACK] {attack.Id} 전조 시작 — corner {cornerA}"
-                      + (cornerB != CornerIndex.None ? $"+{cornerB}" : "")
-                      + $" (판정까지 {attack.TelegraphDuration:F1}s)");
+            Debug.Log($"[ATTACK] {attack.Id} 전조 시작 — 동시 {started}곳 (판정까지 {attack.TelegraphDuration:F1}s)");
         }
 
         /// <summary>
-        /// 살아있는 귀퉁이 중 재지정 대상 선택 — 활성 전조가 없는 곳 중 플레이어 최원거리 우선
-        /// (P5 원거리 규칙과 동일 성향: 확인하러 갈 수 없는 곳이 가장 위협적). 후보가 전조뿐이면 겹침 허용.
+        /// 이 공격이 아직 안 잡은(비 _fireTaken) 비포화 귀퉁이 중 재지정 — 활성 전조가 없는 곳 중 플레이어 최원거리 우선
+        /// (확인하러 갈 수 없는 곳이 가장 위협적). 후보가 전조뿐이면 겹침 허용.
         /// </summary>
-        private int RetargetToLiving(int exclude)
+        private int RetargetToAvailable()
         {
             Vector2 from = player != null ? (Vector2)player.transform.position : Vector2.zero;
             int best = CornerIndex.None;
@@ -190,7 +251,7 @@ namespace Morae.Game.Core
             float bestAnySqr = -1f;
             for (int i = 0; i < CornerIndex.Count; i++)
             {
-                if (i == exclude || salt.IsDead(i)) continue;
+                if (_fireTaken[i] || salt.IsSaturated(i)) continue;
                 float sqr = (salt.GetCornerPosition(i) - from).sqrMagnitude;
                 if (sqr > bestAnySqr)
                 {
@@ -243,7 +304,7 @@ namespace Morae.Game.Core
         {
             if (!telegraph.Resolves)
             {
-                // 전조만 내는 공격 (P5 튜닝 여지) — 오염 없음. countered=true로 발행해 표현 계층이 전조 연출을 정리하게 한다 (결정 기록)
+                // 전조만 내는 공격 (튜닝 여지) — 오염 없음. countered=true로 발행해 표현 계층이 전조 연출을 정리하게 한다 (결정 기록)
                 Debug.Log($"[ATTACK] 귀퉁이 {telegraph.Corner} 전조 종료 — 판정 생략 (resolves=false)");
                 GameEvents.RaiseAttackResolved(telegraph.Corner, true);
                 return;
@@ -253,17 +314,35 @@ namespace Morae.Game.Core
             salt.Contaminate(telegraph.Corner);
         }
 
+        private int FindPhaseIndex(PhaseId id)
+        {
+            for (int i = 0; i < phaseTable.Count; i++)
+            {
+                if (phaseTable.GetPhase(i).PhaseId == id) return i;
+            }
+            return -1;
+        }
+
         private void LogSchedule(int seed)
         {
             var sb = new StringBuilder(256); // Begin 1회 — 핫패스 아님
-            sb.Append($"[ATTACK] 스케줄 확정 (seed={seed}, {_schedule.Length}건):");
+            sb.Append($"[ATTACK] 스케줄 확정 (seed={seed}, {_schedule.Length}건 + 함정 {config.TrapWaveCount}웨이브):");
             for (int i = 0; i < _schedule.Length; i++)
             {
                 ScheduledAttack a = _schedule[i];
-                sb.Append($"\n  {a.Id} @{a.PhaseId}+{a.TriggerTime:F1}s corner=")
-                  .Append(a.TargetRule == AttackTargetRule.FarthestFromPlayer
-                      ? "최원거리(발동 시 해석)"
-                      : a.CornerA + (a.CornerB != CornerIndex.None ? $"+{a.CornerB}" : ""));
+                sb.Append($"\n  {a.Id} @{a.PhaseId}+{a.TriggerTime:F1}s x{a.CornerCount} corner=");
+                if (a.TargetRule == AttackTargetRule.FarthestFromPlayer)
+                {
+                    sb.Append("최원거리(발동 시 해석)");
+                }
+                else
+                {
+                    for (int c = 0; c < a.Corners.Length; c++)
+                    {
+                        if (c > 0) sb.Append('+');
+                        sb.Append(a.Corners[c]);
+                    }
+                }
             }
             Debug.Log(sb.ToString());
         }

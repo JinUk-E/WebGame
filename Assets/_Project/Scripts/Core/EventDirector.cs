@@ -10,7 +10,7 @@ namespace Morae.Game.Core
     /// 페이즈 진입 시 해당 페이즈 행을 offset 오름차순 큐로 만들고, PhaseElapsed가 offset을 넘으면 발화.
     /// 발화 = GameEventFired 발행 + sanityDelta 적용 + 요의("urge") 설정 + 진짜 신호(TrueSignalStarted).
     /// 진짜 신호 후 RescueAutoOpenDelaySec(60s) 무응답 시 Rescued 엔딩 발행 — 소프트락 없음 (명세 §4).
-    /// P7은 종단 페이즈라 PhaseElapsed가 duration을 넘어 계속 증가 — rescue-open(offset 60) 발화 가능.
+    /// P8은 종단 페이즈라 PhaseElapsed가 duration을 넘어 계속 증가 — rescue-open(offset 60) 발화 가능.
     /// 시퀀서가 멈추면(게임오버·엔딩) 같이 멈춘다 — 별도 Begin/Stop 불필요.
     /// </summary>
     public sealed class EventDirector : MonoBehaviour

@@ -27,7 +27,17 @@ namespace Morae.Game.Data
         [SerializeField] private float blanketExitSec = 1f;            // 이불에서 나오는 시간
 
         [Header("공격·TV")]
-        [SerializeField] private float tvAttackClockRate = 1.333333f;  // 공격 간격 ×0.75 = 페이즈 로컬 공격 시계 배속 (§2.2)
+        [SerializeField] private float tvAttackClockRate = 1.333333f;  // 공격 간격 ×0.75 = 페이즈 로컬 공격 시계 배속 (§2.2. v0.3 유보: 부족 시 1.5)
+
+        [Header("최후의 함정 (명세 v0.3 — P6 시퀀스, 실시간 기준·TV 배속 무관)")]
+        [SerializeField] private float trapVoiceLeadSec = 9f;          // 가짜 목소리 ② 발화 구간 (P6 진입~대사 종료)
+        [SerializeField] private float trapQuietSec = 5f;              // 완전 무공격 정적 (소금 전조 금지 — 고민 구간)
+        [SerializeField] private float trapTelegraphSec = 3f;          // 함정 웨이브 전조 길이
+        [SerializeField] private float trapWaveGapSec = 5f;            // 웨이브 판정 → 다음 웨이브 전조 시작 간격
+        [SerializeField] private int trapWaveCount = 2;                // 4귀퉁이 동시 공격 횟수
+
+        [Header("흑화 심화 (명세 v0.3 — 흑 귀퉁이 추가 피격 시 1회 플래그)")]
+        [SerializeField] private float prayerDeepenedMultiplier = 1.5f; // 심화 귀퉁이 기도 채널 배율 (3s → 4.5s)
 
         [Header("부적 (명세 §2 — 1회 방어)")]
         [SerializeField] private int talismanSaltRestore = 1;          // 전 귀퉁이 −1
@@ -49,6 +59,12 @@ namespace Morae.Game.Data
         public float JarLockSec => jarLockSec;
         public float BlanketExitSec => blanketExitSec;
         public float TvAttackClockRate => tvAttackClockRate;
+        public float TrapVoiceLeadSec => trapVoiceLeadSec;
+        public float TrapQuietSec => trapQuietSec;
+        public float TrapTelegraphSec => trapTelegraphSec;
+        public float TrapWaveGapSec => trapWaveGapSec;
+        public int TrapWaveCount => trapWaveCount;
+        public float PrayerDeepenedMultiplier => prayerDeepenedMultiplier;
         public int TalismanSaltRestore => talismanSaltRestore;
         public float TalismanSanityRestore => talismanSanityRestore;
         public float TalismanFxSec => talismanFxSec;

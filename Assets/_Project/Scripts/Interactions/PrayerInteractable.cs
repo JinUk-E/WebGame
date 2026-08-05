@@ -22,7 +22,23 @@ namespace Morae.Game.Interactions
 
         public override InteractionKind Kind => InteractionKind.HoldComplete;
         public override string PromptLabel => "기도 (홀드+대각 조준)";
-        public override float Duration => Config.PrayerChannelSec;
+
+        /// <summary>
+        /// v0.3 흑화 심화: 조준 귀퉁이가 심화 상태면 채널 ×PrayerDeepenedMultiplier (3s → 4.5s).
+        /// PlayerInteraction이 매 틱 Duration을 읽으므로 채널 중 조준 변경도 즉시 반영된다.
+        /// </summary>
+        public override float Duration
+        {
+            get
+            {
+                float baseSec = Config.PrayerChannelSec;
+                if (salt != null && _aimedCorner != CornerIndex.None && salt.IsDeepened(_aimedCorner))
+                {
+                    return baseSec * Config.PrayerDeepenedMultiplier;
+                }
+                return baseSec;
+            }
+        }
 
         /// <summary>현재 조준 중인 귀퉁이 (0~3, 미지정 -1) — 표현·후속 로직용 읽기 프로퍼티.</summary>
         public int AimedCorner => _aimedCorner;
