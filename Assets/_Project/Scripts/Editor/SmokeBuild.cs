@@ -6,25 +6,32 @@ using UnityEngine;
 namespace Morae.EditorTools
 {
     /// <summary>
-    /// D1 WebGL 스모크 빌드 (architecture.md §8.3·§8.6).
+    /// WebGL 빌드 (architecture.md §8.3·§8.6). 출력: 프로젝트 루트 docs/ (GitHub Pages 서빙 경로) + .nojekyll
+    ///
+    /// ⚠ 배포용은 반드시 <b>BuildMain</b>(본편 Main.unity)이다. Build/BuildSmoke는 D1 검증용 스모크 씬 —
+    /// 잘못 호출하면 "한글 렌더 확인" 테스트 화면이 그대로 배포된다(2026-08-05 실제 사고).
     /// CLI: Unity.exe -batchmode -quit -projectPath ... -buildTarget WebGL
-    ///      -executeMethod Morae.EditorTools.SmokeBuild.Build -logFile build.log
-    /// 출력: 프로젝트 루트 docs/ (GitHub Pages 서빙 경로) + .nojekyll
+    ///      -executeMethod Morae.EditorTools.SmokeBuild.<b>BuildMain</b> -logFile build.log
     /// </summary>
     public static class SmokeBuild
     {
         private const string ScenePath = "Assets/_Project/Scenes/SmokeTest.unity";
         private const string OutputDir = "docs";
 
-        [MenuItem("Morae/Build WebGL Smoke")]
-        public static void Build()
+        /// <summary>D1 검증용 스모크 씬 빌드 — 배포용 아님. 배포는 BuildMain.</summary>
+        [MenuItem("Morae/Build WebGL Smoke (검증용 — 배포 아님)")]
+        public static void BuildSmoke()
         {
             // 씬·폰트 에셋이 없으면 먼저 생성 (멱등)
             SmokeSceneBuilder.Build();
             BuildScene(ScenePath);
         }
 
-        [MenuItem("Morae/Build WebGL Main")]
+        /// <summary>구 이름 호환 — 스모크 빌드. 새 코드는 BuildSmoke/BuildMain을 명시적으로 쓸 것.</summary>
+        public static void Build() => BuildSmoke();
+
+        /// <summary>배포용 본편 빌드 — Pages에 올라가는 것은 이것이다.</summary>
+        [MenuItem("Morae/Build WebGL Main (배포용)")]
         public static void BuildMain()
         {
             // 주의: 씬 재생성 없이 저장된 Main.unity 그대로 빌드 —
