@@ -2237,6 +2237,30 @@ MonoBehaviour:
     text: "(\uAC78\uC1E0\uB97C \uAC78\uC5C8\uB2E4. \uC774\uC81C \uC774 \uBC29\uC774
       \uC804\uBD80\uB2E4.)"
     duration: 3
+  config: {fileID: 11400000, guid: 94b5dc86590437d44b3fc3c6aa682afa, type: 2}
+  scheduler: {fileID: 638019703}
+  trainingCorner: 1
+  warningLine:
+    speaker: "\uD560\uC544\uBC84\uC9C0"
+    text: "\uC18C\uAE08\uC774 \uAC80\uC5B4\uC9C0\uBA74 \uADF8\uCABD\uC73C\uB85C \uAE38\uC774
+      \uC5F4\uB9B0\uB2E4. \uB124 \uACF3\uC774 \uB2E4 \uC5F4\uB9AC\uBA74 \uB05D\uC774\uC57C."
+    duration: 5.5
+  telegraphLine:
+    speaker: "\uD560\uC544\uBC84\uC9C0"
+    text: "\u2026\uC27F. \uBC8C\uC368 \uD558\uB098\uAC00 \uB4E4\uC369\uC778\uB2E4.
+      \uBD88\uC0C1 \uC55E\uC5D0 \uC549\uC544, \uADF8\uCABD\uC73C\uB85C \uC190\uC744
+      \uBAA8\uC544\uB77C. \uC5B4\uC11C!"
+    duration: 4.5
+  retryLine:
+    speaker: "\uD560\uC544\uBC84\uC9C0"
+    text: "\uAD1C\uCC2E\uB2E4, \uC544\uC9C1\uC740 \uB0B4\uAC00 \uBD99\uC7A1\uACE0
+      \uC788\uB2E4. \uB2E4\uC2DC \u2014 \uC18C\uB9AC \uB098\uB294 \uCABD\uC774\uB2E4."
+    duration: 3.5
+  clearedLine:
+    speaker: "\uD560\uC544\uBC84\uC9C0"
+    text: "\uADF8\uB807\uC9C0. \uADF8\uB807\uAC8C \uB9C9\uB294 \uAC70\uB2E4. \uC774\uC81C
+      \uD63C\uC790\uC11C\uB3C4 \uD560 \uC218 \uC788\uACA0\uC9C0."
+    duration: 4
 --- !u!1 &492195761
 GameObject:
   m_ObjectHideFlags: 0
@@ -2709,6 +2733,7 @@ Transform:
   - {fileID: 1686789152}
   - {fileID: 835402635}
   - {fileID: 72316559}
+  - {fileID: 826086958}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &509141391
@@ -2724,9 +2749,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Morae.Game::Morae.Game.Presentation.LightingController
   sequencer: {fileID: 638019702}
+  config: {fileID: 11400000, guid: 94b5dc86590437d44b3fc3c6aa682afa, type: 2}
   globalLight: {fileID: 471914745}
   tvLight: {fileID: 721163029}
   windowDawnLight: {fileID: 72316560}
+  buddhaCandleLight: {fileID: 826086957}
   cornerLights:
   - {fileID: 1107523508}
   - {fileID: 1032297868}
@@ -2738,6 +2765,11 @@ MonoBehaviour:
   globalMinIntensity: 0.05
   tvIntensity: 1.1
   cornerBaseIntensity: 0.25
+  candleIntensity: 0.55
+  telegraphIntensity: 1
+  telegraphPulseHz: 3
+  editorFreeLight: 0
+  editorLightBoost: 0
 --- !u!1 &566246345
 GameObject:
   m_ObjectHideFlags: 0
@@ -3083,6 +3115,7 @@ MonoBehaviour:
   player: {fileID: 499805494}
   tv: {fileID: 4671686}
   talisman: {fileID: 638019700}
+  salt: {fileID: 638019701}
 --- !u!114 &638019700
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3919,6 +3952,107 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 804306301}
   m_CullTransparentMesh: 1
+--- !u!1 &826086956
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 826086958}
+  - component: {fileID: 826086957}
+  m_Layer: 0
+  m_Name: BuddhaCandleLight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &826086957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 826086956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.2D.Runtime::UnityEngine.Rendering.Universal.Light2D
+  m_ComponentVersion: 4
+  m_LightType: 3
+  m_BlendStyleIndex: 0
+  m_Light2DProvider:
+    rid: -2
+  m_SelectionSources:
+    rid: 4357134923131781120
+  m_FalloffIntensity: 0.5
+  m_Color: {r: 1, g: 0.82, b: 0.55, a: 1}
+  m_Intensity: 0.55
+  m_LightVolumeIntensity: 1
+  m_LightVolumeEnabled: 0
+  m_ApplyToSortingLayers: 00000000
+  m_LightCookieSprite: {fileID: 0}
+  m_DeprecatedPointLightCookieSprite: {fileID: 0}
+  m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
+  m_OverlapOperation: 0
+  m_NormalMapDistance: 3
+  m_NormalMapQuality: 2
+  m_UseNormalMap: 0
+  m_ShadowsEnabled: 1
+  m_ShadowIntensity: 0.75
+  m_ShadowSoftness: 0.3
+  m_ShadowSoftnessFalloffIntensity: 0.5
+  m_ShadowVolumeIntensityEnabled: 0
+  m_ShadowVolumeIntensity: 0.75
+  m_LocalBounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
+  m_PointLightInnerAngle: 360
+  m_PointLightOuterAngle: 360
+  m_PointLightInnerRadius: 0.4
+  m_PointLightOuterRadius: 2.8
+  m_ShapeLightParametricSides: 5
+  m_ShapeLightParametricAngleOffset: 0
+  m_ShapeLightParametricRadius: 1
+  m_ShapeLightFalloffSize: 0.5
+  m_ShapeLightFalloffOffset: {x: 0, y: 0}
+  m_ShapePath:
+  - {x: -0.5, y: -0.5, z: 0}
+  - {x: 0.5, y: -0.5, z: 0}
+  - {x: 0.5, y: 0.5, z: 0}
+  - {x: -0.5, y: 0.5, z: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 4357134923131781120
+      type: {class: Light2DProviderSources, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
+      data:
+        m_SelectedHashCode: 3
+        m_SelectedSource:
+          rid: -2
+        m_Provider2DCache:
+          rid: -2
+--- !u!4 &826086958
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 826086956}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -2.5, y: 2.2, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 509141390}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &835402634
 GameObject:
   m_ObjectHideFlags: 0
@@ -4563,6 +4697,15 @@ MonoBehaviour:
   - {fileID: 8300000, guid: b56d05dc98a917e49955ea49bb056ec7, type: 3}
   - {fileID: 8300000, guid: a62af305a65062e499c718b24d64969a, type: 3}
   sfxHeartbeat: {fileID: 8300000, guid: 09761aad7b1e6454ab92b291360932db, type: 3}
+  sfxCornerWhisper: {fileID: 8300000, guid: 319c7972f2dcb204eb4fb1f9a4818973, type: 3}
+  balance: {fileID: 11400000, guid: 94b5dc86590437d44b3fc3c6aa682afa, type: 2}
+  cornerSources:
+  - {fileID: 75115979}
+  - {fileID: 43447539}
+  - {fileID: 42140099}
+  - {fileID: 1457101873}
+  cornerPan: 0.65
+  cornerVolumeSmoothSec: 0.35
   bgmVolume: 0.5
   sfxVolume: 0.9
   bgmFadeSec: 1.5
@@ -9124,6 +9267,69 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 936875203674402621, guid: 7cb529c9dcbebb148ab240249ebd94c3, type: 3}
   m_PrefabInstance: {fileID: 273287549739656006}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2098090333
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2098090335}
+  - component: {fileID: 2098090334}
+  m_Layer: 0
+  m_Name: Silhouettes
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2098090334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2098090333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 61aa0a066e3ef69489c1f3911ad5ef69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Morae.Game::Morae.Game.Presentation.SilhouetteDirector
+  config: {fileID: 11400000, guid: 94b5dc86590437d44b3fc3c6aa682afa, type: 2}
+  silhouetteSprite: {fileID: 5284207340753240396, guid: dea5dd02994cc6b4ca562a1b4a7d5f63, type: 3}
+  unlitMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  player: {fileID: 499805497}
+  altar: {fileID: 1587754976}
+  cornerTransforms:
+  - {fileID: 2041038711}
+  - {fileID: 1108568239}
+  - {fileID: 1731765970}
+  - {fileID: 1519598325}
+  tint: {r: 0.3, g: 0.3, b: 0.34, a: 1}
+  maxAlpha: 0.28
+  crossSpeed: 1.5
+  lifetimeSec: 3.2
+  fadePortion: 0.35
+  scaleRange: {x: 1, y: 1.35}
+  travelYRange: 3
+  spawnMarginX: 7.4
+  poolSize: 4
+--- !u!4 &2098090335
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2098090333}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2100936301
 GameObject:
   m_ObjectHideFlags: 0
@@ -9482,3 +9688,4 @@ SceneRoots:
   - {fileID: 1187066849}
   - {fileID: 492195764}
   - {fileID: 34735966}
+  - {fileID: 2098090335}

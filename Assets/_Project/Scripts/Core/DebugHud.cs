@@ -42,8 +42,9 @@ namespace Morae.Game.Core
             string attack = scheduler != null
                 ? $"공격시계 {scheduler.LocalAttackClock:F1}s | 전조 {scheduler.ActiveTelegraphCount} | 다음 {scheduler.NextAttackId}@{scheduler.NextAttackTime:F1}s"
                 : "공격 스케줄러 없음";
+            // v0.5 — 흑 개수 n과 심화 표시. 감광·드레인·공격 가속이 전부 이 n에 걸려 있어 검증의 기준값이다.
             string saltText = salt != null
-                ? $"[{salt.GetStage(0)}{salt.GetStage(1)}{salt.GetStage(2)}{salt.GetStage(3)}]"
+                ? $"[{Cell(0)}{Cell(1)}{Cell(2)}{Cell(3)}] 흑{salt.BlackCornerCount}"
                 : "-";
             string sanityText = sanity != null
                 ? $"{sanity.Value:F0}/{sanity.Max:F0}{(sanity.UrgeActive ? " (요의)" : "")}"
@@ -58,6 +59,10 @@ namespace Morae.Game.Core
                    + $"소금 {saltText} | 이성 {sanityText} | 부적 {talismanText}\n"
                    + $"플레이어 {playerText} | 문 {doorText}";
         }
+
+        /// <summary>귀퉁이 1칸 표기 — 흑+심화는 3으로 (SaltCorners 내부 단계는 0~2, 심화는 별도 플래그).</summary>
+        private string Cell(int corner)
+            => (salt.IsDeepened(corner) ? 3 : salt.GetStage(corner)).ToString();
 
         private void OnGUI()
         {
