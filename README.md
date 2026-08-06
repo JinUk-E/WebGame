@@ -1,8 +1,40 @@
-# WebGame
-MoraeGames WebGame//
+# 팔척
 
-**밀실 버티기** (가제) — NHN NAN 2026 사전과제 출품작. 2D 탑뷰 심리 공포 (Unity, WebGL).
+> **모래게임즈 (MoraeGames)** · NHN NAN 2026 사전과제 출품작
+
+팔척귀신의 표적이 된 소년이 되어, 직접 봉인한 시골 방 안에서 — **믿을 수 없는 시계와 문밖의 목소리들 사이에서 진짜 아침을 가려내며** — 아침 7시 30분 구출까지 버티는 2D 탑뷰 심리 공포.
+
+**▶ 플레이: https://jinuk-e.github.io/WebGame/** (브라우저, 설치 불필요 · **헤드폰 권장**)
+
+## 게임 정보
+
+| 구분 | 내용 |
+|------|------|
+| 장르 | 심리 공포 · 밀실 생존 · 싱글플레이 |
+| 플랫폼 | WebGL — PC 브라우저 + 모바일 브라우저(터치) |
+| 플레이 타임 | 프롤로그 ~90초 + 본편 7분 (1회 완주 약 8~9분) |
+| 조작 | PC: `WASD`/방향키 + `E` (마우스 불필요) · 모바일: 가상 스틱 + 상호작용 버튼 |
+| 엔진 | Unity 6000.5.6f1 · 2D URP (2D Lights) |
+
+## 규칙 세 가지
+
+1. **시계를 믿을 수 없다** — 봉인 직후부터 벽시계는 멈추고, 뛰고, 되감긴다.
+2. **소리는 거짓말을 하지만 새벽빛은 못 한다** — 문밖 목소리는 흉내 낼 수 있다. 진짜 구출 신호는 할머니의 울음과 염불이 **함께** 들리고 창밖이 아침일 때뿐.
+3. **전부 지킬 수는 없다** — 공격은 네 귀퉁이의 소금을 노린다. 동시에 두 곳이 무너지면 하나는 포기해야 한다.
+
+## 저장소 구조
 
 - Unity 프로젝트 소스 + WebGL 빌드 서빙 저장소
-- 플레이(GitHub Pages): https://jinuk-e.github.io/WebGame/
-- 빌드 산출물은 `docs/`에 커밋 (Pages 서빙 경로), `Library/` 등 Unity 캐시는 .gitignore
+- 빌드 산출물은 `docs/`에 커밋 (GitHub Pages 서빙 경로) — 배포 빌드는 `Morae/Build WebGL Main (배포용)`
+- `Library/` 등 Unity 캐시는 `.gitignore`
+- 에셋 출처·라이선스: [`LICENSES.md`](LICENSES.md)
+
+## 크레딧
+
+| 구분 | 내용 |
+|------|------|
+| 개발 | 모래게임즈 (2인) |
+| 음성·그래픽 | 자체 생성 (TTS + ffmpeg 가공 / 절차 생성 스프라이트) |
+| 음향·BGM | [Pixabay](https://pixabay.com) (Pixabay Content License) |
+| 폰트 | [Pretendard](https://github.com/orioncactus/pretendard) (SIL OFL 1.1) |
+| 원전 | 팔척귀신 괴담 (작자 미상 인터넷 괴담 — 소재만 차용) |
