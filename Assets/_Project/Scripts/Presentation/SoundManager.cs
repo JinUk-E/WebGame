@@ -40,6 +40,28 @@ namespace Morae.Game.Presentation
         [SerializeField] private float cornerVolumeInBlanket = 0.4f;
         [SerializeField] private float cornerVolumeAtDoor = 0.7f;
 
+        [Header("전조 두드림 (v0.6)")]
+        [SerializeField] private AudioClip sfxKnock;            // SFX_Knock/knock (절차 생성)
+        [SerializeField] private float knockVolume = 0.85f;
+        // v0.6 방어 판정음 — 성공/실패를 대역과 결로 가른다.
+        // 성공: 맑고 위로 열리는 금속성 / 실패: 탁하고 아래로 내려앉는 사람 목소리.
+        // 둘 다 귀퉁이 소스에서 울려 — 어느 곳이 지켜졌고 어느 곳이 뚫렸는지까지 소리로 잡힌다.
+        [SerializeField] private AudioClip sfxPurify;           // SFX_Purify/purify (절차 생성)
+        [SerializeField] private AudioClip sfxPoppo;            // SFX_Poppo/poppo — 팔척님의 웃음
+        [SerializeField] private float purifyVolume = 0.9f;
+        [SerializeField] private float poppoVolume = 1f;
+        // 함정 웨이브처럼 네 귀퉁이가 한꺼번에 뚫려도 웃음은 한 번만 — 겹치면 조롱이 아니라 소음이 된다
+        [SerializeField] private float poppoMinIntervalSec = 0.8f;
+
+        [Header("TV 잡음 (v0.6)")]
+        // TV를 켰을 때 **그 근처에서만** 들리는 소리. 2D로 깔면 방 전체가 울려 거리감이 죽는다 —
+        // TV 옆으로 가야 크게 들리는 게 이 소리의 존재 이유다 (이불 속·문 앞에서는 멀어진다).
+        [SerializeField] private AudioClip sfxTvWhisper;        // SFX_TV/tv_whisper_loop (절차 생성)
+        [SerializeField] private Transform tvAnchor;            // 소리가 나올 자리 (Room/TV)
+        [SerializeField] private float tvWhisperVolume = 0.55f;
+        [SerializeField] private float tvFadeSec = 0.6f;
+        [SerializeField] private float tvMaxDistance = 14f;     // 귀퉁이와 달리 거리 감쇠를 살렸다
+
         [Header("볼륨·페이드")]
         [SerializeField] private float bgmVolume = 0.5f;
         [SerializeField] private float sfxVolume = 0.9f;
@@ -55,6 +77,15 @@ namespace Morae.Game.Presentation
         private bool _listening;      // 귀 대기 중 — Door 채널 선명/뭉갬 분기
         private bool _inBlanket;      // 이불 속 — 귀퉁이 속삭임도 멀어진다
         private readonly int[] _cornerStages = new int[CornerIndex.Count]; // v0.5 — 귀퉁이 속삭임 볼륨 근거
+        private AudioSource[] _cornerOneShots;  // 두드림·판정음 전용 (속삭임 볼륨에 물들지 않게 분리)
+        private AudioSource _tv;   // TV 잡음 루프 (tvAnchor 아래에 런타임 생성)
+        private bool _tvOn;
+        private int _knockCorner = -1;   // v0.6 두드림 진행 중인 귀퉁이 (-1 = 없음)
+        private float _knockStart;
+        private float _knockDuration;
+        private int _knockDone;
+        private float _lastPoppo = -99f;
+        private bool _training;   // 학습 구간 — 실패해도 할아버지가 막아준다
 
         private void Awake()
         {
@@ -74,6 +105,41 @@ namespace Morae.Game.Presentation
             _heart.volume = 0f;
 
             SetupCornerSources();
+            SetupTvSource();
+        }
+
+        /// <summary>
+        /// TV 잡음 소스 — TV 오브젝트 밑에 런타임으로 달아 좌표를 공유한다.
+        /// 씬에 미리 넣지 않는 이유: 이 소스는 순전히 사운드의 구현 사항이라
+        /// 씬에 드러나면 누군가 실수로 옮기거나 지울 수 있다 (귀퉁이 소스는 정위 검증 때문에 씬에 있다).
+        /// </summary>
+        private void SetupTvSource()
+        {
+            if (tvAnchor == null || sfxTvWhisper == null) return;
+            var go = new GameObject("TvWhisperSource");
+            go.transform.SetParent(tvAnchor, false);
+            _tv = go.AddComponent<AudioSource>();
+            _tv.clip = sfxTvWhisper;
+            _tv.loop = true;
+            _tv.playOnAwake = false;   // §8.2 오디오 게이트 — 첫 입력 전 재생 금지
+            _tv.volume = 0f;
+            _tv.spatialBlend = 1f;
+            _tv.rolloffMode = AudioRolloffMode.Linear;
+            _tv.dopplerLevel = 0f;
+            _tv.spread = 0f;
+            _tv.minDistance = 1.5f;
+            _tv.maxDistance = tvMaxDistance;
+        }
+
+        /// <summary>TV 잡음 페이드 — 켜고 끄는 게 딸깍 끊기면 장난감처럼 들린다.</summary>
+        private void UpdateTvWhisper()
+        {
+            if (_tv == null) return;
+            float target = _tvOn ? tvWhisperVolume * sfxVolume : 0f;
+            if (_tvOn && !_tv.isPlaying) _tv.Play();
+            float step = tvFadeSec > 0f ? Time.unscaledDeltaTime / tvFadeSec : 1f;
+            _tv.volume = Mathf.MoveTowards(_tv.volume, target, step);
+            if (!_tvOn && _tv.volume <= 0f && _tv.isPlaying) _tv.Stop();
         }
 
         /// <summary>
@@ -88,10 +154,24 @@ namespace Morae.Game.Presentation
         private void SetupCornerSources()
         {
             if (cornerSources == null) return;
+            _cornerOneShots = new AudioSource[cornerSources.Length];
             for (int i = 0; i < cornerSources.Length; i++)
             {
                 AudioSource src = cornerSources[i];
                 if (src == null) continue;
+
+                // 원샷 전용 짝 — 같은 오브젝트(=같은 좌표)에 붙여 정위는 공유하고 볼륨만 독립시킨다
+                AudioSource one = src.gameObject.AddComponent<AudioSource>();
+                one.playOnAwake = false;
+                one.loop = false;
+                one.volume = 1f;
+                one.spatialBlend = 1f;
+                one.rolloffMode = AudioRolloffMode.Linear;
+                one.dopplerLevel = 0f;
+                one.spread = 0f;
+                one.minDistance = 1f;
+                one.maxDistance = cornerMaxDistance;
+                _cornerOneShots[i] = one;
                 src.clip = sfxCornerWhisper;
                 src.loop = true;
                 src.playOnAwake = false;
@@ -117,6 +197,9 @@ namespace Morae.Game.Presentation
             GameEvents.SanityChanged += HandleSanityChanged;
             GameEvents.PlayerStateChanged += HandlePlayerStateChanged;
             GameEvents.CornerStageChanged += HandleCornerStageChanged;
+            GameEvents.AttackResolved += HandleAttackResolved;
+            GameEvents.TrainingModeChanged += HandleTrainingMode;
+            GameEvents.TVToggled += HandleTvToggled;
         }
 
         private void OnDisable()
@@ -131,6 +214,9 @@ namespace Morae.Game.Presentation
             GameEvents.SanityChanged -= HandleSanityChanged;
             GameEvents.PlayerStateChanged -= HandlePlayerStateChanged;
             GameEvents.CornerStageChanged -= HandleCornerStageChanged;
+            GameEvents.AttackResolved -= HandleAttackResolved;
+            GameEvents.TrainingModeChanged -= HandleTrainingMode;
+            GameEvents.TVToggled -= HandleTvToggled;
         }
 
         private void HandleSanityChanged(float s01) => _fear = 1f - s01;
@@ -140,6 +226,12 @@ namespace Morae.Game.Presentation
             if (corner < 0 || corner >= _cornerStages.Length) return;
             _cornerStages[corner] = stage;
         }
+
+        /// <summary>학습 구간 진입/이탈 — 여기서는 팔척님의 웃음을 막는 데만 쓴다.</summary>
+        private void HandleTrainingMode(bool active) => _training = active;
+
+        /// <summary>TV 전원 — 잡음 루프의 on/off 근거. 화면(TvScreenView)·조명과 같은 이벤트를 본다.</summary>
+        private void HandleTvToggled(bool isOn) => _tvOn = isOn;
 
         private void HandlePlayerStateChanged(PlayerState state)
         {
@@ -187,6 +279,8 @@ namespace Morae.Game.Presentation
             }
 
             UpdateCornerWhispers();
+            UpdateKnocks();
+            UpdateTvWhisper();
         }
 
         /// <summary>
@@ -279,7 +373,81 @@ namespace Morae.Game.Presentation
 
         // ---------- SFX ----------
 
-        private void HandleTelegraph(int corner, float duration) => PlayRandom(sfxFear);
+        private void HandleTelegraph(int corner, float duration)
+        {
+            PlayRandom(sfxFear);
+            // v0.6 — 그 귀퉁이 **밖에서** 두드린다. 방향은 CornerSource 정위가 맡으므로
+            // 화면을 안 보고 있어도 "어느 벽인지"가 소리만으로 잡힌다.
+            _knockCorner = corner;
+            _knockDuration = duration;
+            _knockStart = Time.time;
+            _knockDone = 0;
+        }
+
+        /// <summary>
+        /// 방어 판정음 (v0.6). 성공은 그 자리가 닫혔다는 신호라 매번 울린다 —
+        /// 기도가 먹혔는지를 화면 없이도 알 수 있어야 다음 귀퉁이로 손이 움직인다.
+        /// 실패는 간격을 둔다 — 웃음은 드물수록 무섭다.
+        /// </summary>
+        private void HandleAttackResolved(int corner, bool countered)
+        {
+            if (countered)
+            {
+                PlayAtCorner(corner, sfxPurify, purifyVolume, 1f);
+                return;
+            }
+
+            // 학습 구간의 실패는 "뚫린 것"이 아니다 — 할아버지가 붙잡고 있다고 말하는 장면에
+            // 조롱이 섞이면 대사와 소리가 서로를 부정한다.
+            if (_training) return;
+            if (Time.time - _lastPoppo < poppoMinIntervalSec) return;
+            _lastPoppo = Time.time;
+            // 피치를 조금씩 달리 — 같은 파일이 반복되면 사람 소리가 기계음으로 들린다
+            PlayAtCorner(corner, sfxPoppo, poppoVolume, 0.94f + Random.value * 0.1f);
+        }
+
+        /// <summary>
+        /// 귀퉁이 위치에서 원샷을 울린다 (미배선이면 2D 폴백).
+        ///
+        /// ⚠ **속삭임 소스로 재생하면 안 된다.** <see cref="AudioSource.PlayOneShot"/>은 그 소스의 volume을 곱하는데,
+        /// 속삭임 볼륨은 깨끗한 귀퉁이에서 0이다 — 즉 결계가 멀쩡할수록 두드림·판정음이 조용해지고,
+        /// 백(0단계)에서는 아예 안 들린다. 그래서 같은 자리에 **볼륨 1 고정 원샷 전용 소스**를 따로 둔다.
+        /// </summary>
+        private void PlayAtCorner(int corner, AudioClip clip, float volume, float pitch)
+        {
+            if (clip == null) return;
+            AudioSource src = _cornerOneShots != null && corner >= 0 && corner < _cornerOneShots.Length
+                ? _cornerOneShots[corner]
+                : null;
+            if (src == null)
+            {
+                _sfx.PlayOneShot(clip, sfxVolume * volume);
+                return;
+            }
+            src.pitch = pitch;
+            src.PlayOneShot(clip, sfxVolume * volume);
+        }
+
+        /// <summary>
+        /// 전조 두드림 재생. 박자는 <see cref="KnockRhythm"/> — CornerTelegraphView의 흔들림·어둠과
+        /// **같은 함수**를 쓴다. 각자 타이머를 굴리면 소리와 그림이 어긋나 두드림이 벽을 때린 결과로 안 읽힌다.
+        /// </summary>
+        private void UpdateKnocks()
+        {
+            if (_knockCorner < 0 || sfxKnock == null) return;
+            if (cornerSources == null || _knockCorner >= cornerSources.Length) return;
+
+            float elapsed = Time.time - _knockStart;
+            int should = KnockRhythm.CountUpTo(elapsed, _knockDuration);
+            while (_knockDone < should)
+            {
+                // 매번 조금씩 다른 피치 — 같은 파일 3연타는 기계음으로 들린다
+                float pitch = 0.92f + 0.14f * ((_knockDone * 37 % 11) / 10f);
+                PlayAtCorner(_knockCorner, sfxKnock, knockVolume, pitch);
+                _knockDone++;
+            }
+            if (_knockDone >= KnockRhythm.Count && elapsed > _knockDuration) _knockCorner = -1;
+        }
 
         private void HandleGameEventFired(EventDef def)
         {
