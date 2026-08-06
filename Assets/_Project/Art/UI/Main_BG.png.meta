@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 26843448297da3c4993b0364f97e8479
+guid: d857b7bf37c0bf34cb1165b5b1484c04
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1759394595847696678
-    second: portrait_grandfather_0
+      213: -6703023176337501357
+    second: Main_BG_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -96,40 +96,27 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: portrait_grandfather_0
+      name: Main_BG_0
       rect:
         serializedVersion: 2
-        x: 77
+        x: 0
         y: 0
-        width: 589
-        height: 713
+        width: 2750
+        height: 1536
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 6217e313010aa6810800000000000000
-      internalID: 1759394595847696678
+      spriteID: 16f9c39613bafae429014b65ea4511ad
+      internalID: -6703023176337501357
       vertices: []
       indices: 
       edges: []
@@ -138,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 8cdf752923f46634ca0aee85a067136c
+    spriteID: c08ca5c4807a4b44eb4761e42f2e8d7e
     internalID: 0
     vertices: []
     indices: 
@@ -150,7 +137,7 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      portrait_grandfather_0: 1759394595847696678
+      Main_BG_0: -6703023176337501357
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
