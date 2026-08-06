@@ -34,8 +34,11 @@ namespace Morae.Game.Presentation
         [SerializeField] private AudioClip sfxCornerWhisper;               // SFX_Corner/whisper_loop (절차 생성 루프)
         [SerializeField] private BalanceConfig balance;                    // 단계별 볼륨 테이블 (읽기 전용 데이터)
         [SerializeField] private AudioSource[] cornerSources = new AudioSource[CornerIndex.Count];
-        [SerializeField] private float cornerPan = 0.65f;                  // 좌/우 귀퉁이 스테레오 정위 (2D 소스라 pan으로)
+        [SerializeField] private float cornerMaxDistance = 500f;           // 3D 정위만 쓰고 거리 감쇠는 사실상 끈다
         [SerializeField] private float cornerVolumeSmoothSec = 0.35f;
+        // 리슨 상태별 배수 (아키텍처 v1.2 §7.2 볼륨 테이블 규약) — 이불 속에서는 소리가 멀어져야 한다.
+        [SerializeField] private float cornerVolumeInBlanket = 0.4f;
+        [SerializeField] private float cornerVolumeAtDoor = 0.7f;
 
         [Header("볼륨·페이드")]
         [SerializeField] private float bgmVolume = 0.5f;
@@ -50,6 +53,7 @@ namespace Morae.Game.Presentation
         private float _lastLatch;
         private float _fear;          // 1 − 이성(0~1)
         private bool _listening;      // 귀 대기 중 — Door 채널 선명/뭉갬 분기
+        private bool _inBlanket;      // 이불 속 — 귀퉁이 속삭임도 멀어진다
         private readonly int[] _cornerStages = new int[CornerIndex.Count]; // v0.5 — 귀퉁이 속삭임 볼륨 근거
 
         private void Awake()
@@ -75,6 +79,11 @@ namespace Morae.Game.Presentation
         /// <summary>
         /// 귀퉁이 속삭임 4채널 — 씬의 Audio/CornerSource_* 를 그대로 쓰고, 볼륨 0 루프로 대기시킨다.
         /// 재생은 여기서 시작하지 않는다 (§8.2 오디오 게이트 — 첫 클릭 전 재생 금지). P1 진입에서 켠다.
+        ///
+        /// ⚠ 정위는 panStereo가 아니라 **3D 위치**로 한다. Unity WebGL의 오디오 바인딩에는
+        /// `_JS_Sound_SetPosition`/`SetListenerPosition`은 있어도 **panStereo에 해당하는 바인딩이 없어**
+        /// (build.framework.js 심볼 확인) 웹에서는 pan이 통째로 무시된다 — "어느 쪽이 뚫렸는지"가 사라진다.
+        /// 대신 소스를 실제 귀퉁이 좌표에 두고(V05Setup) 거리 감쇠만 사실상 껐다 — 방향만 얻고 크기는 볼륨이 정한다.
         /// </summary>
         private void SetupCornerSources()
         {
@@ -86,10 +95,13 @@ namespace Morae.Game.Presentation
                 src.clip = sfxCornerWhisper;
                 src.loop = true;
                 src.playOnAwake = false;
-                src.spatialBlend = 0f;
                 src.volume = 0f;
-                // 0=좌상 1=우상 2=좌하 3=우하 — 좌/우만 정위한다 (상하는 2D 스테레오로 표현 불가)
-                src.panStereo = (i == CornerIndex.TopLeft || i == CornerIndex.BottomLeft) ? -cornerPan : cornerPan;
+                src.spatialBlend = 1f;                       // 3D — 좌표로 정위
+                src.rolloffMode = AudioRolloffMode.Linear;
+                src.dopplerLevel = 0f;                       // 소스도 리스너도 안 움직인다
+                src.spread = 0f;
+                src.minDistance = 1f;
+                src.maxDistance = cornerMaxDistance;         // 리스너까지 ~12유닛이라 감쇠는 무시할 수준
             }
         }
 
@@ -130,7 +142,10 @@ namespace Morae.Game.Presentation
         }
 
         private void HandlePlayerStateChanged(PlayerState state)
-            => _listening = state == PlayerState.ListeningAtDoor || state == PlayerState.OpeningDoor;
+        {
+            _listening = state == PlayerState.ListeningAtDoor || state == PlayerState.OpeningDoor;
+            _inBlanket = state == PlayerState.InBlanket;
+        }
 
         private void Start()
         {
@@ -180,15 +195,16 @@ namespace Morae.Game.Presentation
         /// </summary>
         private void UpdateCornerWhispers()
         {
-            if (cornerSources == null) return;
-            float[] table = balance != null ? balance.CornerWhisperVolumes : null;
+            if (cornerSources == null || balance == null) return;
             float k = CornerPenaltyModel.SmoothFactor(Time.unscaledDeltaTime, cornerVolumeSmoothSec);
+            // 리슨 상태 배수 — 이불 속/문 앞에서는 방 안 소리가 멀어진다 (§7.2 볼륨 테이블 규약)
+            float listenScale = _inBlanket ? cornerVolumeInBlanket : _listening ? cornerVolumeAtDoor : 1f;
 
             for (int i = 0; i < cornerSources.Length; i++)
             {
                 AudioSource src = cornerSources[i];
                 if (src == null || !src.isPlaying) continue;
-                float target = CornerPenaltyModel.WhisperVolume(_cornerStages[i], table) * sfxVolume;
+                float target = balance.GetCornerWhisperVolume(_cornerStages[i]) * sfxVolume * listenScale;
                 src.volume = Mathf.Lerp(src.volume, target, k);
             }
         }
@@ -202,8 +218,10 @@ namespace Morae.Game.Presentation
                 AudioSource src = cornerSources[i];
                 if (src == null || src.isPlaying) continue;
                 src.volume = 0f;
-                src.time = i * 1.1f % Mathf.Max(0.1f, sfxCornerWhisper.length); // 4채널이 위상까지 겹쳐 울리지 않게
                 src.Play();
+                // 위상 분리는 Play() **후**에 — 클립이 아직 언로드 상태면 Play 전 time 설정이 무시돼
+                // 4채널이 위상까지 겹쳐 한 덩어리로 울린다 (막으려던 바로 그 현상).
+                src.time = i * 1.1f % Mathf.Max(0.1f, sfxCornerWhisper.length);
             }
         }
 

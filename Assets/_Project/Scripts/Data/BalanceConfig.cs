@@ -67,6 +67,8 @@ namespace Morae.Game.Data
         [SerializeField] private float prologueWarningSec = 6f;          // 경고 대사 → 전조까지
         [SerializeField] private float prologueTelegraphTravelSec = 11f; // 전조 길이 = 기도 채널 + 이 이동 여유
         [SerializeField] private float prologueRetryGapSec = 3.5f;       // 실패 후 다시 전조가 뜨기까지
+        // 시도 상한 — 도달하면 자비 통과. 소프트락 방지가 학습보다 우선이다 (조준을 못 찾는 플레이어를 가두지 않는다).
+        [SerializeField] private int prologueMaxAttempts = 3;
 
         [Header("부적 (명세 §2 — 1회 방어)")]
         [SerializeField] private int talismanSaltRestore = 1;          // 전 귀퉁이 −1
@@ -103,7 +105,8 @@ namespace Morae.Game.Data
         public float BlackCornerSanityDrainPerSec => blackCornerSanityDrainPerSec;
         public float BlackCornerAttackIntervalReduction => blackCornerAttackIntervalReduction;
         public float MinAttackIntervalScale => minAttackIntervalScale;
-        public float[] CornerWhisperVolumes => cornerWhisperVolumes;
+        /// <summary>단계별 귀퉁이 속삭임 볼륨 — 배열 자체를 넘기지 않는다(SO는 런타임 읽기 전용, 원소를 쓰면 에셋이 영구 오염된다).</summary>
+        public float GetCornerWhisperVolume(int stage) => Core.CornerPenaltyModel.WhisperVolume(stage, cornerWhisperVolumes);
         public float SilhouetteBaseIntervalSec => silhouetteBaseIntervalSec;
         public float SilhouetteIntervalGain => silhouetteIntervalGain;
         public float SilhouetteMinIntervalSec => silhouetteMinIntervalSec;
@@ -112,6 +115,7 @@ namespace Morae.Game.Data
         public float PrologueWarningSec => prologueWarningSec;
         public float PrologueTelegraphTravelSec => prologueTelegraphTravelSec;
         public float PrologueRetryGapSec => prologueRetryGapSec;
+        public int PrologueMaxAttempts => prologueMaxAttempts;
         public int TalismanSaltRestore => talismanSaltRestore;
         public float TalismanSanityRestore => talismanSanityRestore;
         public float TalismanFxSec => talismanFxSec;

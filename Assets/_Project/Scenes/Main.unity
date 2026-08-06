@@ -425,7 +425,7 @@ Transform:
   m_GameObject: {fileID: 42140097}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -6, y: -3.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -554,7 +554,7 @@ Transform:
   m_GameObject: {fileID: 43447537}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 6, y: 3.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -896,7 +896,7 @@ Transform:
   m_GameObject: {fileID: 75115977}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -6, y: 3.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2261,6 +2261,12 @@ MonoBehaviour:
     text: "\uADF8\uB807\uC9C0. \uADF8\uB807\uAC8C \uB9C9\uB294 \uAC70\uB2E4. \uC774\uC81C
       \uD63C\uC790\uC11C\uB3C4 \uD560 \uC218 \uC788\uACA0\uC9C0."
     duration: 4
+  mercyLine:
+    speaker: "\uD560\uC544\uBC84\uC9C0"
+    text: "\u2026\uC774\uBC88\uC5D4 \uB0B4\uAC00 \uB9C9\uC558\uB2E4. \uB2E4\uC74C\uC5D4
+      \uB124\uAC00 \uD574\uC57C \uD574. \uBD88\uC0C1 \uC55E\uC5D0 \uC549\uC544, \uAC80\uC5B4\uC9C4
+      \uCABD\uC73C\uB85C \uC190\uC744 \uBAA8\uC73C\uB294 \uAC70\uB2E4."
+    duration: 5
 --- !u!1 &492195761
 GameObject:
   m_ObjectHideFlags: 0
@@ -2360,6 +2366,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e74f899e13016a4d9ce801e50505bb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Morae.Game::Morae.Game.Player.PlayerInteraction
+  flow: {fileID: 638019704}
 --- !u!114 &499805494
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4704,8 +4711,10 @@ MonoBehaviour:
   - {fileID: 43447539}
   - {fileID: 42140099}
   - {fileID: 1457101873}
-  cornerPan: 0.65
+  cornerMaxDistance: 500
   cornerVolumeSmoothSec: 0.35
+  cornerVolumeInBlanket: 0.4
+  cornerVolumeAtDoor: 0.7
   bgmVolume: 0.5
   sfxVolume: 0.9
   bgmFadeSec: 1.5
@@ -6047,7 +6056,7 @@ Transform:
   m_GameObject: {fileID: 1457101871}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 6, y: -3.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

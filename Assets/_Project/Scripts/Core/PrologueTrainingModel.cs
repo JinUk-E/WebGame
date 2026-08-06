@@ -40,6 +40,19 @@ namespace Morae.Game.Core
             Step = TrainingStep.Warning; // 경고 대사가 먼저 — 인과("소금이 검어지면 길이 열린다")를 말로 못 박고 시작
         }
 
+        /// <summary>
+        /// 초기 상태로 되돌린다 — 프롤로그를 다시 재생하는 경로용.
+        /// Begin은 NotStarted가 아니면 무시하므로, Reset 없이 Play가 두 번 불리면 학습이 조용히 건너뛰어진다.
+        /// </summary>
+        public void Reset()
+        {
+            Step = TrainingStep.NotStarted;
+            TargetCorner = Data.CornerIndex.None;
+            Attempts = 0;
+            ClearedByMercy = false;
+            _timer = 0f;
+        }
+
         /// <summary>대사·재시도 대기 시간을 진행시키고, 전조를 띄울 때가 되면 FireTelegraph를 돌려준다.</summary>
         public TrainingCommand Tick(float deltaTime, float warningSec, float retryGapSec)
         {
@@ -60,12 +73,32 @@ namespace Morae.Game.Core
             }
         }
 
-        /// <summary>전조 판정 결과 통보. countered=true면 통과, false면 벌 없이 재시도 대기로 돌아간다.</summary>
-        public void OnResolved(bool countered)
+        /// <summary>
+        /// 상쇄가 아니라 시도 횟수로 통과했는가 — 규칙을 못 배운 채 넘어간 것이므로 호출부가 대사를 달리한다.
+        /// </summary>
+        public bool ClearedByMercy { get; private set; }
+
+        /// <summary>
+        /// 전조 판정 결과 통보. countered=true면 통과, false면 벌 없이 재시도 대기로 돌아간다.
+        /// maxAttempts에 도달하면 자비 통과 — **소프트락 방지가 학습보다 우선**이다.
+        /// 조준·위치를 못 찾는 플레이어를 영원히 가두면 그 판은 첫 화면에서 끝난다 (잼 심사 포함).
+        /// </summary>
+        public void OnResolved(bool countered, int maxAttempts)
         {
             if (Step != TrainingStep.Telegraph) return; // 학습 밖의 판정은 무시 (본편 스케줄과 섞이지 않게)
             _timer = 0f;
-            Step = countered ? TrainingStep.Cleared : TrainingStep.RetryGap;
+            if (countered)
+            {
+                Step = TrainingStep.Cleared;
+                return;
+            }
+            if (maxAttempts > 0 && Attempts >= maxAttempts)
+            {
+                ClearedByMercy = true;
+                Step = TrainingStep.Cleared;
+                return;
+            }
+            Step = TrainingStep.RetryGap;
         }
 
         /// <summary>프롤로그 스킵(2회차 이후·E 스킵) — 이 구간도 함께 건너뛴다 (v0.5 §3).</summary>

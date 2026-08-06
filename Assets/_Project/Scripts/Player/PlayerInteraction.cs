@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Morae.Game.Core;
 using Morae.Game.Data;
 using Morae.Game.Interactions;
 using UnityEngine;
@@ -13,6 +14,12 @@ namespace Morae.Game.Player
     [RequireComponent(typeof(PlayerController))]
     public sealed class PlayerInteraction : MonoBehaviour
     {
+        // 게임 흐름 게이트 (같은 계층 직접 참조, §1.2). 프롤로그 중에는 기도만 허용한다 —
+        // 게이트가 없으면 프롤로그 동안 문·TV·이불이 전부 살아 있고, 프롤로그 중 개문은
+        // GameFlowController가 State != MainLoop이라 게임오버를 무시하는 반면 문은 Open으로 남아
+        // **문이 열린 채로 본편이 시작**된다. v0.5 강제 학습으로 프롤로그가 무기한이라 상시 재현된다.
+        [SerializeField] private GameFlowController flow;
+
         private readonly List<Interactable> _inRange = new List<Interactable>(4);
         private PlayerController _player;
 
@@ -122,6 +129,22 @@ namespace Morae.Game.Player
             else target.OnCancel(_player);
         }
 
+        /// <summary>
+        /// 게임 흐름 상태별 상호작용 허용 범위.
+        /// MainLoop = 전부 / Prologue = 기도만(강제 학습에 필요) / 그 외(타이틀·엔딩·게임오버) = 없음.
+        /// flow 미배선 시엔 기존 동작(전부 허용)으로 떨어진다 — 게이트는 회귀 방어지 필수 의존이 아니다.
+        /// </summary>
+        private bool AllowedInCurrentState(Interactable candidate)
+        {
+            if (flow == null) return true;
+            switch (flow.State)
+            {
+                case GameState.MainLoop: return true;
+                case GameState.Prologue: return candidate is PrayerInteractable;
+                default: return false;
+            }
+        }
+
         private Interactable FindNearestTarget()
         {
             Interactable nearest = null;
@@ -132,6 +155,7 @@ namespace Morae.Game.Player
             {
                 Interactable candidate = _inRange[i];
                 if (candidate == null) { _inRange.RemoveAt(i); continue; } // 파괴된 오브젝트 정리 (명시 null 비교)
+                if (!AllowedInCurrentState(candidate)) continue;
                 if (!candidate.CanInteract(_player)) continue;
 
                 float sqr = ((Vector2)candidate.transform.position - origin).sqrMagnitude;

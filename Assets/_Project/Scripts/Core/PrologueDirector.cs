@@ -64,6 +64,10 @@ namespace Morae.Game.Core
         [SerializeField]
         private PrologueLine clearedLine = new PrologueLine("할아버지",
             "그렇지. 그렇게 막는 거다. 이제 혼자서도 할 수 있겠지.", 4f);
+        // 시도 상한에 걸려 넘어갈 때 — 규칙을 다시 한 번 문장으로 남긴다 (배우지 못한 채 본편에 들어가므로)
+        [SerializeField]
+        private PrologueLine mercyLine = new PrologueLine("할아버지",
+            "…이번엔 내가 막았다. 다음엔 네가 해야 해. 불상 앞에 앉아, 검어진 쪽으로 손을 모으는 거다.", 5f);
 
         private readonly PrologueTrainingModel _training = new PrologueTrainingModel();
         private Action _onComplete;
@@ -79,6 +83,9 @@ namespace Morae.Game.Core
             _onComplete = onComplete;
             _index = 0;
             _timer = 0f;
+            _inTraining = false;
+            _clearedTimer = 0f;
+            _training.Reset(); // Begin은 NotStarted에서만 먹는다 — 리셋 없이 재생하면 학습이 조용히 건너뛰어진다
             _playing = lines != null && lines.Length > 0;
             if (!_playing)
             {
@@ -163,13 +170,15 @@ namespace Morae.Game.Core
 
         private void HandleTrainingResolved(int corner, bool countered)
         {
-            _training.OnResolved(countered);
+            _training.OnResolved(countered, config.PrologueMaxAttempts);
             if (!_training.IsCleared) return;
 
             scheduler.EndTraining();
-            FireDialogue("prologue-clear", clearedLine);
-            _clearedTimer = clearedLine.duration + linePauseSec;
-            Debug.Log($"[PROLOGUE] 강제 학습 통과 — 시도 {_training.Attempts}회");
+            PrologueLine line = _training.ClearedByMercy ? mercyLine : clearedLine;
+            FireDialogue(_training.ClearedByMercy ? "prologue-mercy" : "prologue-clear", line);
+            _clearedTimer = line.duration + linePauseSec;
+            Debug.Log($"[PROLOGUE] 강제 학습 통과 — 시도 {_training.Attempts}회" +
+                      (_training.ClearedByMercy ? " (시도 상한 자비 통과 — 상쇄 성공 아님)" : ""));
         }
 
         private void FireLine(int index) => FireDialogue($"prologue-{index}", lines[index]);

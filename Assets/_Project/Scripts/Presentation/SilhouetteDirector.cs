@@ -48,7 +48,8 @@ namespace Morae.Game.Presentation
 
         private Ghost[] _pool;
         private readonly int[] _stages = new int[CornerIndex.Count];
-        private readonly float[] _telegraphUntil = new float[CornerIndex.Count];
+        // corner당 개수로 센다 — 같은 귀퉁이에 전조가 겹칠 수 있어 단일 시각으로는 조기에 회피가 풀린다
+        private readonly int[] _telegraphCount = new int[CornerIndex.Count];
         private readonly Vector2[] _telegraphPositions = new Vector2[CornerIndex.Count];
         private int _blackCount;
         private float _spawnTimer;
@@ -93,7 +94,10 @@ namespace Morae.Game.Presentation
                 var sr = go.AddComponent<SpriteRenderer>();
                 sr.sprite = silhouetteSprite;
                 if (unlitMaterial != null) sr.sharedMaterial = unlitMaterial;
-                sr.sortingOrder = 2;                    // 플레이어와 같은 층 — 바닥에 붙은 것이 아니라 방 안에 있다
+                else if (i == 0) Debug.LogError("[SILHOUETTE] unlitMaterial 미배선 — 실루엣이 2D 라이트를 받아 감광과 함께 사라진다", this);
+                // 소팅 1 = 실내 소품 층. 플레이어(2)와 같은 값을 쓰면 같은 order 안의 순서가 보장되지 않아
+                // 실루엣이 프레임마다 플레이어 앞뒤로 튄다 — 항상 뒤로 지나가게 한 단계 낮춘다.
+                sr.sortingOrder = 1;
                 sr.color = new Color(tint.r, tint.g, tint.b, 0f);
                 go.SetActive(false);
                 _pool[i] = new Ghost { Renderer = sr };
@@ -123,14 +127,14 @@ namespace Morae.Game.Presentation
 
         private void HandleTelegraphStarted(int corner, float duration)
         {
-            if (corner < 0 || corner >= _telegraphUntil.Length) return;
-            _telegraphUntil[corner] = Time.time + duration;
+            if (corner < 0 || corner >= _telegraphCount.Length) return;
+            _telegraphCount[corner]++;
         }
 
         private void HandleAttackResolved(int corner, bool countered)
         {
-            if (corner < 0 || corner >= _telegraphUntil.Length) return;
-            _telegraphUntil[corner] = 0f;
+            if (corner < 0 || corner >= _telegraphCount.Length) return;
+            _telegraphCount[corner] = Mathf.Max(0, _telegraphCount[corner] - 1);
         }
 
         private void Update()
@@ -221,11 +225,10 @@ namespace Morae.Game.Presentation
         /// <summary>전조 중인 귀퉁이 위치를 버퍼에 모아 개수를 돌려준다 (할당 없음).</summary>
         private int CollectTelegraphPositions()
         {
-            float now = Time.time;
             int count = 0;
             for (int i = 0; i < CornerIndex.Count; i++)
             {
-                if (now >= _telegraphUntil[i]) continue;
+                if (_telegraphCount[i] <= 0) continue;
                 Transform t = cornerTransforms != null && i < cornerTransforms.Length ? cornerTransforms[i] : null;
                 if (t == null) continue;
                 _telegraphPositions[count++] = t.position;

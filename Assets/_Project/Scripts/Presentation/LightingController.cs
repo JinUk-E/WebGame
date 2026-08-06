@@ -53,7 +53,9 @@ namespace Morae.Game.Presentation
 #endif
 
         private readonly int[] _stages = new int[CornerIndex.Count];
-        private readonly float[] _telegraphUntil = new float[CornerIndex.Count];
+        // corner당 **개수**로 센다 — 같은 귀퉁이에 전조가 2개 겹칠 수 있어(AttackScheduler.RetargetToAvailable)
+        // 단일 만료 시각으로 두면 첫 판정이 두 번째 전조의 점멸까지 꺼버린다.
+        private readonly int[] _telegraphCount = new int[CornerIndex.Count];
         private int _blackCount;
         private float _smoothedGlobal = -1f; // 첫 프레임은 목표값으로 스냅 (페이드인 없이 시작)
 
@@ -97,14 +99,14 @@ namespace Morae.Game.Presentation
 
         private void HandleTelegraphStarted(int corner, float duration)
         {
-            if (corner < 0 || corner >= _telegraphUntil.Length) return;
-            _telegraphUntil[corner] = Time.time + duration;
+            if (corner < 0 || corner >= _telegraphCount.Length) return;
+            _telegraphCount[corner]++;
         }
 
         private void HandleAttackResolved(int corner, bool countered)
         {
-            if (corner < 0 || corner >= _telegraphUntil.Length) return;
-            _telegraphUntil[corner] = 0f;
+            if (corner < 0 || corner >= _telegraphCount.Length) return;
+            _telegraphCount[corner] = Mathf.Max(0, _telegraphCount[corner] - 1);
         }
 
         private void Update()
@@ -164,7 +166,7 @@ namespace Morae.Game.Presentation
                 Light2D light = cornerLights[i];
                 if (light == null) continue;
 
-                if (now < _telegraphUntil[i])
+                if (_telegraphCount[i] > 0)
                 {
                     float pulse = 0.5f + 0.5f * Mathf.Sin(now * telegraphPulseHz * 2f * Mathf.PI);
                     light.intensity = telegraphIntensity * (0.55f + 0.45f * pulse);
