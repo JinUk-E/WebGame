@@ -63,6 +63,11 @@ namespace Morae.Game.Data
         [SerializeField] private int silhouetteMaxConcurrent = 3;        // 동시 상한 (가독성)
         [SerializeField] private float silhouetteClearance = 2.2f;       // 플레이어·불상·전조 귀퉁이 회피 반경
 
+        [Header("프롤로그 대사 (수동 진행 — 클릭/탭/E)")]
+        // 한 줄이 화면에 최소한 머무는 시간. 연타(또는 눌린 채 넘어온 손가락)로 대사가 통째로 날아가지 않게 하는
+        // 유일한 시간 조건이다. 이보다 크게 올리면 "안 넘어간다"는 답답함이 되므로 짧게 유지할 것.
+        [SerializeField] private float prologueLineMinShowSec = 0.3f;
+
         [Header("프롤로그 강제 학습 (명세 v0.5 §3 — 실패해도 사망하지 않는 안전 구간)")]
         [SerializeField] private float prologueWarningSec = 6f;          // 경고 대사 → 전조까지
         [SerializeField] private float prologueTelegraphTravelSec = 11f; // 전조 길이 = 기도 채널 + 이 이동 여유
@@ -112,6 +117,7 @@ namespace Morae.Game.Data
         public float SilhouetteMinIntervalSec => silhouetteMinIntervalSec;
         public int SilhouetteMaxConcurrent => silhouetteMaxConcurrent;
         public float SilhouetteClearance => silhouetteClearance;
+        public float PrologueLineMinShowSec => prologueLineMinShowSec;
         public float PrologueWarningSec => prologueWarningSec;
         public float PrologueTelegraphTravelSec => prologueTelegraphTravelSec;
         public float PrologueRetryGapSec => prologueRetryGapSec;
