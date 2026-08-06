@@ -459,14 +459,16 @@ def gen_clock():
         him = canvas(w, w)
         hd = ImageDraw.Draw(him, "RGBA")
         col = (34, 30, 26)
-        # 꼬리(축 아래로 뻗는 길이)는 짧게 — 6*S였을 때 축 아래 9px이 남아 시침(전체 29px)의 회전축이
-        # 밑동이 아니라 31% 지점에 놓였고, 그래서 "바늘 중간을 축으로 돈다"고 읽혔다.
-        # 피벗(Center)과 ClockView의 Z회전은 정상이며 문제는 도형 쪽이었다 — 축 캡 역할의 허브 원은 그대로 둔다.
-        hd.polygon([(cx - base_w / 2, cx + 2 * S), (cx + base_w / 2, cx + 2 * S),
+        # v0.6 — 밑동을 **정확히 축 위**에서 시작한다 (꼬리 0). 축 아래로 조금이라도 남으면
+        # 회전할 때 그 부분이 반대편으로 흔들려 "중간을 축으로 돈다"로 읽힌다.
+        # 축 캡(허브 원)은 남긴다 — 회전 중심이 어디인지 눈으로 짚어주는 역할이라 오히려 필요하다.
+        # ⚠ 스프라이트 피벗은 잘린 rect의 중심이 아니라 **캔버스 중심(=이 축)**이어야 한다.
+        #    메타 rect·피벗은 Tools/art-gen/fix_clock_pivot.py가 알파 경계에서 다시 계산해 박는다.
+        hd.polygon([(cx - base_w / 2, cx), (cx + base_w / 2, cx),
                     (cx + tip_w / 2, cx - length), (cx - tip_w / 2, cx - length)], fill=rgba(col))
         hd.ellipse([cx - 3.5 * S, cx - 3.5 * S, cx + 3.5 * S, cx + 3.5 * S], fill=rgba(col))
         hl, hld = overlay(him)
-        hld.line([(cx - base_w / 2 + S, cx + 1 * S), (cx - tip_w / 2 + S, cx - length + 2 * S)],
+        hld.line([(cx - base_w / 2 + S, cx - S), (cx - tip_w / 2 + S, cx - length + 2 * S)],
                  fill=rgba((96, 88, 76), 140), width=S // 2)
         him = merge(him, hl)
         him = downscale(him, S)
