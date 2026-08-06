@@ -54,7 +54,9 @@ namespace Morae.EditorTools
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
 
-            D4Setup.Setup(); // 타이틀 Root 재생성 — 버튼 스킨·볼륨 슬라이더 포함 (D4가 씬 저장까지 수행)
+            // 심장 UI 배선 + 화면 3종 프리팹 인스턴스 참조 검증 (D4가 씬 저장까지 수행).
+            // 2026-08-06부터 D4는 타이틀/게임오버/엔딩을 만들지 않는다 — 화면은 프리팹이 단일 진실.
+            D4Setup.Setup();
             Debug.Log("[ART2-SETUP] 스프라이트 배선·씬 저장 완료");
         }
 

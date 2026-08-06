@@ -13,8 +13,10 @@ namespace Morae.EditorTools
     /// 모바일 온스크린 컨트롤(가상 스틱 + 상호작용 버튼)을 저장된 Main.unity에 배선 (씬 재생성 없음, 멱등).
     /// 링·노브 스프라이트는 절차 생성 — 외부 에셋 불필요 (D4Setup 하트 선례).
     /// <para>
-    /// ⚠ D4Setup / Art2Setup은 타이틀 Root를 통째로 재생성하므로, 그 뒤에는 이 셋업을 <b>다시 실행</b>해야
-    /// 타이틀의 "이어폰 권장" 안내가 복구된다 (스틱·버튼 본체는 UI 캔버스 밑이라 영향 없음).
+    /// 2026-08-06: 화면 3종은 프리팹(<c>Assets/_Project/Prefab/Screens/</c>)이 단일 진실이다.
+    /// "이어폰 권장" 안내(MobileAudioHint)와 게임오버·엔딩 하단 힌트는 <b>프리팹 안에 들어 있고</b>,
+    /// 이 셋업은 그것들을 <b>찾아서 참조만</b> 한다 (생성·파괴 없음 — 예전 생성 코드는 프리팹을 덮어써서 제거).
+    /// 따라서 D4Setup/Art2Setup 실행 후 이 셋업을 다시 돌려야 했던 규칙도 없어졌다.
     /// </para>
     /// CLI: -executeMethod Morae.EditorTools.TouchSetup.Setup
     /// </summary>
@@ -89,8 +91,8 @@ namespace Morae.EditorTools
             label.alignment = TextAlignmentOptions.Center;
             label.text = string.Empty;
 
-            // ---- 타이틀 "이어폰 권장" 안내 (터치 기기에서만 켜짐) ----
-            GameObject audioHint = BuildTitleAudioHint(font);
+            // ---- 타이틀 "이어폰 권장" 안내 (터치 기기에서만 켜짐 — TitleScreen 프리팹 소유) ----
+            GameObject audioHint = FindTitleAudioHint();
 
             // ---- 게임오버·엔딩 하단 힌트 (터치 문구로 교체될 대상) ----
             TMP_Text gameOverHint = FindHint("Screens/GameOverScreen");
@@ -114,42 +116,44 @@ namespace Morae.EditorTools
             Debug.Log("[TOUCH-SETUP] 온스크린 컨트롤 배선·씬 저장 완료");
         }
 
-        // ---------- 타이틀 안내 ----------
+        // ---------- 타이틀 안내 (프리팹 소유 — 찾기만 한다) ----------
 
-        private static GameObject BuildTitleAudioHint(TMP_FontAsset font)
+        /// <summary>
+        /// TitleScreen 프리팹 안의 "이어폰 권장" 안내를 찾는다. 기본 비활성이며
+        /// <see cref="TouchControlsView"/>가 터치 기기에서만 켠다 — 여기서 만들거나 지우지 않는다.
+        /// </summary>
+        private static GameObject FindTitleAudioHint()
         {
             var titleRoot = GameObject.Find("Screens/TitleScreen/Root");
             if (titleRoot == null)
             {
-                Debug.LogWarning("[TOUCH-SETUP] 타이틀 Root 없음 — 이어폰 안내 생략 (D4Setup 먼저 실행)");
+                Debug.LogError("[TOUCH-SETUP] Screens/TitleScreen/Root 없음 — 타이틀 프리팹 인스턴스 확인 필요");
                 return null;
             }
 
-            var existing = titleRoot.transform.Find("MobileAudioHint");
-            if (existing != null) Object.DestroyImmediate(existing.gameObject);
-
-            var go = new GameObject("MobileAudioHint");
-            go.transform.SetParent(titleRoot.transform, false);
-            var text = go.AddComponent<TextMeshProUGUI>();
-            if (font != null) text.font = font;
-            text.text = "이어폰 · 헤드폰 착용을 권합니다 — 소리가 곧 단서입니다";
-            text.fontSize = 28f;
-            text.alignment = TextAlignmentOptions.Center;
-            text.color = new Color(0.78f, 0.72f, 0.55f);
-            text.raycastTarget = false;
-            SetAnchored(text.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0f, -430f), new Vector2(1200f, 50f));
-            go.SetActive(false); // TouchControlsView가 터치 기기에서만 켠다
-            return go;
+            var hint = titleRoot.transform.Find("MobileAudioHint");
+            if (hint == null)
+            {
+                Debug.LogError("[TOUCH-SETUP] TitleScreen 프리팹에 MobileAudioHint가 없다 — "
+                               + "프리팹을 열어 Root 아래에 안내 텍스트를 추가할 것 (모바일 이어폰 권장 문구)");
+                return null;
+            }
+            return hint.gameObject;
         }
 
+        /// <summary>게임오버·엔딩 프리팹의 하단 힌트("E — 타이틀로") — 터치 기기에서 탭 문구로 교체될 대상.</summary>
         private static TMP_Text FindHint(string screenPath)
         {
             var screen = GameObject.Find(screenPath);
-            if (screen == null) return null;
-            var root = screen.transform.Find("Root");
-            if (root == null) return null;
-            var hint = root.Find("Hint");
-            return hint != null ? hint.GetComponent<TMP_Text>() : null;
+            var root = screen != null ? screen.transform.Find("Root") : null;
+            var hint = root != null ? root.Find("Hint") : null;
+            var text = hint != null ? hint.GetComponent<TMP_Text>() : null;
+            if (text == null)
+            {
+                Debug.LogError($"[TOUCH-SETUP] {screenPath}/Root/Hint 없음 — 프리팹에 하단 힌트 텍스트를 넣을 것 "
+                               + "(모바일에서 '화면을 탭하면 타이틀로'로 교체되는 자리)");
+            }
+            return text;
         }
 
         // ---------- 헬퍼 ----------
