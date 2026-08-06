@@ -86,8 +86,8 @@ namespace Morae.EditorTools
                 created.pointLightInnerRadius = 0.4f;
             }
             go.transform.position = pos;
+            // 강도는 LightingController.candleIntensity가 Start에서 덮어쓴다 — 여기서 값을 정하지 않는다(매직 넘버 중복 방지).
             var light = go.GetComponent<Light2D>();
-            light.intensity = 0.55f;
 
             Wire(controller, "config", balance);
             Wire(controller, "buddhaCandleLight", light);
@@ -127,15 +127,26 @@ namespace Morae.EditorTools
             var sources = new AudioSource[CornerIndex.Count];
             for (int i = 0; i < CornerIndex.Count; i++)
             {
+                // 없으면 만든다 — 다른 셋업과 동일 정책. 이 오브젝트가 사라지면 속삭임 4채널이 통째로 죽는데
+                // LogError만 하고 넘어가면 스크립트로 복구할 방법이 없다.
                 var go = GameObject.Find($"Audio/CornerSource_{i}");
                 if (go == null)
                 {
-                    Debug.LogError($"[V05-SETUP] Audio/CornerSource_{i} 없음");
-                    continue;
+                    var audioRoot = GameObject.Find("Audio");
+                    if (audioRoot == null) audioRoot = new GameObject("Audio");
+                    go = new GameObject($"CornerSource_{i}");
+                    go.transform.SetParent(audioRoot.transform);
+                    Debug.Log($"[V05-SETUP] Audio/CornerSource_{i} 신설");
                 }
                 var src = go.GetComponent<AudioSource>();
                 if (src == null) src = go.AddComponent<AudioSource>();
                 sources[i] = src;
+
+                // 소스를 실제 귀퉁이 좌표로 옮긴다 — 정위를 3D 위치로 하기 때문(WebGL에 panStereo 바인딩이 없다).
+                // 씬 빌더는 이 소스들을 원점에 만들어 뒀다.
+                var corner = GameObject.Find($"Room/SaltCorner_{i}");
+                if (corner != null) go.transform.position = corner.transform.position;
+                else Debug.LogWarning($"[V05-SETUP] Room/SaltCorner_{i} 없음 — CornerSource_{i} 위치 미설정(정위 안 됨)");
             }
             WireArray(sound, "cornerSources", sources);
         }
@@ -186,6 +197,12 @@ namespace Morae.EditorTools
             }
             Wire(prologue, "config", balance);
             Wire(prologue, "scheduler", scheduler);
+
+            // 프롤로그 중 문·TV·이불 차단 게이트 (기도만 허용) — 미배선이면 게이트가 없는 것과 같다
+            var interaction = Object.FindFirstObjectByType<Morae.Game.Player.PlayerInteraction>();
+            var flow = Object.FindFirstObjectByType<GameFlowController>();
+            if (interaction != null && flow != null) Wire(interaction, "flow", flow);
+            else Debug.LogError("[V05-SETUP] PlayerInteraction/GameFlowController 없음 — 프롤로그 상호작용 게이트 미배선");
         }
 
         // ---------- 헬퍼 (Art2Setup 선례 — SerializedObject 배선 + 재확인 로그) ----------

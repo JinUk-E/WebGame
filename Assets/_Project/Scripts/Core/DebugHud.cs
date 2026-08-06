@@ -62,7 +62,7 @@ namespace Morae.Game.Core
 
         /// <summary>귀퉁이 1칸 표기 — 흑+심화는 3으로 (SaltCorners 내부 단계는 0~2, 심화는 별도 플래그).</summary>
         private string Cell(int corner)
-            => (salt.IsDeepened(corner) ? 3 : salt.GetStage(corner)).ToString();
+            => salt == null ? "-" : (salt.IsDeepened(corner) ? 3 : salt.GetStage(corner)).ToString();
 
         private void OnGUI()
         {

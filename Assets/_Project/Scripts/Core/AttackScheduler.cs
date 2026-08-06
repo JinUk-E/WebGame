@@ -42,6 +42,8 @@ namespace Morae.Game.Core
         private int _phaseIndex;
         private float _localClock;
         private readonly List<ActiveTelegraph> _telegraphs = new List<ActiveTelegraph>(CornerIndex.Count * 2);
+        // 만료 전조를 리스트에서 다 뺀 뒤에 판정하기 위한 스냅샷 버퍼 (재진입 크래시 방지 — TickTelegraphs 주석 참조)
+        private readonly List<ActiveTelegraph> _resolveBuffer = new List<ActiveTelegraph>(CornerIndex.Count * 2);
         private readonly int[] _fireBuffer = new int[CornerIndex.Count];   // 발동 프레임 귀퉁이 확정 버퍼 (할당 없음)
         private readonly bool[] _fireTaken = new bool[CornerIndex.Count];  // 같은 공격 내 중복 방지
 
@@ -51,7 +53,7 @@ namespace Morae.Game.Core
 
         // v0.5 §3 프롤로그 강제 학습 — 스케줄·함정 없이 전조 하나만 굴리는 안전 모드
         private System.Action<int, bool> _onTrainingResolved;
-        private static readonly ScheduledAttack[] EmptySchedule = new ScheduledAttack[0];
+        private static readonly ScheduledAttack[] EmptySchedule = System.Array.Empty<ScheduledAttack>();
 
         public bool IsRunning { get; private set; }
         /// <summary>페이즈 로컬 공격 시계 (디버그 표시용).</summary>
@@ -88,7 +90,24 @@ namespace Morae.Game.Core
         {
             IsRunning = false;
             _onTrainingResolved = null;
-            _telegraphs.Clear();
+            DiscardActiveTelegraphs();
+        }
+
+        /// <summary>
+        /// 활성 전조를 폐기하면서 **반드시 AttackResolved(countered:true)를 발행**한다.
+        /// 조용히 Clear만 하면 구독자(조명·소금 뷰·실루엣·부적 UI)의 전조 상태가 굳어
+        /// 엔딩·게임오버 화면 뒤에서 귀퉁이 붉은 점멸이 계속 뛴다.
+        /// </summary>
+        private void DiscardActiveTelegraphs()
+        {
+            // 매번 Count를 다시 읽는다 — 이 메서드는 Resolve 안에서 재진입해 들어올 수 있다(게임오버 경로).
+            while (_telegraphs.Count > 0)
+            {
+                int last = _telegraphs.Count - 1;
+                int corner = _telegraphs[last].Corner;
+                _telegraphs.RemoveAt(last);
+                GameEvents.RaiseAttackResolved(corner, true);
+            }
         }
 
         // ---------- v0.5 §3 프롤로그 강제 학습 (안전 구간) ----------
@@ -107,6 +126,7 @@ namespace Morae.Game.Core
             }
             _schedule = EmptySchedule;
             _next = 0;
+            _phaseIndex = sequencer.CurrentPhaseIndex; // Begin과 대칭 — 첫 프레임에 헛 전이가 잡히지 않게
             _localClock = 0f;
             _telegraphs.Clear();
             _trapPhaseIndex = -1;   // 함정 시퀀스 비활성
@@ -129,8 +149,8 @@ namespace Morae.Game.Core
         {
             if (!IsTraining) return;
             _onTrainingResolved = null;
-            _telegraphs.Clear();
             IsRunning = false;
+            DiscardActiveTelegraphs(); // 조용히 비우면 조명·소금 뷰의 전조 연출이 굳는다
             Debug.Log("[ATTACK] 학습 모드 종료");
         }
 
@@ -339,9 +359,15 @@ namespace Morae.Game.Core
             GameEvents.RaiseAttackTelegraphStarted(corner, duration);
         }
 
+        /// <summary>
+        /// 전조는 실시간 진행 (반응 창은 TV 배속과 무관 — §2.2).
+        /// ⚠ 만료 항목을 **리스트에서 전부 뺀 뒤에** 판정한다. Resolve는 오염 → 붕괴 → GameOver →
+        /// GameFlowController.StopMainLoop → Stop() → `_telegraphs.Clear()`로 되돌아올 수 있어,
+        /// 순회 도중 호출하면 인덱스가 깨진다 (P6 함정 웨이브의 4동시 전조가 정확히 그 조건).
+        /// </summary>
         private void TickTelegraphs(float dt)
         {
-            // 전조는 실시간 진행 (반응 창은 TV 배속과 무관 — §2.2)
+            _resolveBuffer.Clear();
             for (int i = _telegraphs.Count - 1; i >= 0; i--)
             {
                 ActiveTelegraph t = _telegraphs[i];
@@ -352,8 +378,16 @@ namespace Morae.Game.Core
                     continue;
                 }
                 _telegraphs.RemoveAt(i);
-                Resolve(t);
+                _resolveBuffer.Add(t);
             }
+
+            for (int i = 0; i < _resolveBuffer.Count; i++)
+            {
+                // 앞선 판정이 게임오버를 냈으면 남은 판정은 무효 — 죽은 뒤에 소금이 더 더러워지지 않는다
+                if (!IsRunning) break;
+                Resolve(_resolveBuffer[i]);
+            }
+            _resolveBuffer.Clear();
         }
 
         private void Resolve(in ActiveTelegraph telegraph)

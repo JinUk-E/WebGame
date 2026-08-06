@@ -18,6 +18,7 @@ namespace Morae.Game.Tests.EditMode
         private const float IntervalReduction = 0.05f;
         private const float MinIntervalScale = 0.6f;
         // LightingController 직렬화 초기값
+        private const int MaxAttempts = 3;
         private const float GlobalBase = 0.12f;
         private const float DawnBoost = 0.18f;
 
@@ -218,7 +219,7 @@ namespace Morae.Game.Tests.EditMode
             Assert.AreEqual(1, m.Attempts);
             Assert.IsTrue(m.IsAwaitingPrayer);
 
-            m.OnResolved(true);
+            m.OnResolved(true, MaxAttempts);
             Assert.IsTrue(m.IsCleared);
             Assert.IsFalse(m.BlocksProgress);
         }
@@ -230,7 +231,7 @@ namespace Morae.Game.Tests.EditMode
             m.Begin(CornerIndex.TopRight);
             m.Tick(6f, 6f, 3.5f);
 
-            m.OnResolved(false);
+            m.OnResolved(false, MaxAttempts);
             Assert.AreEqual(TrainingStep.RetryGap, m.Step, "실패는 사망이 아니라 재시도다");
             Assert.IsTrue(m.BlocksProgress);
             Assert.IsFalse(m.IsCleared);
@@ -240,7 +241,7 @@ namespace Morae.Game.Tests.EditMode
             Assert.AreEqual(2, m.Attempts);
             Assert.AreEqual(CornerIndex.TopRight, m.TargetCorner, "재시도해도 같은 방향을 배운다");
 
-            m.OnResolved(true);
+            m.OnResolved(true, MaxAttempts);
             Assert.IsTrue(m.IsCleared);
         }
 
@@ -260,9 +261,57 @@ namespace Morae.Game.Tests.EditMode
         {
             var m = new PrologueTrainingModel();
             m.Begin(CornerIndex.TopLeft);
-            m.OnResolved(true); // 경고 대사 중 날아온 본편 판정 — 학습을 건너뛰게 하면 안 된다
+            m.OnResolved(true, MaxAttempts); // 경고 대사 중 날아온 본편 판정 — 학습을 건너뛰게 하면 안 된다
             Assert.AreEqual(TrainingStep.Warning, m.Step);
             Assert.IsFalse(m.IsCleared);
+        }
+
+        [Test]
+        public void Training_MercyPassAfterMaxAttempts_NoSoftLock()
+        {
+            // 조준·위치를 못 찾는 플레이어를 영원히 가두면 그 판은 첫 화면에서 끝난다.
+            // 시도 상한에 도달하면 상쇄 없이도 통과시키되, 배우지 못했다는 사실은 플래그로 남긴다.
+            var m = new PrologueTrainingModel();
+            m.Begin(CornerIndex.TopRight);
+            for (int attempt = 1; attempt <= MaxAttempts; attempt++)
+            {
+                m.Tick(99f, 6f, 3.5f);
+                Assert.AreEqual(attempt, m.Attempts);
+                m.OnResolved(false, MaxAttempts);
+                if (attempt < MaxAttempts) Assert.IsFalse(m.IsCleared, $"{attempt}회차에서 조기 통과");
+            }
+            Assert.IsTrue(m.IsCleared);
+            Assert.IsTrue(m.ClearedByMercy, "자비 통과는 상쇄 성공과 구분돼야 대사가 갈린다");
+            Assert.IsFalse(m.BlocksProgress);
+        }
+
+        [Test]
+        public void Training_MercyDoesNotFireOnSuccess()
+        {
+            var m = new PrologueTrainingModel();
+            m.Begin(CornerIndex.TopRight);
+            m.Tick(99f, 6f, 3.5f);
+            m.OnResolved(true, MaxAttempts);
+            Assert.IsTrue(m.IsCleared);
+            Assert.IsFalse(m.ClearedByMercy);
+        }
+
+        [Test]
+        public void Training_ResetAllowsReplay()
+        {
+            // Begin은 NotStarted에서만 먹는다 — Reset 없이 Play가 두 번 불리면 학습이 조용히 건너뛰어진다
+            var m = new PrologueTrainingModel();
+            m.Begin(CornerIndex.TopLeft);
+            m.Skip();
+            m.Begin(CornerIndex.BottomRight);
+            Assert.IsTrue(m.IsCleared, "Reset 없이는 Begin이 무시된다");
+
+            m.Reset();
+            m.Begin(CornerIndex.BottomRight);
+            Assert.AreEqual(TrainingStep.Warning, m.Step);
+            Assert.AreEqual(CornerIndex.BottomRight, m.TargetCorner);
+            Assert.AreEqual(0, m.Attempts);
+            Assert.IsFalse(m.ClearedByMercy);
         }
 
         [Test]
