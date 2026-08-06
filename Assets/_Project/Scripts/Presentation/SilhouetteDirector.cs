@@ -29,7 +29,7 @@ namespace Morae.Game.Presentation
 
         [SerializeField] private Color tint = new Color(0.30f, 0.30f, 0.34f, 1f);  // 색 없는 명도 차 (붉은 계열 금지)
         [SerializeField] private float maxAlpha = 0.28f;
-        [SerializeField] private float crossSpeed = 1.5f;        // 유닛/s — 걷는 속도보다 조금 느리게 "스쳐 지나감"
+        [SerializeField] private float crossSpeed = 2.2f;        // 유닛/s — 걷는 속도보다 조금 느리게 "스쳐 지나감"
         [SerializeField] private float lifetimeSec = 3.2f;
         [SerializeField] private float fadePortion = 0.35f;
         [SerializeField] private Vector2 scaleRange = new Vector2(1.0f, 1.35f);    // 원본 0.64×1.32u 기준 배율
@@ -187,11 +187,19 @@ namespace Morae.Game.Presentation
 
             bool fromLeft = _rng.Next(2) == 0;
             float y = ((float)_rng.NextDouble() * 2f - 1f) * travelYRange;
+            float dir = fromLeft ? 1f : -1f;
             var start = new Vector2(fromLeft ? -spawnMarginX : spawnMarginX, y);
-            var mid = new Vector2(0f, y); // 가독성 판정은 화면 중앙 통과 지점 기준 (가장 눈에 띄는 순간)
+            // 가독성 판정은 **실제 이동 경로의 중간·끝** 기준 — 알파가 가장 높은 구간이 여기다.
+            // (화면 중앙 고정으로 검사하면 이 실루엣이 지나가지도 않는 지점을 보호하게 된다)
+            float travel = crossSpeed * lifetimeSec;
+            var mid = new Vector2(start.x + dir * travel * 0.5f, y);
+            var end = new Vector2(start.x + dir * travel, y);
+            int telegraphCount = CollectTelegraphPositions();
 
             if (!SilhouetteSpawnModel.IsReadablePosition(mid, PlayerPos(), AltarPos(),
-                    _telegraphPositions, CollectTelegraphPositions(), config.SilhouetteClearance))
+                    _telegraphPositions, telegraphCount, config.SilhouetteClearance)
+                || !SilhouetteSpawnModel.IsReadablePosition(end, PlayerPos(), AltarPos(),
+                    _telegraphPositions, telegraphCount, config.SilhouetteClearance))
             {
                 return; // 이번 기회는 버린다 — 겹쳐 보이느니 안 나오는 게 낫다
             }
