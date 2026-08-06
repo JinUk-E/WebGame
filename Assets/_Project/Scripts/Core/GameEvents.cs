@@ -34,6 +34,17 @@ namespace Morae.Game.Core
         public static event Action<float /*0~1*/> BlanketExitChanged;
         // v1.6 추가 (2026-08-04 심장 UI — _shared.md 기록 필요): 요의 발생/해소. 회복 무효 상태의 유일한 상시 표시
         public static event Action<bool> UrgeChanged;
+        // v0.6 추가 (2026-08-06 첫인상 개선): "이 귀퉁이를 봐라" 주의 유도. 오염·전조와 무관한 순수 연출 채널이라
+        // 색 문법도 분리한다 (흰 섬광 — 붉은 전조와 겹치면 대응해야 하는 것으로 오인된다).
+        public static event Action<int /*corner*/, float /*seconds*/> SaltAttentionRequested;
+        // 같은 목적의 불상판 — 학습 구간에서 "막으러 갈 곳"을 화면이 직접 가리킨다.
+        public static event Action<float /*seconds*/> AltarAttentionRequested;
+        // 학습(프롤로그) 구간 진입/이탈 — 표현 계층이 "진짜 실패"와 "연습 실패"를 구분해야 할 때 쓴다.
+        // 예) 팔척님의 웃음은 할아버지가 붙잡고 있는 연습 구간에서 나면 안 된다.
+        public static event Action<bool> TrainingModeChanged;
+        // 문이 실제로 열린 순간 (걸쇠 개방 완료). 엔딩/게임오버보다 **먼저** 발행해 문이 열리는 그림이 먼저 보이게 한다 —
+        // 결과 화면이 먼저 덮이면 "왜 죽었는지"가 안 남는다.
+        public static event Action DoorOpened;
 
         // ---- 발행 (게임플레이 모듈 전용) ----
 
@@ -56,5 +67,11 @@ namespace Morae.Game.Core
         public static void RaiseJarChannelChanged(float progress01) => JarChannelChanged?.Invoke(progress01);
         public static void RaiseBlanketExitChanged(float progress01) => BlanketExitChanged?.Invoke(progress01);
         public static void RaiseUrgeChanged(bool active) => UrgeChanged?.Invoke(active);
+        public static void RaiseSaltAttentionRequested(int corner, float seconds)
+            => SaltAttentionRequested?.Invoke(corner, seconds);
+        public static void RaiseAltarAttentionRequested(float seconds)
+            => AltarAttentionRequested?.Invoke(seconds);
+        public static void RaiseTrainingModeChanged(bool active) => TrainingModeChanged?.Invoke(active);
+        public static void RaiseDoorOpened() => DoorOpened?.Invoke();
     }
 }

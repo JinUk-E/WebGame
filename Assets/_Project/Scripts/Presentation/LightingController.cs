@@ -41,6 +41,17 @@ namespace Morae.Game.Presentation
         [SerializeField] private float telegraphIntensity = 1.0f;   // 예외③ — 감광과 무관한 고정 강도
         [SerializeField] private float telegraphPulseHz = 3f;       // SaltCornersView의 적색 펄스와 같은 주기
 
+        [Header("v0.6 — 결계 상태를 밝기가 아니라 색으로")]
+        // 흑화 귀퉁이를 ×0.1로 끄면 "위험한 곳일수록 안 보이는" 역전이 생긴다. 끄지 말고 색을 바꾼다:
+        // 결계가 꺼진 게 아니라 **다른 것이 켜졌다**로 읽혀야 한다.
+        [SerializeField] private Color cornerWardColor = new Color(0.85f, 0.9f, 1f);   // 평시 — 차가운 결계광
+        [SerializeField] private Color cornerBreachColor = new Color(1f, 0.25f, 0.2f); // 흑화 — 붉은 균열광
+        [SerializeField] private float breachFactor = 0.5f;         // 흑화 시 강도 배율 (평시 대비)
+        [SerializeField] private float breachPulseHz = 0.8f;        // 심화 맥동 — SaltCornersView와 같은 주기
+        // 예외② 유지: 촛불은 **아래로는 절대 안 내려간다**. 전조 때만 위로 튀어 "이리로 와라"를 지시한다.
+        [SerializeField] private float candleFlareSec = 0.6f;
+        [SerializeField] private float candleFlareBoost = 0.9f;
+
 #if UNITY_EDITOR
         // 이 블록은 에디터에서만 컴파일된다 — 빌드 산출물에는 필드도 로직도 남지 않는다.
         // 컨트롤러가 매 프레임 전역광을 덮어쓰기 때문에 인스펙터로 밝기를 올려도 즉시 되돌아가던 작업 불편을 푼다.
@@ -58,6 +69,7 @@ namespace Morae.Game.Presentation
         private readonly int[] _telegraphCount = new int[CornerIndex.Count];
         private int _blackCount;
         private float _smoothedGlobal = -1f; // 첫 프레임은 목표값으로 스냅 (페이드인 없이 시작)
+        private float _candleFlareUntil;     // v0.6 — 전조 시 촛불이 위로만 튀는 구간
 
         private float MinRoomLight => config != null ? config.MinRoomLight : globalMinIntensity;
         private float LightPenalty => config != null ? config.BlackCornerLightPenalty : 0f;
@@ -101,6 +113,8 @@ namespace Morae.Game.Presentation
         {
             if (corner < 0 || corner >= _telegraphCount.Length) return;
             _telegraphCount[corner]++;
+            // 등대가 "지금" 필요하다는 신호 — 밝기 하한은 그대로 두고 위로만 튄다 (예외② 불변)
+            _candleFlareUntil = Time.time + candleFlareSec;
         }
 
         private void HandleAttackResolved(int corner, bool countered)
@@ -138,6 +152,25 @@ namespace Morae.Game.Presentation
             }
 
             UpdateCornerLights();
+            UpdateCandle();
+        }
+
+        /// <summary>
+        /// 촛불 — 상시 candleIntensity를 유지하고, 전조 직후에만 그 위로 짧게 일렁인다.
+        /// 감광 예외②의 취지(암전 방지·행동 지시)를 깨지 않으면서 "지금 여기로"만 덧붙인다.
+        /// </summary>
+        private void UpdateCandle()
+        {
+            if (buddhaCandleLight == null) return;
+            float left = _candleFlareUntil - Time.time;
+            if (left <= 0f)
+            {
+                buddhaCandleLight.intensity = candleIntensity;
+                return;
+            }
+            float k = Mathf.Clamp01(left / Mathf.Max(0.01f, candleFlareSec));
+            float flicker = 0.6f + 0.4f * Mathf.Sin(Time.time * 11f);
+            buddhaCandleLight.intensity = candleIntensity * (1f + candleFlareBoost * k * flicker);
         }
 
 #if UNITY_EDITOR
@@ -169,13 +202,25 @@ namespace Morae.Game.Presentation
                 if (_telegraphCount[i] > 0)
                 {
                     float pulse = 0.5f + 0.5f * Mathf.Sin(now * telegraphPulseHz * 2f * Mathf.PI);
+                    light.color = cornerBreachColor;
                     light.intensity = telegraphIntensity * (0.55f + 0.45f * pulse);
                     continue;
                 }
 
                 int stage = _stages[i];
-                float factor = stage >= (int)CornerStage.Black ? 0.1f : stage == (int)CornerStage.Gray ? 0.45f : 1f;
-                light.intensity = cornerBaseIntensity * factor;
+                if (stage >= (int)CornerStage.Black)
+                {
+                    // 흑화 = 결계가 꺼진 자리에 붉은 균열광이 켜진다. 심화면 그 빛이 느리게 숨쉰다.
+                    float breathe = stage >= (int)CornerStage.DeepBlack
+                        ? 0.75f + 0.25f * Mathf.Sin(now * breachPulseHz * 2f * Mathf.PI)
+                        : 1f;
+                    light.color = cornerBreachColor;
+                    light.intensity = cornerBaseIntensity * breachFactor * breathe;
+                    continue;
+                }
+
+                light.color = cornerWardColor;
+                light.intensity = cornerBaseIntensity * (stage == (int)CornerStage.Gray ? 0.55f : 1f);
             }
         }
     }

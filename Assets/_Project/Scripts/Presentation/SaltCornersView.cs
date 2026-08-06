@@ -24,10 +24,18 @@ namespace Morae.Game.Presentation
         [SerializeField] private Color aimColor = new Color(1f, 0.85f, 0.3f); // 기도 조준 — 금빛
         [SerializeField] private float telegraphPulseHz = 3f;
         [SerializeField] private float counterFlashSec = 0.4f;
+        // v0.6 — 흑화 단계는 "어둡게"가 아니라 "다르게" 보여야 한다. 무광 머티리얼 위에서 1을 넘는 틴트는
+        // 스프라이트의 붉은 균열만 들어올린다 (검은 몸통은 어차피 어두워서 눈에 띄게 밝아지지 않는다).
+        [SerializeField] private Color blackGlow = new Color(1.15f, 0.95f, 0.95f);
+        [SerializeField] private Color deepGlow = new Color(1.6f, 0.75f, 0.8f);
+        [SerializeField] private float deepGlowPulseHz = 0.8f;
+        // 주의 유도(프롤로그 "네 귀퉁이에 소금을 쌓았다") — 전조와 구분되는 흰 섬광
+        [SerializeField] private Color attentionColor = new Color(1.6f, 1.6f, 1.5f);
 
         private readonly int[] _stages = new int[CornerIndex.Count];
         private readonly float[] _telegraphUntil = new float[CornerIndex.Count];
         private readonly float[] _flashUntil = new float[CornerIndex.Count];
+        private readonly float[] _attentionUntil = new float[CornerIndex.Count];
         private int _aimedCorner = CornerIndex.None; // v1.4 — 기도 채널 중 조준 귀퉁이
 
         private void OnEnable()
@@ -36,6 +44,7 @@ namespace Morae.Game.Presentation
             GameEvents.AttackTelegraphStarted += HandleTelegraph;
             GameEvents.AttackResolved += HandleResolved;
             GameEvents.PrayerChannelChanged += HandlePrayerChanged;
+            GameEvents.SaltAttentionRequested += HandleAttention;
         }
 
         private void OnDisable()
@@ -44,6 +53,13 @@ namespace Morae.Game.Presentation
             GameEvents.AttackTelegraphStarted -= HandleTelegraph;
             GameEvents.AttackResolved -= HandleResolved;
             GameEvents.PrayerChannelChanged -= HandlePrayerChanged;
+            GameEvents.SaltAttentionRequested -= HandleAttention;
+        }
+
+        private void HandleAttention(int corner, float seconds)
+        {
+            if (!Valid(corner)) return;
+            _attentionUntil[corner] = Time.time + Mathf.Max(0f, seconds);
         }
 
         private void HandlePrayerChanged(float progress01, int aimedCorner)
@@ -84,7 +100,17 @@ namespace Morae.Game.Presentation
                 {
                     // 스프라이트 스왑 방식 — 틴트는 white 기준 (전조·플래시·조준 블렌드가 곱으로 얹힘)
                     if (sr.sprite != stageSprite) sr.sprite = stageSprite;
-                    baseColor = Color.white;
+                    // v0.6: 흑(2)·심화(3)는 흰색 대신 발광 틴트를 깔아 "어두워져서 안 보이는" 역전을 막는다.
+                    // 심화는 느리게 맥동 — 흑과 심화의 명도차가 2뿐이라 정지 화면으로는 구분이 안 된다.
+                    if (stage >= 3)
+                    {
+                        float breathe = 0.5f + 0.5f * Mathf.Sin(Time.time * deepGlowPulseHz * 2f * Mathf.PI);
+                        baseColor = Color.Lerp(blackGlow, deepGlow, breathe);
+                    }
+                    else
+                    {
+                        baseColor = stage == 2 ? blackGlow : Color.white;
+                    }
                 }
                 else
                 {
@@ -94,7 +120,13 @@ namespace Morae.Game.Presentation
                 }
 
                 Color color;
-                if (Time.time < _telegraphUntil[i])
+                if (Time.time < _attentionUntil[i])
+                {
+                    // 주의 유도가 최우선 — 프롤로그에서 "여기를 봐라"가 전조·오염 표시보다 먼저 읽혀야 한다
+                    float pulse = 0.5f + 0.5f * Mathf.Sin(Time.time * 4f * 2f * Mathf.PI);
+                    color = Color.Lerp(baseColor, attentionColor, 0.45f + 0.55f * pulse);
+                }
+                else if (Time.time < _telegraphUntil[i])
                 {
                     // 전조 — 적색 펄스 (남은 시간 무관 일정 주기. 위급함은 소리·페이즈가 전달)
                     float pulse = 0.5f + 0.5f * Mathf.Sin(Time.time * telegraphPulseHz * 2f * Mathf.PI);
