@@ -21,6 +21,12 @@ namespace Morae.Game.Gauges
         private readonly bool[] _deepened = new bool[CornerIndex.Count];
 
         public bool IsCollapsed { get; private set; }
+        /// <summary>
+        /// 흑(2단계, 심화 포함) 귀퉁이 수 0~4 — v0.5 즉시 대가의 스케일 n.
+        /// 같은 계층(게임플레이)의 Sanity·AttackScheduler가 직접 읽는다. 표현 계층은 CornerStageChanged로 세야 한다 (§1.2).
+        /// ⚠ n=4는 지속 상태가 아니다 — 네 번째 흑이 생기는 프레임에 붕괴 판정(부적/게임오버)이 난다.
+        /// </summary>
+        public int BlackCornerCount { get; private set; }
         public int GetStage(int corner) => _stages[corner];
         /// <summary>흑화 심화 플래그 (v0.3) — 기도 채널 3s → ×1.5 (PrayerInteractable이 읽음).</summary>
         public bool IsDeepened(int corner) => _deepened[corner];
@@ -82,6 +88,7 @@ namespace Morae.Game.Gauges
             if (_stages[corner] < (int)CornerStage.Black)
             {
                 _stages[corner]++;
+                RecountBlack(); // 이벤트보다 먼저 — 구독자가 콜백 안에서 BlackCornerCount를 읽어도 일관되게
                 GameEvents.RaiseCornerStageChanged(corner, _stages[corner]);
                 Debug.Log($"[SALT] 귀퉁이 {corner} 오염 → {(CornerStage)_stages[corner]}");
             }
@@ -109,6 +116,7 @@ namespace Morae.Game.Gauges
             }
             _stages[corner]--;
             ClearDeepenedIfBelowBlack(corner);
+            RecountBlack();
             GameEvents.RaiseCornerStageChanged(corner, _stages[corner]);
             Debug.Log($"[SALT] 귀퉁이 {corner} 정화 → {(CornerStage)_stages[corner]}");
         }
@@ -122,6 +130,7 @@ namespace Morae.Game.Gauges
                 if (restored == _stages[i]) continue;
                 _stages[i] = restored;
                 ClearDeepenedIfBelowBlack(i);
+                RecountBlack();
                 GameEvents.RaiseCornerStageChanged(i, restored);
             }
             Debug.Log($"[SALT] 부적 복구 — 전 귀퉁이 −{amount} → [{_stages[0]}{_stages[1]}{_stages[2]}{_stages[3]}]");
@@ -134,6 +143,16 @@ namespace Morae.Game.Gauges
                 _deepened[corner] = false;
                 Debug.Log($"[SALT] 귀퉁이 {corner} 심화 해제 (흑→회 정화)");
             }
+        }
+
+        private void RecountBlack()
+        {
+            int n = 0;
+            for (int i = 0; i < CornerIndex.Count; i++)
+            {
+                if (_stages[i] >= (int)CornerStage.Black) n++;
+            }
+            BlackCornerCount = n;
         }
 
         private bool AllBlack()

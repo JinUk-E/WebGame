@@ -21,6 +21,7 @@ namespace Morae.Game.Gauges
         [SerializeField] private PlayerController player;
         [SerializeField] private TvInteractable tv;
         [SerializeField] private Talisman talisman;
+        [SerializeField] private SaltCorners salt; // v0.5 — 흑화 개수 상시 드레인 (같은 계층 직접 참조, §1.2)
 
         private bool _handlingZero;
         // 진짜 신호가 온 뒤 아직 문을 열지 않은 상태 — 이 동안 추가 드레인 (v0.4, 판별 축 위험 부여)
@@ -91,6 +92,14 @@ namespace Morae.Game.Gauges
 
             PhaseDef phase = sequencer != null ? sequencer.CurrentPhaseDef : null;
             if (phase != null) delta -= phase.PassiveSanityDrain * dt;
+
+            // v0.5 §1 — 흑화 귀퉁이 1개당 상시 −0.15/s. 페이즈 상시 드레인과 **별도로 누적**된다.
+            // 하나 버릴 때마다 그 자리에서 대가가 생기게 하는 장치 (붕괴 시점에 벌이 몰리던 문제).
+            if (salt != null)
+            {
+                delta -= CornerPenaltyModel.SanityDrainPerSec(
+                    salt.BlackCornerCount, config.BlackCornerSanityDrainPerSec) * dt;
+            }
 
             // 진짜 신호를 듣고도 문을 열지 않는 동안 — "기다리기만 하면 안전"을 깬다
             if (_trueSignalPending) delta -= config.TrueSignalIgnoreDrainPerSec * dt;

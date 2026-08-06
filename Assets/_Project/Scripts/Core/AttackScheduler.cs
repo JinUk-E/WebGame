@@ -49,6 +49,10 @@ namespace Morae.Game.Core
         private int _trapPhaseIndex = -1;
         private int _trapWavesFired;
 
+        // v0.5 §3 프롤로그 강제 학습 — 스케줄·함정 없이 전조 하나만 굴리는 안전 모드
+        private System.Action<int, bool> _onTrainingResolved;
+        private static readonly ScheduledAttack[] EmptySchedule = new ScheduledAttack[0];
+
         public bool IsRunning { get; private set; }
         /// <summary>페이즈 로컬 공격 시계 (디버그 표시용).</summary>
         public float LocalAttackClock => _localClock;
@@ -67,6 +71,7 @@ namespace Morae.Game.Core
                 return;
             }
 
+            _onTrainingResolved = null;
             _schedule = AttackScheduleBuilder.Build(attackTable, phaseTable, seed);
             _next = 0;
             _phaseIndex = sequencer.CurrentPhaseIndex;
@@ -82,8 +87,54 @@ namespace Morae.Game.Core
         public void Stop()
         {
             IsRunning = false;
+            _onTrainingResolved = null;
             _telegraphs.Clear();
         }
+
+        // ---------- v0.5 §3 프롤로그 강제 학습 (안전 구간) ----------
+
+        /// <summary>
+        /// 학습 모드 진입 (PrologueDirector가 호출). 스케줄·함정 없이 전조 하나만 굴린다.
+        /// 판정 결과는 오염이 아니라 콜백으로 나간다 — **실패해도 소금이 더러워지지 않고 사망하지도 않는다.**
+        /// 상쇄 경로는 본편과 완전히 같다 (PrayerInteractable → TryCounter) — 여기서 배운 손이 본편에 그대로 쓰인다.
+        /// </summary>
+        public void BeginTraining(System.Action<int, bool> onResolved)
+        {
+            if (config == null || sequencer == null || salt == null)
+            {
+                Debug.LogError("[ATTACK] 참조 미배선 — 학습 모드 시작 불가", this);
+                return;
+            }
+            _schedule = EmptySchedule;
+            _next = 0;
+            _localClock = 0f;
+            _telegraphs.Clear();
+            _trapPhaseIndex = -1;   // 함정 시퀀스 비활성
+            _trapWavesFired = 0;
+            _onTrainingResolved = onResolved;
+            IsRunning = true;
+            Debug.Log("[ATTACK] 학습 모드 시작 — 오염·사망 없음 (프롤로그 안전 구간)");
+        }
+
+        /// <summary>학습 전조 1회 발사. 이성 감소도 없다 (프롤로그에는 이성 게이지가 아직 돌지 않는다).</summary>
+        public void FireTrainingTelegraph(int corner, float duration)
+        {
+            if (!IsTraining) return;
+            StartTelegraph(corner, duration, resolves: true);
+            Debug.Log($"[ATTACK] 학습 전조 — 귀퉁이 {corner} ({duration:F1}s 안에 그 방향으로 기도)");
+        }
+
+        /// <summary>학습 종료 — 본편 Begin이 상태를 덮어쓰므로 정리만 한다.</summary>
+        public void EndTraining()
+        {
+            if (!IsTraining) return;
+            _onTrainingResolved = null;
+            _telegraphs.Clear();
+            IsRunning = false;
+            Debug.Log("[ATTACK] 학습 모드 종료");
+        }
+
+        public bool IsTraining => _onTrainingResolved != null;
 
         /// <summary>
         /// 능동 방어 (명세 §2): 해당 귀퉁이에 활성 전조가 있으면 즉시 상쇄 판정. true = 상쇄됨.
@@ -99,6 +150,7 @@ namespace Morae.Game.Core
                 _telegraphs.RemoveAt(i);
                 Debug.Log($"[ATTACK] 귀퉁이 {corner} 전조 상쇄 — 기도 채널 완료");
                 GameEvents.RaiseAttackResolved(corner, true);
+                if (IsTraining) _onTrainingResolved(corner, true);
                 return true;
             }
             return false;
@@ -117,8 +169,12 @@ namespace Morae.Game.Core
                 OnPhaseEntered(currentPhaseIndex);
             }
 
+            // v0.5 §1 — 흑화 개수만큼 공격 간격 ×(1 − 0.05n). TV 가속과는 곱연산 (무너질수록 빨라지는 하강 나선).
             bool tvOn = tv != null && tv.IsOn;
-            _localClock += dt * (tvOn ? config.TvAttackClockRate : 1f);
+            float tvRate = tvOn ? config.TvAttackClockRate : 1f;
+            int blackCount = salt != null ? salt.BlackCornerCount : 0;
+            _localClock += dt * CornerPenaltyModel.AttackClockRate(blackCount,
+                config.BlackCornerAttackIntervalReduction, config.MinAttackIntervalScale, tvRate);
 
             FireDueAttacks(currentPhaseIndex);
             TickTrapSequence(currentPhaseIndex);
@@ -302,6 +358,15 @@ namespace Morae.Game.Core
 
         private void Resolve(in ActiveTelegraph telegraph)
         {
+            // 학습 모드 — 오염 없이 콜백만 (실패해도 벌이 없는 안전 구간, v0.5 §3)
+            if (IsTraining)
+            {
+                Debug.Log($"[ATTACK] 학습 전조 판정 — 귀퉁이 {telegraph.Corner} 미상쇄 (오염 없음, 재시도)");
+                GameEvents.RaiseAttackResolved(telegraph.Corner, false);
+                _onTrainingResolved(telegraph.Corner, false);
+                return;
+            }
+
             if (!telegraph.Resolves)
             {
                 // 전조만 내는 공격 (튜닝 여지) — 오염 없음. countered=true로 발행해 표현 계층이 전조 연출을 정리하게 한다 (결정 기록)

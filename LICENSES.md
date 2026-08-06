@@ -18,6 +18,13 @@ NHN NAN 2026 사전과제 규정에 따른 AI 생성·외부 에셋 기록.
 | `Art/UI/heart128.png` | 절차 생성 (에디터 스크립트 — 임플리시트 하트 곡선) |
 | `Art/Smoke/white32.png` | 절차 생성 (에디터 스크립트 — 단색) |
 
+## 추가 생성분 (2026-08-06 — 명세 v0.5)
+
+| 파일 | 생성 방법 |
+|------|-----------|
+| `Audio/SFX_Corner/whisper_loop.wav` | 절차 합성 (Python 표준 라이브러리, `Tools/gen_whisper_loop.py` 시드 20260806 — 대역제한 노이즈 300~1600Hz + 저주파 진폭 변조 + 루프 이음새 크로스페이드). 귀퉁이 속삭임 4채널 공용 루프 |
+| `Art/Props/prop_silhouette.png` | 절차 생성 (Pillow, `Tools/art-gen/gen_silhouette.py` 시드 42500 — 무채색 탑뷰 형체 + 가우시안 블러). 어둠 속 실루엣 |
+
 ## 외부 에셋
 
 | 에셋 | 출처 | 라이선스 |

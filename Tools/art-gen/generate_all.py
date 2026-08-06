@@ -12,12 +12,14 @@ import gen_portraits
 import gen_preview
 import gen_props
 import gen_room
+import gen_silhouette
 import gen_ui
 
 
 def main():
     gen_room.run()
     gen_props.run()
+    gen_silhouette.run()
     gen_ui.run()
     gen_portraits.run()
     gen_preview.run()
