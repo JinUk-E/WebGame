@@ -3604,9 +3604,9 @@ MonoBehaviour:
   interactButtonRoot: {fileID: 641245571}
   interactLabel: {fileID: 1741263834}
   keyboardHints:
-  - {fileID: 0}
+  - {fileID: 2011625469}
   - {fileID: 1195076274}
-  mobileAudioHint: {fileID: 0}
+  mobileAudioHint: {fileID: 2036819698}
   stickRadius: 130
   stickZoneScale: 1.6
   stickDeadZone01: 0.28
@@ -8603,6 +8603,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4771665366868378443, guid: 7dc642abdf942c141b2ca6cc2b95bcd7, type: 3}
   m_PrefabInstance: {fileID: 2011625467}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2011625469 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1249004072585627103, guid: 7dc642abdf942c141b2ca6cc2b95bcd7, type: 3}
+  m_PrefabInstance: {fileID: 2011625467}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1 &2014092993
 GameObject:
   m_ObjectHideFlags: 0
@@ -8756,6 +8767,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 266abffc60d37f44aaebc0bea7d2355c, type: 3}
+--- !u!1 &2036819698 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5189809158601703361, guid: 266abffc60d37f44aaebc0bea7d2355c, type: 3}
+  m_PrefabInstance: {fileID: 2036819697}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2041038710
 GameObject:
   m_ObjectHideFlags: 0

@@ -320,14 +320,28 @@ namespace Morae.EditorTools
 
         private static void BuildScreensAndDirectors()
         {
+            // 화면 3종은 프리팹이 단일 진실 (2026-08-06) — 여기서 만들지 않고 인스턴스화만 한다.
             var screens = new GameObject("Screens");
-            new GameObject("TitleScreen").transform.SetParent(screens.transform);
-            new GameObject("GameOverScreen").transform.SetParent(screens.transform);
-            new GameObject("EndingScreen").transform.SetParent(screens.transform);
+            InstantiateScreen(screens.transform, "TitleScreen");
+            InstantiateScreen(screens.transform, "GameOverScreen");
+            InstantiateScreen(screens.transform, "EndingScreen");
 
             var directors = new GameObject("Directors");
             new GameObject("PrologueDirector").transform.SetParent(directors.transform);
             new GameObject("EndingDirector").transform.SetParent(directors.transform);
+        }
+
+        private static void InstantiateScreen(Transform parent, string prefabName)
+        {
+            string path = $"Assets/_Project/Prefab/Screens/{prefabName}.prefab";
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (prefab == null)
+            {
+                Debug.LogError($"[SCENE-BUILD] 화면 프리팹 없음: {path}");
+                return;
+            }
+            var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
+            instance.name = prefabName;
         }
 
         // ---------- Clock (월드 TMP + ClockView) ----------
