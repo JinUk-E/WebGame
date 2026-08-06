@@ -133,6 +133,7 @@ namespace Morae.Game.Core
             _trapWavesFired = 0;
             _onTrainingResolved = onResolved;
             IsRunning = true;
+            GameEvents.RaiseTrainingModeChanged(true);
             Debug.Log("[ATTACK] 학습 모드 시작 — 오염·사망 없음 (프롤로그 안전 구간)");
         }
 
@@ -151,6 +152,7 @@ namespace Morae.Game.Core
             _onTrainingResolved = null;
             IsRunning = false;
             DiscardActiveTelegraphs(); // 조용히 비우면 조명·소금 뷰의 전조 연출이 굳는다
+            GameEvents.RaiseTrainingModeChanged(false);
             Debug.Log("[ATTACK] 학습 모드 종료");
         }
 
