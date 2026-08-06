@@ -30,6 +30,13 @@ namespace Morae.Game.Presentation
         [SerializeField] private AudioClip[] sfxFear;    // SFX_Fear: 공포 스팅어 (랜덤 재생)
         [SerializeField] private AudioClip sfxHeartbeat; // SFX_Heartbeat: 이성 저하 심박 루프 (§2 심박의 청각 절반)
 
+        [Header("귀퉁이 속삭임 (명세 v0.5 §1 — 어느 쪽이 뚫렸는지 청각으로 상시 인지)")]
+        [SerializeField] private AudioClip sfxCornerWhisper;               // SFX_Corner/whisper_loop (절차 생성 루프)
+        [SerializeField] private BalanceConfig balance;                    // 단계별 볼륨 테이블 (읽기 전용 데이터)
+        [SerializeField] private AudioSource[] cornerSources = new AudioSource[CornerIndex.Count];
+        [SerializeField] private float cornerPan = 0.65f;                  // 좌/우 귀퉁이 스테레오 정위 (2D 소스라 pan으로)
+        [SerializeField] private float cornerVolumeSmoothSec = 0.35f;
+
         [Header("볼륨·페이드")]
         [SerializeField] private float bgmVolume = 0.5f;
         [SerializeField] private float sfxVolume = 0.9f;
@@ -43,6 +50,7 @@ namespace Morae.Game.Presentation
         private float _lastLatch;
         private float _fear;          // 1 − 이성(0~1)
         private bool _listening;      // 귀 대기 중 — Door 채널 선명/뭉갬 분기
+        private readonly int[] _cornerStages = new int[CornerIndex.Count]; // v0.5 — 귀퉁이 속삭임 볼륨 근거
 
         private void Awake()
         {
@@ -60,6 +68,29 @@ namespace Morae.Game.Presentation
             _heart.loop = true;
             _heart.spatialBlend = 0f;
             _heart.volume = 0f;
+
+            SetupCornerSources();
+        }
+
+        /// <summary>
+        /// 귀퉁이 속삭임 4채널 — 씬의 Audio/CornerSource_* 를 그대로 쓰고, 볼륨 0 루프로 대기시킨다.
+        /// 재생은 여기서 시작하지 않는다 (§8.2 오디오 게이트 — 첫 클릭 전 재생 금지). P1 진입에서 켠다.
+        /// </summary>
+        private void SetupCornerSources()
+        {
+            if (cornerSources == null) return;
+            for (int i = 0; i < cornerSources.Length; i++)
+            {
+                AudioSource src = cornerSources[i];
+                if (src == null) continue;
+                src.clip = sfxCornerWhisper;
+                src.loop = true;
+                src.playOnAwake = false;
+                src.spatialBlend = 0f;
+                src.volume = 0f;
+                // 0=좌상 1=우상 2=좌하 3=우하 — 좌/우만 정위한다 (상하는 2D 스테레오로 표현 불가)
+                src.panStereo = (i == CornerIndex.TopLeft || i == CornerIndex.BottomLeft) ? -cornerPan : cornerPan;
+            }
         }
 
         private void OnEnable()
@@ -73,6 +104,7 @@ namespace Morae.Game.Presentation
             GameEvents.GameOver += HandleGameOver;
             GameEvents.SanityChanged += HandleSanityChanged;
             GameEvents.PlayerStateChanged += HandlePlayerStateChanged;
+            GameEvents.CornerStageChanged += HandleCornerStageChanged;
         }
 
         private void OnDisable()
@@ -86,9 +118,16 @@ namespace Morae.Game.Presentation
             GameEvents.GameOver -= HandleGameOver;
             GameEvents.SanityChanged -= HandleSanityChanged;
             GameEvents.PlayerStateChanged -= HandlePlayerStateChanged;
+            GameEvents.CornerStageChanged -= HandleCornerStageChanged;
         }
 
         private void HandleSanityChanged(float s01) => _fear = 1f - s01;
+
+        private void HandleCornerStageChanged(int corner, int stage)
+        {
+            if (corner < 0 || corner >= _cornerStages.Length) return;
+            _cornerStages[corner] = stage;
+        }
 
         private void HandlePlayerStateChanged(PlayerState state)
             => _listening = state == PlayerState.ListeningAtDoor || state == PlayerState.OpeningDoor;
@@ -131,6 +170,50 @@ namespace Morae.Game.Presentation
                 _heart.volume = Mathf.MoveTowards(_heart.volume, target, Time.unscaledDeltaTime * 0.4f);
                 _heart.pitch = 0.85f + 0.65f * _fear;
             }
+
+            UpdateCornerWhispers();
+        }
+
+        /// <summary>
+        /// v0.5 §1 — 귀퉁이별 속삭임 볼륨을 그 귀퉁이의 오염 단계로 결정한다 (0.35s 러프).
+        /// 흑화된 방향에서만 소리가 커지므로, 화면을 안 봐도 "어느 쪽이 뚫렸는지"가 상시 들린다.
+        /// </summary>
+        private void UpdateCornerWhispers()
+        {
+            if (cornerSources == null) return;
+            float[] table = balance != null ? balance.CornerWhisperVolumes : null;
+            float k = CornerPenaltyModel.SmoothFactor(Time.unscaledDeltaTime, cornerVolumeSmoothSec);
+
+            for (int i = 0; i < cornerSources.Length; i++)
+            {
+                AudioSource src = cornerSources[i];
+                if (src == null || !src.isPlaying) continue;
+                float target = CornerPenaltyModel.WhisperVolume(_cornerStages[i], table) * sfxVolume;
+                src.volume = Mathf.Lerp(src.volume, target, k);
+            }
+        }
+
+        /// <summary>P1 진입에서 호출 — 오디오 게이트 통과 후에야 루프를 돌린다 (볼륨 0으로 시작).</summary>
+        private void StartCornerWhispers()
+        {
+            if (cornerSources == null || sfxCornerWhisper == null) return;
+            for (int i = 0; i < cornerSources.Length; i++)
+            {
+                AudioSource src = cornerSources[i];
+                if (src == null || src.isPlaying) continue;
+                src.volume = 0f;
+                src.time = i * 1.1f % Mathf.Max(0.1f, sfxCornerWhisper.length); // 4채널이 위상까지 겹쳐 울리지 않게
+                src.Play();
+            }
+        }
+
+        private void StopCornerWhispers()
+        {
+            if (cornerSources == null) return;
+            for (int i = 0; i < cornerSources.Length; i++)
+            {
+                if (cornerSources[i] != null) cornerSources[i].Stop();
+            }
         }
 
         // ---------- BGM ----------
@@ -147,6 +230,7 @@ namespace Morae.Game.Presentation
                         _heart.clip = sfxHeartbeat; // 볼륨 0에서 시작 — 이성이 떨어져야 들린다
                         _heart.Play();
                     }
+                    StartCornerWhispers(); // 볼륨 0에서 시작 — 소금이 더러워져야 들린다
                     break;
                 case PhaseId.P5: // v0.3: 절정 진입 — 후반 고조 (구 P4 절정에 해당)
                     FadeTo(Pick(bgmNight, 0));
@@ -163,6 +247,7 @@ namespace Morae.Game.Presentation
         private void HandleEnding(EndingKind kind)
         {
             _heart.Stop(); // 아침 — 심장이 가라앉는다
+            StopCornerWhispers();
             FadeTo(bgmEnding);
         }
 
@@ -170,6 +255,7 @@ namespace Morae.Game.Presentation
         {
             StopBgm();
             _heart.Stop();
+            StopCornerWhispers();
             PlayRandom(sfxFear);
         }
 

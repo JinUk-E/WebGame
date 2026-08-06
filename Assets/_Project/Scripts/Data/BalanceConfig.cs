@@ -39,6 +39,35 @@ namespace Morae.Game.Data
         [Header("흑화 심화 (명세 v0.3 — 흑 귀퉁이 추가 피격 시 1회 플래그)")]
         [SerializeField] private float prayerDeepenedMultiplier = 1.5f; // 심화 귀퉁이 기도 채널 배율 (3s → 4.5s)
 
+        // ---- 명세 v0.5 §1 — 흑화 귀퉁이당 즉시 대가 (흑 개수 n에 선형 누적) ----
+        // "벌이 4개 붕괴 시점에 한 번에 오므로 하나 버렸다가 아무 느낌이 없다"를 깨는 장치.
+        // ⚠ n=4는 구조상 지속 불가 — 네 번째 흑이 생기는 순간 봉인 붕괴 판정(부적 또는 게임오버)이 나므로
+        //    실제로 유지되는 최대는 n=3이다. 밸런스는 그 전제로 잡혀 있다.
+        [Header("흑화 대가 (명세 v0.5 §1)")]
+        // 실내 전역광 감광(코너 1개당). 명세 초안 −0.18은 조도 스케일 1.0 기준값이고,
+        // 이 프로젝트의 전역광은 base 0.12 + 여명 0~0.18 스케일이라 같은 비율(n=4에서 기준 조도의 60% 소실)로 환산했다.
+        [SerializeField] private float blackCornerLightPenalty = 0.018f;
+        // 감광 바닥 — 플레이어 실루엣·소품 윤곽이 남는 하한 (기존 P6 최암부 0.074보다 약간 아래).
+        [SerializeField] private float minRoomLight = 0.055f;
+        [SerializeField] private float roomLightSmoothSec = 0.3f;        // 감광 전환 러프 (단차로 튀지 않게)
+        [SerializeField] private float blackCornerSanityDrainPerSec = 0.15f; // 이성 −0.15/s × n (페이즈 드레인과 별도 누적)
+        [SerializeField] private float blackCornerAttackIntervalReduction = 0.05f; // 공격 간격 ×(1 − 0.05n)
+        [SerializeField] private float minAttackIntervalScale = 0.6f;    // 간격 배수 하한 (계수를 올려도 붕괴하지 않게)
+        // 귀퉁이 속삭임 볼륨 — 단계별(0 백 /1 회 /2 흑 /3 흑+심화). 어느 쪽이 뚫렸는지 방향으로 상시 들린다.
+        [SerializeField] private float[] cornerWhisperVolumes = { 0f, 0.14f, 0.42f, 0.6f };
+
+        [Header("어둠 속 실루엣 (명세 v0.5 §2 — 분위기 전용, 피해·상호작용 없음)")]
+        [SerializeField] private float silhouetteBaseIntervalSec = 7f;   // 흑 1개일 때 출현 간격
+        [SerializeField] private float silhouetteIntervalGain = 0.55f;   // n이 늘수록 짧아지는 정도
+        [SerializeField] private float silhouetteMinIntervalSec = 2.2f;
+        [SerializeField] private int silhouetteMaxConcurrent = 3;        // 동시 상한 (가독성)
+        [SerializeField] private float silhouetteClearance = 2.2f;       // 플레이어·불상·전조 귀퉁이 회피 반경
+
+        [Header("프롤로그 강제 학습 (명세 v0.5 §3 — 실패해도 사망하지 않는 안전 구간)")]
+        [SerializeField] private float prologueWarningSec = 6f;          // 경고 대사 → 전조까지
+        [SerializeField] private float prologueTelegraphTravelSec = 11f; // 전조 길이 = 기도 채널 + 이 이동 여유
+        [SerializeField] private float prologueRetryGapSec = 3.5f;       // 실패 후 다시 전조가 뜨기까지
+
         [Header("부적 (명세 §2 — 1회 방어)")]
         [SerializeField] private int talismanSaltRestore = 1;          // 전 귀퉁이 −1
         [SerializeField] private float talismanSanityRestore = 30f;    // 이성 +30
@@ -68,6 +97,21 @@ namespace Morae.Game.Data
         public float TrapWaveGapSec => trapWaveGapSec;
         public int TrapWaveCount => trapWaveCount;
         public float PrayerDeepenedMultiplier => prayerDeepenedMultiplier;
+        public float BlackCornerLightPenalty => blackCornerLightPenalty;
+        public float MinRoomLight => minRoomLight;
+        public float RoomLightSmoothSec => roomLightSmoothSec;
+        public float BlackCornerSanityDrainPerSec => blackCornerSanityDrainPerSec;
+        public float BlackCornerAttackIntervalReduction => blackCornerAttackIntervalReduction;
+        public float MinAttackIntervalScale => minAttackIntervalScale;
+        public float[] CornerWhisperVolumes => cornerWhisperVolumes;
+        public float SilhouetteBaseIntervalSec => silhouetteBaseIntervalSec;
+        public float SilhouetteIntervalGain => silhouetteIntervalGain;
+        public float SilhouetteMinIntervalSec => silhouetteMinIntervalSec;
+        public int SilhouetteMaxConcurrent => silhouetteMaxConcurrent;
+        public float SilhouetteClearance => silhouetteClearance;
+        public float PrologueWarningSec => prologueWarningSec;
+        public float PrologueTelegraphTravelSec => prologueTelegraphTravelSec;
+        public float PrologueRetryGapSec => prologueRetryGapSec;
         public int TalismanSaltRestore => talismanSaltRestore;
         public float TalismanSanityRestore => talismanSanityRestore;
         public float TalismanFxSec => talismanFxSec;
