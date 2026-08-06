@@ -50,6 +50,7 @@ namespace Morae.EditorTools
             SetupDialogueBox();
             SetupTalismanStatus();
             SetupInteractPromptKeycap();
+            SetupPrayerHint();
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
@@ -320,6 +321,33 @@ namespace Morae.EditorTools
                 new Vector2(170f, -20f), new Vector2(1120f, 250f), new Color(0.93f, 0.9f, 0.85f));
             body.alignment = TextAlignmentOptions.MidlineLeft;
 
+            // 진행 가능 표시 ▼ (2026-08-06 수동 진행) — 프레임 우하단 안쪽. 수동 줄에서만 켜지고 깜빡인다.
+            // Pretendard에 U+25BC 글리프가 있는 것을 확인하고 문자로 그린다 (전용 스프라이트 추가 없음).
+            TMP_Text indicator = MakeText(root.transform, "AdvanceIndicator", font, 34f,
+                Vector2.zero, new Vector2(60f, 60f), new Color(0.93f, 0.9f, 0.85f));
+            indicator.text = "▼";
+            var indicatorRect = indicator.rectTransform;
+            indicatorRect.anchorMin = new Vector2(1f, 0f);
+            indicatorRect.anchorMax = new Vector2(1f, 0f);
+            indicatorRect.pivot = new Vector2(1f, 0f);
+            indicatorRect.anchoredPosition = new Vector2(-46f, 26f);
+            indicator.gameObject.SetActive(false); // DialogueBoxView가 수동 줄에서 켠다
+
+            // 스킵 안내 — 화면 우상단. ⚠ 이 자리는 PrologueDirector.skipZoneViewport(0.80~1.0 × 0.88~1.0)와
+            // 짝이다. 위치를 옮기면 그쪽 사각형도 함께 옮길 것 (표시와 판정이 어긋나면 "안 눌리는 버튼"이 된다).
+            var oldSkip = holder.transform.Find("SkipHint");
+            if (oldSkip != null) Object.DestroyImmediate(oldSkip.gameObject);
+            TMP_Text skipHint = MakeText(holder.transform, "SkipHint", font, 26f,
+                new Vector2(-40f, -30f), new Vector2(300f, 60f), new Color(0.82f, 0.78f, 0.72f, 0.75f));
+            skipHint.text = "건너뛰기 ▶";
+            skipHint.alignment = TextAlignmentOptions.MidlineRight;
+            var skipRect = skipHint.rectTransform;
+            skipRect.anchorMin = Vector2.one;
+            skipRect.anchorMax = Vector2.one;
+            skipRect.pivot = Vector2.one;
+            skipRect.anchoredPosition = new Vector2(-40f, -30f);
+            skipHint.gameObject.SetActive(false); // 첫 프롤로그 대사에서 켜진다
+
             root.SetActive(false); // DialogueBoxView가 켠다
 
             Wire(view, "root", root);
@@ -327,6 +355,8 @@ namespace Morae.EditorTools
             Wire(view, "namePanel", namePanel);
             Wire(view, "nameLabel", nameLabel);
             Wire(view, "bodyLabel", body);
+            Wire(view, "advanceIndicator", indicator);
+            Wire(view, "skipHint", skipHint.gameObject);
             WirePortraits(view, "portraits", new (string, string)[]
             {
                 ("할아버지", Portraits + "portrait_grandfather.png"),
@@ -427,6 +457,142 @@ namespace Morae.EditorTools
 
             Wire(view, "label", label);
             Wire(view, "promptRoot", row);
+        }
+
+        /// <summary>
+        /// 기도 조작 힌트 (2026-08-06) — 프롤로그 강제 학습에서만 뜨는 키캡 안내.
+        /// <para><b>자리 선정</b>: 화면 중상단(위 기준 −120, 560×170 → 1920×1080에서 x 680~1240 / y 790~960).
+        /// 아래 것들과 전부 어긋난다 — 대화상자(x 160~1760 / y 24~438, 초상 포함) · 부적(x 36~136 / y 36~336) ·
+        /// 이동한 하트(x 36~108 / y 480~552) · 모바일 스틱 예약(x 122~538 / y 42~458) ·
+        /// 상호작용 버튼(x 1490~1750 / y 120~380) · 스킵 안내(x 1580~1880 / y 990~1050).
+        /// 학습 무대(불상 = 방 좌상단)와 시선 거리가 가깝고, 대사가 차지한 하단을 피할 수 있는 유일한 넓은 여백이다.</para>
+        /// </summary>
+        private static void SetupPrayerHint()
+        {
+            var canvas = GameObject.Find("UI");
+            var holderTr = canvas.transform.Find("PrayerHint");
+            GameObject holder;
+            if (holderTr == null)
+            {
+                holder = new GameObject("PrayerHint");
+                holder.transform.SetParent(canvas.transform, false);
+                Stretch(holder.AddComponent<RectTransform>());
+            }
+            else
+            {
+                holder = holderTr.gameObject;
+            }
+
+            var view = holder.GetComponent<PrayerHintView>();
+            if (view == null) view = holder.AddComponent<PrayerHintView>();
+
+            var oldRoot = holder.transform.Find("Root"); // 레이아웃은 항상 재생성 (대화상자와 같은 방침)
+            if (oldRoot != null) Object.DestroyImmediate(oldRoot.gameObject);
+
+            var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontAssetPath);
+            var capColor = new Color(0.72f, 0.7f, 0.65f, 0.55f); // PrayerHintView.idleColor와 같은 값
+            var labelColor = new Color(0.8f, 0.78f, 0.72f, 0.85f);
+
+            var root = new GameObject("Root");
+            root.transform.SetParent(holder.transform, false);
+            var rootRect = root.AddComponent<RectTransform>();
+            rootRect.anchorMin = new Vector2(0.5f, 1f);
+            rootRect.anchorMax = new Vector2(0.5f, 1f);
+            rootRect.pivot = new Vector2(0.5f, 1f);
+            rootRect.anchoredPosition = new Vector2(0f, -120f);
+            rootRect.sizeDelta = new Vector2(560f, 170f);
+
+            var panel = new GameObject("Panel");
+            panel.transform.SetParent(root.transform, false);
+            Stretch(panel.AddComponent<RectTransform>());
+            var panelImage = panel.AddComponent<Image>();
+            panelImage.sprite = LoadSprite(UI + "ui_dialogue_frame.png");
+            panelImage.type = Image.Type.Sliced;
+            panelImage.color = new Color(1f, 1f, 1f, 0.62f); // 방을 가리지 않게 반투명
+            panelImage.raycastTarget = false;
+
+            // ---- PC: [E] 홀드 + 방향키 크로스 ----
+            var keyboard = new GameObject("Keyboard");
+            keyboard.transform.SetParent(root.transform, false);
+            Stretch(keyboard.AddComponent<RectTransform>());
+
+            MakeKeycap(keyboard.transform, "KeyE", font, "E", new Vector2(-176f, 12f), 78f, capColor);
+            MakeHintLabel(keyboard.transform, "HoldLabel", font, "홀드", new Vector2(-176f, -50f), labelColor);
+            MakeHintLabel(keyboard.transform, "Plus", font, "+", new Vector2(-104f, 12f), labelColor);
+
+            // 방향키 배치는 실제 키보드와 같은 역T — 방향과 손가락 위치가 그림에서 바로 읽힌다
+            Image up = MakeKeycap(keyboard.transform, "KeyUp", font, "↑", new Vector2(24f, 48f), 66f, capColor);
+            Image left = MakeKeycap(keyboard.transform, "KeyLeft", font, "←", new Vector2(-48f, -24f), 66f, capColor);
+            Image down = MakeKeycap(keyboard.transform, "KeyDown", font, "↓", new Vector2(24f, -24f), 66f, capColor);
+            Image right = MakeKeycap(keyboard.transform, "KeyRight", font, "→", new Vector2(96f, -24f), 66f, capColor);
+            MakeHintLabel(keyboard.transform, "AimLabel", font, "조준", new Vector2(24f, -74f), labelColor);
+
+            // ---- 모바일: 상호작용 버튼 홀드 + 스틱 기울임 ----
+            var touch = new GameObject("Touch");
+            touch.transform.SetParent(root.transform, false);
+            Stretch(touch.AddComponent<RectTransform>());
+
+            MakeCircle(touch.transform, "TouchButton", UI + "ui_touch_knob.png",
+                new Vector2(-120f, 12f), 96f, capColor);
+            MakeHintLabel(touch.transform, "HoldLabel", font, "홀드", new Vector2(-120f, -56f), labelColor);
+            MakeHintLabel(touch.transform, "Plus", font, "+", new Vector2(-30f, 12f), labelColor);
+            Image ring = MakeCircle(touch.transform, "StickRing", UI + "ui_touch_ring.png",
+                new Vector2(96f, 12f), 118f, capColor);
+            // 노브는 링의 자식 — 기울임 오프셋 기준이 링 중심이 된다
+            Image knob = MakeCircle(ring.transform, "StickKnob", UI + "ui_touch_knob.png",
+                Vector2.zero, 54f, new Color(1f, 0.93f, 0.72f, 0.95f));
+            MakeHintLabel(touch.transform, "AimLabel", font, "조준", new Vector2(96f, -56f), labelColor);
+
+            root.SetActive(false); // PrayerHintView가 학습 안내 대사에 맞춰 켠다
+
+            Wire(view, "root", root);
+            Wire(view, "keyboardGroup", keyboard);
+            Wire(view, "touchGroup", touch);
+            Wire(view, "touchKnob", knob.rectTransform);
+            WireArray(view, "arrowKeys", new Object[] { up, down, left, right }); // AimKey 순서 고정
+        }
+
+        /// <summary>키캡 1개 (배경 스프라이트 + 글자). 반환값은 강조 대상 Graphic.</summary>
+        private static Image MakeKeycap(Transform parent, string name, TMP_FontAsset font, string glyph,
+            Vector2 pos, float size, Color color)
+        {
+            Image image = MakeCircle(parent, name, UI + "ui_key_prompt.png", pos, size, color);
+            TMP_Text label = MakeText(image.transform, "Glyph", font, size * 0.46f,
+                Vector2.zero, new Vector2(size, size), new Color(0.96f, 0.94f, 0.88f));
+            label.text = glyph;
+            Stretch(label.rectTransform);
+            return image;
+        }
+
+        private static Image MakeCircle(Transform parent, string name, string spritePath,
+            Vector2 pos, float size, Color color)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            var image = go.AddComponent<Image>();
+            image.sprite = LoadSprite(spritePath);
+            image.color = color;
+            image.raycastTarget = false;
+            CenterAnchor(image.rectTransform, pos, new Vector2(size, size));
+            return image;
+        }
+
+        private static void MakeHintLabel(Transform parent, string name, TMP_FontAsset font, string text,
+            Vector2 pos, Color color)
+        {
+            TMP_Text label = MakeText(parent, name, font, 22f, pos, new Vector2(140f, 30f), color);
+            label.text = text;
+            CenterAnchor(label.rectTransform, pos, new Vector2(140f, 30f));
+        }
+
+        /// <summary>부모 중심 기준 배치 — 앵커 기본값에 기대지 않고 명시한다 (기본값이 바뀌면 레이아웃이 통째로 어긋난다).</summary>
+        private static void CenterAnchor(RectTransform rect, Vector2 pos, Vector2 size)
+        {
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.pivot = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = pos;
+            rect.sizeDelta = size;
         }
 
         // ---------- 헬퍼 ----------
@@ -533,6 +699,27 @@ namespace Morae.EditorTools
             }
             so.ApplyModifiedPropertiesWithoutUndo();
             Debug.Log($"[ART2-SETUP] {target.GetType().Name}.{field} = {spritePaths.Length}개 (NULL {nulls})");
+        }
+
+        /// <summary>오브젝트 배열 필드 배선 — 원소 순서가 의미를 갖는 배열(예: AimKey 순서)에 쓴다.</summary>
+        private static void WireArray(Component target, string field, Object[] values)
+        {
+            var so = new SerializedObject(target);
+            var prop = so.FindProperty(field);
+            if (prop == null)
+            {
+                Debug.LogError($"[ART2-SETUP] 배선 실패 — {target.GetType().Name}.{field} 프로퍼티 없음");
+                return;
+            }
+            prop.arraySize = values.Length;
+            int nulls = 0;
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (values[i] == null) nulls++;
+                prop.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
+            }
+            so.ApplyModifiedPropertiesWithoutUndo();
+            Debug.Log($"[ART2-SETUP] {target.GetType().Name}.{field} = {values.Length}개 (NULL {nulls})");
         }
 
         private static void WirePortraits(Component target, string field, (string speaker, string path)[] entries)

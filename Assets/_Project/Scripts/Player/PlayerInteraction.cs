@@ -133,6 +133,11 @@ namespace Morae.Game.Player
         /// 게임 흐름 상태별 상호작용 허용 범위.
         /// MainLoop = 전부 / Prologue = 기도만(강제 학습에 필요) / 그 외(타이틀·엔딩·게임오버) = 없음.
         /// flow 미배선 시엔 기존 동작(전부 허용)으로 떨어진다 — 게이트는 회귀 방어지 필수 의존이 아니다.
+        /// <para>
+        /// [2026-08-06] 프롤로그 <b>대사 구간</b>은 그 기도마저 잠근다 — 대사를 넘기는 클릭·탭·E가
+        /// 불상 앞에 서 있다는 이유로 기도를 시작하면 안 된다. 잠금이 풀리는 건 대사가 끝난 직후,
+        /// 즉 학습 구간이 시작될 때다 (그때는 기도가 정답 입력이다).
+        /// </para>
         /// </summary>
         private bool AllowedInCurrentState(Interactable candidate)
         {
@@ -140,7 +145,7 @@ namespace Morae.Game.Player
             switch (flow.State)
             {
                 case GameState.MainLoop: return true;
-                case GameState.Prologue: return candidate is PrayerInteractable;
+                case GameState.Prologue: return !flow.PrologueDialogueLock && candidate is PrayerInteractable;
                 default: return false;
             }
         }
