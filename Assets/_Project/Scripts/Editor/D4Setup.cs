@@ -51,13 +51,21 @@ namespace Morae.EditorTools
             if (holderTr == null)
             {
                 holder.transform.SetParent(canvas.transform, false);
-                var rect = holder.AddComponent<RectTransform>();
-                rect.anchorMin = new Vector2(0.5f, 0f);
-                rect.anchorMax = new Vector2(0.5f, 0f);
-                rect.pivot = new Vector2(0.5f, 0f);
-                rect.anchoredPosition = new Vector2(0f, 18f);
-                rect.sizeDelta = new Vector2(72f, 72f);
+                holder.AddComponent<RectTransform>();
             }
+
+            // [2026-08-06] 하단 중앙(0,18) → 좌하단 부적 위로 이동. 예전 자리는 프롤로그 대화상자
+            // (하단 중앙 1600×360, 초상 포함 y 24~438) 한가운데라 대사가 뜨는 내내 심장이 가려졌다.
+            // 새 자리 = 화면 좌측 열, 부적(TalismanStatus x 36~136 / y 36~336) 위.
+            //   · 대화상자 상단(y 438)보다 위  · 모바일 가상 스틱 예약 영역(중심 330,250 · 반경 130 ×1.6 = 208
+            //     → x 122~538 / y 42~458) 밖 (x·y 두 축 모두 벗어난다)  · 자막(x 210~1710) 왼쪽.
+            // ⚠ 위치는 조건 없이 매번 적용한다 — 예전엔 "없을 때만" 잡아서 씬에 이미 있으면 안 움직였다.
+            var rect = holder.GetComponent<RectTransform>();
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.zero;
+            rect.pivot = new Vector2(0.5f, 0.5f);           // 박동 스케일이 중심에서 커지도록
+            rect.anchoredPosition = new Vector2(72f, 516f); // 사각형 x 36~108 / y 480~552
+            rect.sizeDelta = new Vector2(72f, 72f);
 
             var image = holder.GetComponent<Image>();
             if (image == null) image = holder.AddComponent<Image>();

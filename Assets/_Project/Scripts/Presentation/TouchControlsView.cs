@@ -35,6 +35,8 @@ namespace Morae.Game.Presentation
 
         [Header("배선")]
         [SerializeField] private PlayerInteraction interaction;
+        // 프롤로그 대사 구간 판정용 (읽기 프로퍼티만 — PlayerInteraction과 같은 소비 방식)
+        [SerializeField] private GameFlowController flow;
         [SerializeField] private GameObject controlsRoot;   // 스틱+버튼 컨테이너 (게임오버 시 숨김)
         [SerializeField] private RectTransform stickBase;
         [SerializeField] private RectTransform stickKnob;
@@ -59,6 +61,7 @@ namespace Morae.Game.Presentation
         private int _buttonTouch = NoTouch;
         private int _tapTouch = NoTouch;
         private bool _tapToContinue;            // 게임오버·엔딩 — 아무 데나 탭 = 재시작
+        private bool _dialogueLocked;           // 프롤로그 대사 구간 — 컨트롤 숨김·입력 주입 중단
         private bool _stickSeen;
         private bool _buttonSeen;
         private bool _tapSeen;
@@ -105,9 +108,33 @@ namespace Morae.Game.Presentation
 
         private void Update()
         {
+            // 프롤로그 대사 구간에는 온스크린 컨트롤을 치운다 (2026-08-06).
+            // 그동안 상호작용은 어차피 잠겨 있고, 스틱을 잡는 터치가 곧 "다음 대사"로 읽혀
+            // 걸어다니려다 대사를 날리는 사고가 난다 — 화면 전체가 대사 넘김 영역이기 때문.
+            bool dialogueLock = flow != null && flow.PrologueDialogueLock;
+            if (dialogueLock != _dialogueLocked)
+            {
+                _dialogueLocked = dialogueLock;
+                ApplyDialogueLock();
+            }
+            if (_dialogueLocked) return;
+
             PollPointers();
             ApplyInput();
             UpdateVisuals();
+        }
+
+        /// <summary>대사 구간 진입·이탈 시 컨트롤 표시와 잔존 터치 정리.</summary>
+        private void ApplyDialogueLock()
+        {
+            if (_dialogueLocked)
+            {
+                ReleaseStick();
+                _buttonTouch = NoTouch;
+                _tapTouch = NoTouch;
+                InputReader.ResetTouchState(); // 쥐고 있던 손가락이 대사 뒤 기도로 이어지지 않게
+            }
+            if (controlsRoot != null && !_tapToContinue) controlsRoot.SetActive(!_dialogueLocked);
         }
 
         // ---------- 포인터 수집 ----------

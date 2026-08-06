@@ -39,6 +39,67 @@ namespace Morae.Game.Player
         public static bool InteractUp => Input.GetKeyUp(KeyCode.E) || TouchInteract.Up(Time.frameCount);
         public static bool EscapeDown => Input.GetKeyDown(KeyCode.Escape);
 
+        // ---------- 대사 진행 (프롤로그 전용, 2026-08-06) ----------
+
+        /// <summary>
+        /// 대사 넘김 키. E(상호작용과 같은 키) + Space.
+        /// <b>InteractDown과 별개의 프로퍼티인 이유</b>: 대사 진행은 터치 버튼(InteractDown의 터치 소스)이
+        /// 아니라 화면 아무 데나 탭으로 받는다. 두 소유권이 겹치지 않도록 소비처가 스스로 고른다 —
+        /// 대사 구간에서는 PrologueDirector만 이걸 읽고, 그동안 월드 상호작용은 게이트로 잠긴다.
+        /// </summary>
+        public static bool AdvanceKeyDown => Input.GetKeyDown(KeyCode.E) || Input.GetKeyDown(KeyCode.Space);
+
+        /// <summary>
+        /// 이번 프레임에 새로 눌린 포인터(마우스 좌클릭 또는 터치 시작)와 그 스크린 좌표.
+        /// 프레임당 상태 질의만 하므로 여러 번 호출해도 결과가 같다(래치 없음 — 소비자가 하나뿐인 전제).
+        /// 모바일 브라우저에서 레거시 Input이 터치를 못 받는 경우를 대비해 Input System을 폴백으로 본다
+        /// (TouchControlsView와 같은 정책 — 같은 프레임에 두 소스를 섞지 않는다).
+        /// </summary>
+        public static bool PointerDown(out Vector2 screenPos)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                screenPos = Input.mousePosition;
+                return true;
+            }
+
+            int count = Input.touchCount;
+            for (int i = 0; i < count; i++)
+            {
+                Touch touch = Input.GetTouch(i);
+                if (touch.phase != TouchPhase.Began) continue;
+                screenPos = touch.position;
+                return true;
+            }
+            if (count > 0)
+            {
+                screenPos = Vector2.zero;
+                return false;
+            }
+
+            return PointerDownFromInputSystem(out screenPos);
+        }
+
+        private static bool PointerDownFromInputSystem(out Vector2 screenPos)
+        {
+#if ENABLE_INPUT_SYSTEM
+            var screen = UnityEngine.InputSystem.Touchscreen.current;
+            if (screen != null)
+            {
+                var touches = screen.touches;
+                for (int i = 0; i < touches.Count; i++)
+                {
+                    var touch = touches[i];
+                    if (touch.phase.ReadValue() != UnityEngine.InputSystem.TouchPhase.Began) continue;
+                    screenPos = touch.position.ReadValue();
+                    return true;
+                }
+            }
+#endif
+            screenPos = Vector2.zero;
+            return false;
+        }
+
         // ---------- 터치 주입 (TouchControlsView 전용) ----------
 
         /// <summary>가상 스틱의 스냅된 방향 벡터 (키보드와 같은 값 규약 — TouchStickModel이 보장).</summary>

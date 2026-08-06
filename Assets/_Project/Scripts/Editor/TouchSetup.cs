@@ -1,4 +1,5 @@
 using System.IO;
+using Morae.Game.Core;
 using Morae.Game.Presentation;
 using Morae.Game.Player;
 using TMPro;
@@ -99,6 +100,7 @@ namespace Morae.EditorTools
             TMP_Text endingHint = FindHint("Screens/EndingScreen");
 
             Wire(view, "interaction", Object.FindFirstObjectByType<PlayerInteraction>());
+            Wire(view, "flow", Object.FindFirstObjectByType<GameFlowController>());
             Wire(view, "controlsRoot", controls);
             Wire(view, "stickBase", stickRect);
             Wire(view, "stickKnob", knobRect);

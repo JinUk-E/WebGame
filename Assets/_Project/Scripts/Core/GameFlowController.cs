@@ -26,6 +26,14 @@ namespace Morae.Game.Core
         /// <summary>P7 진짜 신호 발화 여부 — 개문 시 사망/엔딩 분기 기준 (§1.4 DoorState).</summary>
         public bool TrueSignalFired { get; private set; }
 
+        /// <summary>
+        /// 프롤로그 <b>대사 구간</b>이 입력을 쥐고 있는가 (2026-08-06 수동 진행).
+        /// 대사를 넘기는 클릭·탭·E가 월드 상호작용으로 새지 않도록 PlayerInteraction이 이걸 보고 잠근다.
+        /// 대사가 끝난 뒤의 <b>강제 학습 구간에서는 false</b> — 그때 E·터치 버튼은 기도의 것이어야 한다.
+        /// </summary>
+        public bool PrologueDialogueLock =>
+            State == GameState.Prologue && prologueDirector != null && prologueDirector.OwnsInput;
+
         private void OnEnable()
         {
             GameEvents.GameOver += HandleGameOver;
