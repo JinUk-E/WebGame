@@ -21,6 +21,14 @@ namespace Morae.Game.Interactions
         [SerializeField] private Vector2 pushDirection = Vector2.left; // 플레이어 기준 "문을 미는" 방향키 (씬 배치: 문 = 좌측 벽)
 
         private Vector2 _pushDir;
+
+        /// <summary>
+        /// 문을 미는 방향 (정규화). 조작 힌트 UI가 화살표를 고를 때 읽는다 —
+        /// 여기서 끌어가야 문을 다른 벽으로 옮겼을 때 안내가 따라온다.
+        /// Awake 순서와 무관하게 같은 값을 주려고 직렬화 필드에서 직접 계산한다.
+        /// </summary>
+        public Vector2 PushDirection
+            => pushDirection.sqrMagnitude > 0f ? pushDirection.normalized : Vector2.left;
         private float _latchHeld;
 
         public DoorState Door { get; private set; } = DoorState.Latched;
@@ -108,6 +116,9 @@ namespace Morae.Game.Interactions
             Door = DoorState.Open;
             _latchHeld = 0f;
             GameEvents.RaiseDoorLatchProgressChanged(0f); // 진행 바 정리 (v1.5 ChannelBarView)
+
+            // 문 그림을 먼저 연다 — 아래 엔딩/게임오버 발행이 화면을 덮기 전에 열린 문이 한 프레임이라도 보여야 한다
+            GameEvents.RaiseDoorOpened();
 
             bool trueSignal = flow != null && flow.TrueSignalFired;
             if (trueSignal)
