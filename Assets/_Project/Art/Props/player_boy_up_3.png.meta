@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 9e8c2104f414f5ab1462532f561c5bb5
+guid: 052ccd0b584b9c949bff502277e9326d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -714033916243169114
-    second: player_boy_down_1_0
+      213: -3908739789402908193
+    second: player_boy_up_3_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -96,40 +96,27 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: player_boy_down_1_0
+      name: player_boy_up_3_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 84
-        height: 152
+        x: 6
+        y: 3
+        width: 72
+        height: 146
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f414f5ab1462532f561c5bb508000000
-      internalID: -714033916243169114
+      spriteID: fd95435fedd51c9c0800000000000000
+      internalID: -3908739789402908193
       vertices: []
       indices: 
       edges: []
@@ -138,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 593e53d2015894245a6d9b802bd4fbfe
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -146,11 +133,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":84.0,"y":152.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      player_boy_down_1_0: -714033916243169114
+      player_boy_up_3_0: -3908739789402908193
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
