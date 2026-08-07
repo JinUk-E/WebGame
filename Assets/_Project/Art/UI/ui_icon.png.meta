@@ -1,10 +1,19 @@
 fileFormatVersion: 2
-guid: 82bc113e1a52de1488c4b648a0a0e506
+guid: 1ad359b1d7eb0dc4f947badba79e5218
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5349495229731942356
-    second: ui_button_normal_0
+      213: 2611445321604773238
+    second: ui_icon_0
+  - first:
+      213: -204162416389790597
+    second: ui_icon_1
+  - first:
+      213: 1540142093755090191
+    second: ui_icon_2
+  - first:
+      213: 2032677834180968176
+    second: ui_icon_3
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -75,7 +84,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -96,30 +105,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ui_button_normal_0
+      name: ui_icon_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 749
-        height: 160
+        y: 111
+        width: 98
+        height: 105
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,30 +124,74 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c205e207e66c2c5b0800000000000000
-      internalID: -5349495229731942356
+      spriteID: 675bb981fa7bd3420800000000000000
+      internalID: 2611445321604773238
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: ui_button_normal_1
+      name: ui_icon_1
       rect:
         serializedVersion: 2
-        x: 728
-        y: 67
-        width: 68
-        height: 13
+        x: 106
+        y: 111
+        width: 98
+        height: 105
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 9308eb8d18802de46949d95e4e57a52d
-      internalID: 869978622
+      spriteID: b74e99e2d5baa2df0800000000000000
+      internalID: -204162416389790597
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ui_icon_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 98
+        height: 105
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f0506e1031faf5510800000000000000
+      internalID: 1540142093755090191
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ui_icon_3
+      rect:
+        serializedVersion: 2
+        x: 106
+        y: 0
+        width: 98
+        height: 105
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0feba2978b5853c10800000000000000
+      internalID: 2032677834180968176
       vertices: []
       indices: 
       edges: []
@@ -160,7 +200,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 824fce5d70cf0b247a8d9ae2a9261a79
+    spriteID: c103fbc2ddb800645bccce3769b38c1f
     internalID: 0
     vertices: []
     indices: 
@@ -172,8 +212,10 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      ui_button_normal_0: -5349495229731942356
-      ui_button_normal_1: 869978622
+      ui_icon_0: 2611445321604773238
+      ui_icon_1: -204162416389790597
+      ui_icon_2: 1540142093755090191
+      ui_icon_3: 2032677834180968176
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
