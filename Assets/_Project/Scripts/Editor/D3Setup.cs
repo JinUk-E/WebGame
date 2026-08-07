@@ -41,6 +41,10 @@ namespace Morae.EditorTools
 
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
+
+            // SaltCornersView·ChannelBarView는 Room 하위에 산다 — 인스턴스에만 쓰면 프리팹과 갈라진다.
+            // 방은 프리팹이 단일 진실이므로 여기서 프리팹으로 밀어 올린다 (씬 참조는 오버라이드로 되꽂힌다).
+            RoomPrefabSetup.ApplyRoomToPrefab();
             Debug.Log("[D3-SETUP] 배선·씬 저장 완료");
         }
 
@@ -207,27 +211,20 @@ namespace Morae.EditorTools
             var view = holder.GetComponent<InteractPromptView>();
             if (view == null) view = holder.AddComponent<InteractPromptView>();
 
-            var labelTr = holder.transform.Find("Label");
-            TextMeshProUGUI label;
-            if (labelTr == null)
+            // ⚠ 라벨은 Art2Setup의 키캡 행(`Row/Keycap` + `Row/Label`)이 소유한다.
+            // 예전엔 여기서 `InteractPrompt/Label`(구 단일 라벨)을 없으면 만들었는데, Art2Setup이
+            // 그 구 라벨을 지우고 Row로 대체한 뒤로는 **D3를 나중에 돌릴 때마다 구 라벨이 되살아나**
+            // InteractPromptView.label이 그쪽을 가리켜 키캡 행이 죽은 채 남았다(실행 순서에 따라 달라지는 버그).
+            // 그래서 여기서는 만들지 않고 찾기만 한다.
+            // (UnityEngine.Object에 ?? 금지 — 가짜 null 때문에 명시 비교로 쓴다)
+            Transform labelTr = holder.transform.Find("Row/Label");
+            if (labelTr == null) labelTr = holder.transform.Find("Label");
+            TextMeshProUGUI label = labelTr != null ? labelTr.GetComponent<TextMeshProUGUI>() : null;
+            if (label == null)
             {
-                var labelGo = new GameObject("Label");
-                labelGo.transform.SetParent(holder.transform, false);
-                label = labelGo.AddComponent<TextMeshProUGUI>();
-                var rect = label.rectTransform;
-                rect.anchorMin = new Vector2(0.5f, 0f);
-                rect.anchorMax = new Vector2(0.5f, 0f);
-                rect.pivot = new Vector2(0.5f, 0f);
-                rect.anchoredPosition = new Vector2(0f, 245f); // 자막(90~230) 위
-                rect.sizeDelta = new Vector2(900f, 50f);
-                label.fontSize = 30f;
-                label.alignment = TextAlignmentOptions.Bottom;
-                label.color = new Color(0.8f, 0.78f, 0.7f, 0.9f);
-                label.text = string.Empty;
-            }
-            else
-            {
-                label = labelTr.GetComponent<TextMeshProUGUI>();
+                Debug.LogError("[D3-SETUP] UI/InteractPrompt에 라벨이 없다 — " +
+                               "'Morae/Setup Art2 (스프라이트 배선)'을 먼저 실행할 것");
+                return;
             }
 
             var font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>(FontAssetPath);

@@ -42,6 +42,9 @@ namespace Morae.EditorTools
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
 
+            // WindowRattleView는 Room/Window에 붙는다 — 방은 프리팹이 단일 진실이므로 프리팹으로 밀어 올린다
+            RoomPrefabSetup.ApplyRoomToPrefab();
+
             // 새 클립 배선 (SoundSetup이 씬 저장까지 수행)
             SoundSetup.Setup();
             Debug.Log("[RATTLE-FX] 배선·씬 저장 완료");
