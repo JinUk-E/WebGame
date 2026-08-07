@@ -2642,66 +2642,11 @@ MonoBehaviour:
       type: {class: 'Provider2DCache`1[[UnityEngine.Rendering.Universal.Light2DProvider, Unity.RenderPipelines.Universal.2D.Runtime]]', ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data:
         m_Cache: []
---- !u!1 &757292217
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 757292219}
-  - component: {fileID: 757292218}
-  m_Layer: 0
-  m_Name: SaltPourFx
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &757292218
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 757292217}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8ac1b7b12b7a96641970d4a2850435fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Morae.Game::Morae.Game.Presentation.SaltPourFx
-  cornerAnchors:
-  - {fileID: 2041038711}
-  - {fileID: 1108568239}
-  - {fileID: 1731765970}
-  - {fileID: 1519598325}
-  grainSprite: {fileID: -519325309181864674, guid: e31c64100bb20d848bbd6e740638797d, type: 3}
-  unlitMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
-  poolSize: 28
-  spawnPerSec: 34
-  grainScale: 0.07
-  spreadRadius: 0.45
-  riseHeight: 0.55
-  fallSec: 0.32
-  restSec: 0.55
-  grainColor: {r: 1, g: 0.99, b: 0.94, a: 1}
-  sortingOrder: 3
---- !u!4 &757292219
+--- !u!4 &757292219 stripped
 Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 3969930869869494180, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
+  m_PrefabInstance: {fileID: 3375710669564261773}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 757292217}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.6222, y: -0.03651, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 883090922}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &789966864
 GameObject:
   m_ObjectHideFlags: 0
@@ -3284,7 +3229,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 7
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 5284207340753240396, guid: dea5dd02994cc6b4ca562a1b4a7d5f63, type: 3}
+  m_Sprite: {fileID: -7550445784348221575, guid: 6b9da12722993934d9db8aa2ad630e50, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
@@ -3303,13 +3248,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 866806260}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: 0, z: -0.9455186, w: -0.32556805}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2095160273}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -218}
 --- !u!1 &883090921
 GameObject:
   m_ObjectHideFlags: 0
@@ -5297,7 +5242,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
   m_UseReflectionProbes: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -6506,7 +6451,7 @@ MonoBehaviour:
   - {fileID: 1731765970}
   - {fileID: 1519598325}
   ghost: {fileID: 866806261}
-  ghostSprite: {fileID: 5284207340753240396, guid: dea5dd02994cc6b4ca562a1b4a7d5f63, type: 3}
+  ghostSprite: {fileID: -7550445784348221575, guid: 6b9da12722993934d9db8aa2ad630e50, type: 3}
   onlyFirstTime: 1
   approachFromOutside: 3.2
   stopDistance: 1.1
@@ -6730,6 +6675,79 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 66288f5172117be4a87f375d26ccc06c, type: 3}
+--- !u!1001 &3375710669564261773
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 883090922}
+    m_Modifications:
+    - target: {fileID: 3871346116505450015, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
+      propertyPath: 'cornerAnchors.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2041038711}
+    - target: {fileID: 3871346116505450015, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
+      propertyPath: 'cornerAnchors.Array.data[1]'
+      value: 
+      objectReference: {fileID: 1108568239}
+    - target: {fileID: 3871346116505450015, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
+      propertyPath: 'cornerAnchors.Array.data[2]'
+      value: 
+      objectReference: {fileID: 1731765970}
+    - target: {fileID: 3871346116505450015, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
+      propertyPath: 'cornerAnchors.Array.data[3]'
+      value: 
+      objectReference: {fileID: 1519598325}
+    - target: {fileID: 3969930869869494180, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.6222
+      objectReference: {fileID: 0}
+    - target: {fileID: 3969930869869494180, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.03651
+      objectReference: {fileID: 0}
+    - target: {fileID: 3969930869869494180, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3969930869869494180, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3969930869869494180, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3969930869869494180, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3969930869869494180, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3969930869869494180, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3969930869869494180, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3969930869869494180, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9033994285973697917, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
+      propertyPath: m_Name
+      value: SaltPourFx
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 34478654df1f8ed4eb1f32dc42c0d171, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
