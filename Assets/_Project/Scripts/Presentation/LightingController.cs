@@ -21,10 +21,12 @@ namespace Morae.Game.Presentation
     ///   ② 불상 촛불(buddhaCandleLight) — 항상 일정. 암전 시 "기도하러 갈 곳"이 등대가 되어 행동을 지시한다.
     ///   ③ 공격 전조 점멸(telegraphIntensity) — 감광 무관 원래 강도. 어두울수록 화면에서 가장 밝은 것이 된다.
     ///
-    /// v0.6.1 — **프롤로그 학습 구간 한정** 스포트라이트(TrainingModeChanged 구독): 실내 전역광 ×trainingRoomDimScale,
-    ///   촛불 ×(1+trainingCandleBoost). 예외 3종을 깨지 않는다(여명 무개입 / 촛불은 위로만 / 전조는 원래 강도)이며
-    ///   배율은 클램프 **전에** 곱해 minRoomLight 바닥을 지킨다. 학습이 끝나면 배율이 정확히 1로 돌아온다
+    /// v0.6.1 — **프롤로그 학습 구간 한정** 스포트라이트(TrainingModeChanged 구독): 실내 전역광 ×trainingRoomDimScale.
+    ///   예외 3종을 깨지 않으며(여명 무개입 / 촛불 불변 / 전조는 원래 강도) 배율은 클램프 **전에** 곱해
+    ///   minRoomLight 바닥을 지킨다. 학습이 끝나면 배율이 정확히 1로 돌아온다
     ///   (<see cref="Core.TrainingStageModel"/> — 본편에 잔여 감광이 남으면 밸런스가 통째로 어긋난다).
+    ///   [v0.7] 촛불 부스트(trainingCandleBoost)·전조 플레어(candleFlare*)는 UpdateCandle 삭제와 함께 제거 —
+    ///   촛불은 Start에서 한 번 켠 뒤 어떤 경로로도 건드리지 않는다 (예외②가 오히려 단순해졌다).
     /// </summary>
     public sealed class LightingController : MonoBehaviour
     {
@@ -53,18 +55,14 @@ namespace Morae.Game.Presentation
         [SerializeField] private Color cornerBreachColor = new Color(1f, 0.25f, 0.2f); // 흑화 — 붉은 균열광
         [SerializeField] private float breachFactor = 0.5f;         // 흑화 시 강도 배율 (평시 대비)
         [SerializeField] private float breachPulseHz = 0.8f;        // 심화 맥동 — SaltCornersView와 같은 주기
-        // 예외② 유지: 촛불은 **아래로는 절대 안 내려간다**. 전조 때만 위로 튀어 "이리로 와라"를 지시한다.
-        [SerializeField] private float candleFlareSec = 0.6f;
-        [SerializeField] private float candleFlareBoost = 0.9f;
 
         [Header("v0.6.1 — 학습 구간 스포트라이트 (프롤로그 한정)")]
-        // 어두운 방에서 후광만으로는 "저기가 목적지"가 안 읽힌다. 학습 동안만 실내 전역광을 한 단계 더 내리고
-        // 불상 촛불(반경 2.8u 포인트 라이트)을 올려 **불상 주변만** 남긴다 — 시선이 갈 곳이 하나가 된다.
-        // ⚠ 감광 예외 3종은 그대로다: 창밖 여명 무개입 / 촛불은 위로만 / 전조 점멸은 원래 강도.
+        // 어두운 방에서 후광만으로는 "저기가 목적지"가 안 읽힌다. 학습 동안만 실내 전역광을 한 단계 더 내려
+        // 시선이 갈 곳(전조 점멸)이 하나만 남게 한다.
+        // ⚠ 감광 예외 3종은 그대로다: 창밖 여명 무개입 / 촛불 불변 / 전조 점멸은 원래 강도.
         //   배율은 minRoomLight 클램프 **전에** 곱해지므로 바닥도 뚫리지 않는다 (CornerPenaltyModel).
         //   본편 잔여 방지: 배율의 소유는 TrainingStageModel이고, 학습이 꺼지면 정확히 1을 돌려준다.
         [SerializeField, Range(TrainingStageModel.MinDimScale, 1f)] private float trainingRoomDimScale = 0.55f;
-        [SerializeField] private float trainingCandleBoost = 0.7f;
 
         [Header("이불 속 (v0.7)")]
         // 이불을 뒤집어쓰면 방이 안 보인다 — 전역광·귀퉁이광을 함께 눌러 "잘 안 보이는" 상태를 만든다.
@@ -75,7 +73,9 @@ namespace Morae.Game.Presentation
         // v0.7.1 — 더 강하게. 0.3은 "조금 어둡다"였고, 이불이 정보를 포기하는 대가라는 게 안 읽혔다.
         // 0.12면 방 형태만 겨우 남고 소금 단계는 구분이 안 된다 — 그게 이불의 값이다.
         [SerializeField, Range(0.02f, 1f)] private float blanketRoomDimScale = 0.12f;
-        [SerializeField, Range(0f, 1f)] private float blanketCornerDimScale = 0.1f;
+        // 0 = 이불 속에서 소금 조명 완전 소등. 0.1은 "희미하게 남는" 상태였는데, 어두운 방에서는
+        // 그 잔광만으로도 소금 단계가 읽혀 이불의 정보 포기가 성립하지 않았다.
+        [SerializeField, Range(0f, 1f)] private float blanketCornerDimScale;
         [SerializeField] private float blanketLightIntensity = 0.9f;
         [SerializeField] private float blanketFadeSec = 0.45f;   // 들어가고 나오는 전환 (툭 끊기면 연출이 아니라 버그로 보인다)
 
@@ -96,11 +96,9 @@ namespace Morae.Game.Presentation
         private readonly int[] _telegraphCount = new int[CornerIndex.Count];
         private int _blackCount;
         private float _smoothedGlobal = -1f; // 첫 프레임은 목표값으로 스냅 (페이드인 없이 시작)
-        private float _candleFlareUntil;     // v0.6 — 전조 시 촛불이 위로만 튀는 구간
         private bool _trainingActive;        // v0.6.1 — 프롤로그 학습 구간 스포트라이트
         private bool _inBlanket;             // v0.7 — 이불 속 감광
         private float _blanket01;            // 0 = 밖, 1 = 이불 속 (전환 러프값)
-        private float _smoothedCandleScale = 1f; // 촛불 배율도 러프 — 학습 종료 시 뚝 끊기지 않게
 
         private float MinRoomLight => config != null ? config.MinRoomLight : globalMinIntensity;
         private float LightPenalty => config != null ? config.BlackCornerLightPenalty : 0f;
@@ -148,8 +146,6 @@ namespace Morae.Game.Presentation
         {
             if (corner < 0 || corner >= _telegraphCount.Length) return;
             _telegraphCount[corner]++;
-            // 등대가 "지금" 필요하다는 신호 — 밝기 하한은 그대로 두고 위로만 튄다 (예외② 불변)
-            _candleFlareUntil = Time.time + candleFlareSec;
         }
 
         private void HandleAttackResolved(int corner, bool countered)
