@@ -3710,9 +3710,8 @@ MonoBehaviour:
     duration: 5.5
   controlHintLine:
     speaker: "\uD560\uC544\uBC84\uC9C0"
-    text: "\uB9C9\uB294 \uBC95\uC740 \uC774\uB807\uB2E4. \uBD88\uC0C1 \uC55E\uC5D0
-      \uC549\uC544 {0} \uAC80\uC5B4\uC9C4 \uADC0\uD241\uC774\uB97C \uACA8\uB204\uB294
-      \uAC8C\uB2E4."
+    text: "\uB9C9\uB294 \uBC95\uC740 \uC774\uB807\uB2E4. \uBD88\uC0C1 \uC55E\uC5D0\uC11C
+      \uBE4C\uC5B4\uB77C. \uC18C\uAE08\uC774 \uAC80\uC5B4\uC9C4 \uCABD\uC744 \uD5A5\uD574\uC11C."
     duration: 4.5
   telegraphLine:
     speaker: "\uD560\uC544\uBC84\uC9C0"
@@ -3723,7 +3722,8 @@ MonoBehaviour:
   retryLine:
     speaker: "\uD560\uC544\uBC84\uC9C0"
     text: "\uAD1C\uCC2E\uB2E4, \uC544\uC9C1\uC740 \uB0B4\uAC00 \uBD99\uC7A1\uACE0
-      \uC788\uB2E4. \uB2E4\uC2DC \u2014 \uC18C\uB9AC \uB098\uB294 \uCABD\uC774\uB2E4."
+      \uC788\uB2E4. \uB2E4\uC2DC \u2014 \uC18C\uB9AC \uB098\uB294 \uCABD\uC73C\uB85C
+      \uBE4C\uC5B4\uB77C."
     duration: 3.5
   clearedLine:
     speaker: "\uD560\uC544\uBC84\uC9C0"
@@ -6778,8 +6778,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2c74e9b1a08d4f56b93c1e7d05a6f832, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
+  m_Name: 
+  m_EditorClassIdentifier: 
   closedVisual: {fileID: 1993547513}
   openVisual: {fileID: 700100030}
   shakeTarget: {fileID: 1993547514}
