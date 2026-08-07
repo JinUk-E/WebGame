@@ -102,21 +102,6 @@ MonoBehaviour:
     detailLines: []
     sanityDelta: -10
     isTrueSignal: 0
-  - id: urge
-    phaseId: 4
-    offset: 15
-    kind: 3
-    audioClip: {fileID: 8300000, guid: 8f8aa35be6ea0fb4892d11c7e7111f27, type: 3}
-    channel: 2
-    audioClipMuffled: {fileID: 0}
-    subtitleLines:
-    - speaker: "\uB098"
-      text: "\u2026\uC544\uB7AB\uBC30\uAC00 \uBB34\uAC81\uB2E4. \uC5B8\uC81C\uAE4C\uC9C0
-        \uCC38\uC744 \uC218 \uC788\uC744\uAE4C."
-      duration: 3
-    detailLines: []
-    sanityDelta: 0
-    isTrueSignal: 0
   - id: triple-assault
     phaseId: 4
     offset: 55
@@ -169,7 +154,7 @@ MonoBehaviour:
     isTrueSignal: 1
   - id: rescue-open
     phaseId: 7
-    offset: 60
+    offset: 3
     kind: 3
     audioClip: {fileID: 8300000, guid: 1ea9c854313ee2f43ab1216b33328cd9, type: 3}
     channel: 0
