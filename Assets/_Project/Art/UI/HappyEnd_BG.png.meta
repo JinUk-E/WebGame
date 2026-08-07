@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 9ab91d299cfce754a8f16dbce077de7f
+guid: 05397aadd9ad12e469b56438ca8f7066
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1719826837573929350
-    second: prop_salt_black_deep_0
+      213: -3964574353159240925
+    second: HappyEnd_BG_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -96,40 +96,27 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: prop_salt_black_deep_0
+      name: HappyEnd_BG_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 65
-        height: 48
+        width: 1376
+        height: 768
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 68907c0956d0ed710800000000000000
-      internalID: 1719826837573929350
+      spriteID: 323c15a81a00bf8c0800000000000000
+      internalID: -3964574353159240925
       vertices: []
       indices: 
       edges: []
@@ -138,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 16d971d4ee4ed274abebb71ddc3d56e2
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -146,11 +133,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":65.0,"y":48.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      prop_salt_black_deep_0: 1719826837573929350
+      HappyEnd_BG_0: -3964574353159240925
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

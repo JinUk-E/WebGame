@@ -3151,9 +3151,7 @@ MonoBehaviour:
   - {fileID: 3646442165499631439}
   stageSprites:
   - {fileID: -6731685471876054289, guid: 49174822a631c40469c940d506632bcf, type: 3}
-  - {fileID: 2393029987743014419, guid: 3b799e37ac32144478fe41c89aadeeaa, type: 3}
   - {fileID: -2214345577893426537, guid: 31ace9db144a94d4eb1fd6629614d620, type: 3}
-  - {fileID: 1719826837573929350, guid: 9ab91d299cfce754a8f16dbce077de7f, type: 3}
   stageWhite: {r: 0.95, g: 0.95, b: 0.92, a: 1}
   stageGray: {r: 0.55, g: 0.53, b: 0.5, a: 1}
   stageBlack: {r: 0.14, g: 0.12, b: 0.12, a: 1}
