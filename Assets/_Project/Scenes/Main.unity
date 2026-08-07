@@ -6309,14 +6309,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameOverScreen
       objectReference: {fileID: 0}
-    - target: {fileID: 7257048802034215259, guid: 7dc642abdf942c141b2ca6cc2b95bcd7, type: 3}
-      propertyPath: m_Url
-      value: file:///Users/jeongjin-ug/Documents/MoraeGames/Unity/ProjectWeb/Assets/StreamingAssets/Death.mp4
-      objectReference: {fileID: 0}
-    - target: {fileID: 7257048802034215259, guid: 7dc642abdf942c141b2ca6cc2b95bcd7, type: 3}
-      propertyPath: m_DataSource
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
