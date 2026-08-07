@@ -28,7 +28,27 @@ namespace Morae.Game.Presentation
         [SerializeField] private AudioClip sfxDoorClose; // SFX_Door/door_close: 밤 시작 걸쇠·걸쇠 취소
         [SerializeField] private AudioClip sfxDoorTry;   // SFX_Door/door_try: 문 흔들림·걸쇠 개방 시도
         [SerializeField] private AudioClip[] sfxFear;    // SFX_Fear: 공포 스팅어 (랜덤 재생)
-        [SerializeField] private AudioClip sfxHeartbeat; // SFX_Heartbeat: 이성 저하 심박 루프 (§2 심박의 청각 절반)
+        [SerializeField] private AudioClip sfxHeartbeat; // SFX_Heartbeat: 심박 루프 (HeartView 시각 심박의 청각 절반)
+
+        [Header("심박 (v0.7 — HeartRateModel 공유)")]
+        // 시각(HeartView)과 **같은 계산**을 쓴다. 어긋나면 "심박 하나로 몸 상태를 읽는다"는 언어가 깨진다.
+        // 값들은 HeartView의 같은 이름 필드와 맞춰 둘 것 — 둘 다 인스펙터라 한쪽만 만지기 쉽다.
+        [SerializeField] private float heartMinBpm = 48f;
+        [SerializeField] private float heartMaxBpm = 140f;
+        [SerializeField] private float heartSaltingBoostBpm = 30f;
+        [SerializeField] private float heartSaltingFadeSec = 0.8f;
+        [SerializeField] private float heartBlanketScale = 0f;
+        [SerializeField] private float heartBlanketFadeSec = 0.6f;
+        [SerializeField, Range(0f, 1f)] private float heartTvCalmWeight = 0.35f;
+        [SerializeField] private float heartTvCalmScale = 0.8f;
+        // 평소에는 이성이 떨어져야 들리지만, **소금 뿌리는 동안은 항상 들린다** —
+        // 그 순간이 "지금 대가를 치르는 중"을 가르치는 자리라 이성과 무관하게 몸소리가 나야 한다.
+        [SerializeField] private float heartSaltingMinVolume = 0.4f;
+
+        // _tvOn·_inBlanket은 이미 이 클래스가 들고 있다 — 새로 만들지 않는다(두 벌이 되면 반드시 어긋난다)
+        private bool _heartSalting;
+        private float _heartSalting01;
+        private float _heartBlanket01;
 
         [Header("귀퉁이 속삭임 (명세 v0.5 §1 — 어느 쪽이 뚫렸는지 청각으로 상시 인지)")]
         [SerializeField] private AudioClip sfxCornerWhisper;               // SFX_Corner/whisper_loop (절차 생성 루프)
@@ -243,6 +263,7 @@ namespace Morae.Game.Presentation
             GameEvents.AttackResolved += HandleAttackResolved;
             GameEvents.TrainingModeChanged += HandleTrainingMode;
             GameEvents.TVToggled += HandleTvToggled;
+            GameEvents.SaltChannelChanged += HandleSaltChannelSound;
         }
 
         private void OnDisable()
@@ -260,6 +281,7 @@ namespace Morae.Game.Presentation
             GameEvents.AttackResolved -= HandleAttackResolved;
             GameEvents.TrainingModeChanged -= HandleTrainingMode;
             GameEvents.TVToggled -= HandleTvToggled;
+            GameEvents.SaltChannelChanged -= HandleSaltChannelSound;
         }
 
         private void HandleSanityChanged(float s01) => _fear = 1f - s01;
@@ -275,6 +297,38 @@ namespace Morae.Game.Presentation
 
         /// <summary>TV 전원 — 잡음 루프의 on/off 근거. 화면(TvScreenView)·조명과 같은 이벤트를 본다.</summary>
         private void HandleTvToggled(bool isOn) => _tvOn = isOn;
+
+        private void HandleSaltChannelSound(int corner, float progress01) => _heartSalting = progress01 > 0f;
+
+        /// <summary>
+        /// 심박 — 시각(HeartView)과 <b>같은 HeartRateModel</b>로 계산한다.
+        /// 클립이 1초 = 1박이라 pitch가 곧 배속이다.
+        /// 볼륨은 평소엔 이성 30% 아래부터 올라오지만, <b>소금 뿌리는 동안은 항상 들린다</b> —
+        /// 대가를 치르는 그 순간이 학습이 일어나는 자리라 몸소리가 나야 한다.
+        /// </summary>
+        private void UpdateHeartbeat()
+        {
+            if (_heart == null || !_heart.isPlaying) return;
+            float dt = Time.unscaledDeltaTime;
+
+            _heartBlanket01 = Mathf.MoveTowards(_heartBlanket01, _inBlanket ? 1f : 0f,
+                dt / Mathf.Max(0.01f, heartBlanketFadeSec));
+            _heartSalting01 = _heartSalting
+                ? 1f
+                : Mathf.MoveTowards(_heartSalting01, 0f, dt / Mathf.Max(0.01f, heartSaltingFadeSec));
+
+            float calm01 = Core.HeartRateModel.Calm01(_heartBlanket01, _tvOn, heartTvCalmWeight);
+            float calmScale = _heartBlanket01 > 0.5f ? heartBlanketScale : heartTvCalmScale;
+            float bpm = Core.HeartRateModel.Bpm(1f - _fear, heartMinBpm, heartMaxBpm,
+                _heartSalting01, heartSaltingBoostBpm, calm01, calmScale);
+            _heart.pitch = Core.HeartRateModel.PitchFor(bpm);
+
+            float fearVolume = _fear <= 0.3f ? 0f : Mathf.Pow((_fear - 0.3f) / 0.7f, 1.4f) * 0.65f;
+            float target = Mathf.Max(fearVolume, heartSaltingMinVolume * _heartSalting01);
+            // 이불 속에서는 방이 조용해지는 만큼 심장도 물러난다 (안정감의 청각 절반)
+            target *= Mathf.Lerp(1f, 0.25f, _heartBlanket01);
+            _heart.volume = Mathf.MoveTowards(_heart.volume, target, dt * 0.9f);
+        }
 
         private void HandlePlayerStateChanged(PlayerState state)
         {
@@ -313,13 +367,7 @@ namespace Morae.Game.Presentation
                 _bgm.volume = Mathf.MoveTowards(_bgm.volume, bgmVolume, step);
             }
 
-            // 심박 — 이성 30% 아래부터 서서히 올라와 빨라진다 (HeartView 시각 심박의 청각 짝)
-            if (_heart.isPlaying)
-            {
-                float target = _fear <= 0.3f ? 0f : Mathf.Pow((_fear - 0.3f) / 0.7f, 1.4f) * 0.65f;
-                _heart.volume = Mathf.MoveTowards(_heart.volume, target, Time.unscaledDeltaTime * 0.4f);
-                _heart.pitch = 0.85f + 0.65f * _fear;
-            }
+            UpdateHeartbeat();
 
             UpdateCornerWhispers();
             UpdateKnocks();

@@ -15,35 +15,42 @@ namespace Morae.Game.Presentation
     {
         [SerializeField] private SpriteRenderer[] cornerRenderers = new SpriteRenderer[CornerIndex.Count];
         // 아트 2단계 — 단계별 스프라이트 (0=백 1=회 2=흑 3=심화). 비어 있으면 색 틴트 폴백
-        [SerializeField] private Sprite[] stageSprites = new Sprite[4];
+        [SerializeField] private Sprite[] stageSprites = new Sprite[3];
         [SerializeField] private Color stageWhite = new Color(0.95f, 0.95f, 0.92f);
         [SerializeField] private Color stageGray = new Color(0.55f, 0.53f, 0.5f);
         [SerializeField] private Color stageBlack = new Color(0.14f, 0.12f, 0.12f);
-        [SerializeField] private Color stageDeepBlack = new Color(0.18f, 0.04f, 0.07f); // v0.3 심화 — 검붉은 흑 (stage=3)
         [SerializeField] private Color telegraphColor = new Color(0.9f, 0.15f, 0.1f);
-        [SerializeField] private Color aimColor = new Color(1f, 0.85f, 0.3f); // 기도 조준 — 금빛
+        [SerializeField] private Color saltingColor = new Color(1f, 0.97f, 0.88f); // 뿌리는 중 — 소금빛
         [SerializeField] private float telegraphPulseHz = 3f;
         [SerializeField] private float counterFlashSec = 0.4f;
         // v0.6 — 흑화 단계는 "어둡게"가 아니라 "다르게" 보여야 한다. 무광 머티리얼 위에서 1을 넘는 틴트는
         // 스프라이트의 붉은 균열만 들어올린다 (검은 몸통은 어차피 어두워서 눈에 띄게 밝아지지 않는다).
         [SerializeField] private Color blackGlow = new Color(1.15f, 0.95f, 0.95f);
-        [SerializeField] private Color deepGlow = new Color(1.6f, 0.75f, 0.8f);
-        [SerializeField] private float deepGlowPulseHz = 0.8f;
-        // 주의 유도(프롤로그 "네 귀퉁이에 소금을 쌓았다") — 전조와 구분되는 흰 섬광
+        // v0.7 — 오염 확정 상태(회·흑)의 <b>느린 숨</b>. 진폭이 작고 평균 밝기는 blackGlow 그대로다.
+        //   왜 필요한가: 옛 코드에서 맥동은 심화(stage 3)에만 있었고 흑(2)은 완전 정지였다. 그런데 새 설계에서
+        //   플레이어가 봐야 할 것은 전조 중이 아니라 **오염이 확정된 뒤의 정적 상태**다. 정지해 있으면
+        //   네 구석을 순차 탐색해야 하고, 어두운 색이라 오히려 눈에 덜 띈다("어두워져서 안 보이는 역전").
+        //   느리게 숨쉬면 "저기만 움직인다"가 되어 스캔 4회가 사케이드 1회로 줄어든다.
+        //   변하는 것은 밝기 총량이 아니라 **시간**이라 밝기 축 금지 규칙에 걸리지 않는다.
+        [SerializeField] private Color dirtyBreathGlow = new Color(1.35f, 0.9f, 0.9f);
+        [SerializeField] private float dirtyBreathHz = 0.35f;
+        // 주의 유도(프롤로그) — 전조와 구분되는 흰 섬광
         [SerializeField] private Color attentionColor = new Color(1.6f, 1.6f, 1.5f);
 
         private readonly int[] _stages = new int[CornerIndex.Count];
         private readonly float[] _telegraphUntil = new float[CornerIndex.Count];
         private readonly float[] _flashUntil = new float[CornerIndex.Count];
         private readonly float[] _attentionUntil = new float[CornerIndex.Count];
-        private int _aimedCorner = CornerIndex.None; // v1.4 — 기도 채널 중 조준 귀퉁이
+        private int _saltingCorner = CornerIndex.None; // 지금 뿌리는 중인 귀퉁이
+        private float _saltingProgress;                // 그 귀퉁이의 진행률 0~1
+        private readonly Vector3[] _baseScales = new Vector3[CornerIndex.Count];
 
         private void OnEnable()
         {
             GameEvents.CornerStageChanged += HandleStageChanged;
             GameEvents.AttackTelegraphStarted += HandleTelegraph;
             GameEvents.AttackResolved += HandleResolved;
-            GameEvents.PrayerChannelChanged += HandlePrayerChanged;
+            GameEvents.SaltChannelChanged += HandleSaltChannel;
             GameEvents.SaltAttentionRequested += HandleAttention;
         }
 
@@ -52,7 +59,7 @@ namespace Morae.Game.Presentation
             GameEvents.CornerStageChanged -= HandleStageChanged;
             GameEvents.AttackTelegraphStarted -= HandleTelegraph;
             GameEvents.AttackResolved -= HandleResolved;
-            GameEvents.PrayerChannelChanged -= HandlePrayerChanged;
+            GameEvents.SaltChannelChanged -= HandleSaltChannel;
             GameEvents.SaltAttentionRequested -= HandleAttention;
         }
 
@@ -62,8 +69,19 @@ namespace Morae.Game.Presentation
             _attentionUntil[corner] = Time.time + Mathf.Max(0f, seconds);
         }
 
-        private void HandlePrayerChanged(float progress01, int aimedCorner)
-            => _aimedCorner = progress01 > 0f ? aimedCorner : CornerIndex.None;
+        private void HandleSaltChannel(int corner, float progress01)
+        {
+            _saltingCorner = progress01 > 0f ? corner : CornerIndex.None;
+            _saltingProgress = Mathf.Clamp01(progress01);
+        }
+
+        private void Awake()
+        {
+            for (int i = 0; i < cornerRenderers.Length; i++)
+            {
+                _baseScales[i] = cornerRenderers[i] != null ? cornerRenderers[i].transform.localScale : Vector3.one;
+            }
+        }
 
         private void HandleStageChanged(int corner, int stage)
         {
@@ -91,32 +109,37 @@ namespace Morae.Game.Presentation
                 SpriteRenderer sr = cornerRenderers[i];
                 if (sr == null) continue;
 
-                // stage 3 = 흑+심화 (CornerStage.DeepBlack — SaltCorners가 심화 시 발행, v0.3)
-                int stage = Mathf.Clamp(_stages[i], 0, 3);
+                int stage = Mathf.Clamp(_stages[i], 0, (int)CornerStage.Black);
+
+                // v0.7 — 뿌리는 **동안** 실제로 깨끗해지는 게 보여야 한다.
+                // 이전에는 홀드 내내 아무 변화가 없다가 완료 순간에 단계가 툭 바뀌었다. 그러면 플레이어 눈에는
+                // "누르고 있는 나"와 "갑자기 하얘진 소금"이 따로 놀아서 **인과가 안 읽힌다** —
+                // 무튜토리얼로 "E 홀드 = 소금 복구"를 가르쳐야 하는데 정작 그 연결이 화면에 없었다.
+                // 진행률 절반을 넘기면 한 단계 깨끗한 스프라이트로 미리 넘어가 눈에 띄는 계단을 하나 만든다.
+                bool salting = i == _saltingCorner && _saltingProgress > 0f;
+                if (salting && stage > 0 && _saltingProgress >= 0.5f) stage--;
+
                 Sprite stageSprite = stageSprites != null && stage < stageSprites.Length ? stageSprites[stage] : null;
 
                 Color baseColor;
                 if (stageSprite != null)
                 {
-                    // 스프라이트 스왑 방식 — 틴트는 white 기준 (전조·플래시·조준 블렌드가 곱으로 얹힘)
+                    // 스프라이트 스왑 방식 — 틴트는 white 기준 (전조·플래시 블렌드가 곱으로 얹힘)
                     if (sr.sprite != stageSprite) sr.sprite = stageSprite;
-                    // v0.6: 흑(2)·심화(3)는 흰색 대신 발광 틴트를 깔아 "어두워져서 안 보이는" 역전을 막는다.
-                    // 심화는 느리게 맥동 — 흑과 심화의 명도차가 2뿐이라 정지 화면으로는 구분이 안 된다.
-                    if (stage >= 3)
+                    if (stage > 0)
                     {
-                        float breathe = 0.5f + 0.5f * Mathf.Sin(Time.time * deepGlowPulseHz * 2f * Mathf.PI);
-                        baseColor = Color.Lerp(blackGlow, deepGlow, breathe);
+                        // 더러운 귀퉁이는 느리게 숨쉰다 — 정지 화면에서 "저기만 움직인다"가 유일한 방향 단서다
+                        float breathe = 0.5f + 0.5f * Mathf.Sin(Time.time * dirtyBreathHz * 2f * Mathf.PI);
+                        baseColor = Color.Lerp(blackGlow, dirtyBreathGlow, breathe * (stage / (float)CornerStage.Black));
                     }
                     else
                     {
-                        baseColor = stage == 2 ? blackGlow : Color.white;
+                        baseColor = Color.white;
                     }
                 }
                 else
                 {
-                    baseColor = stage >= 3 ? stageDeepBlack
-                        : stage == 2 ? stageBlack
-                        : stage == 1 ? stageGray : stageWhite;
+                    baseColor = stage == 2 ? stageBlack : stage == 1 ? stageGray : stageWhite;
                 }
 
                 Color color;
@@ -141,8 +164,19 @@ namespace Morae.Game.Presentation
                     color = baseColor;
                 }
 
-                // 기도 조준 — 금빛 블렌드 (전조 위에도 겹침: 조준이 맞는지 보여야 능동 방어가 성립)
-                if (i == _aimedCorner) color = Color.Lerp(color, aimColor, 0.5f);
+                // 뿌리는 중 — 진행률만큼 소금빛으로 물든다 (전조 위에도 겹침: 지금 고치는 중이라는 게 보여야 한다).
+                // 여기서 밝아지는 건 추상 상태를 밝기로 말하는 게 아니라 **소금이 실제로 하얘지는 것**이라
+                // 이 게임의 색 문법(백/회/흑)과 같은 축이다.
+                if (salting)
+                {
+                    color = Color.Lerp(color, saltingColor, 0.35f + 0.65f * _saltingProgress);
+                }
+
+                // 쌓이는 것도 형태로 — 진행률만큼 부풀었다가 완료와 함께 제자리로.
+                // 색만 바뀌면 정지 화면에서 놓치기 쉽다. 크기 변화는 주변시로도 잡힌다.
+                Transform tr = sr.transform;
+                Vector3 wanted = salting ? _baseScales[i] * (1f + 0.18f * _saltingProgress) : _baseScales[i];
+                if (tr.localScale != wanted) tr.localScale = wanted;
 
                 sr.color = color;
             }

@@ -66,6 +66,19 @@ namespace Morae.Game.Presentation
         [SerializeField, Range(TrainingStageModel.MinDimScale, 1f)] private float trainingRoomDimScale = 0.55f;
         [SerializeField] private float trainingCandleBoost = 0.7f;
 
+        [Header("이불 속 (v0.7)")]
+        // 이불을 뒤집어쓰면 방이 안 보인다 — 전역광·귀퉁이광을 함께 눌러 "잘 안 보이는" 상태를 만든다.
+        // 부적을 코드로 숨기는 대신 **조명으로 안 보이게** 하는 쪽이 맞다: 숨김은 임의의 룰로 읽히지만
+        // 어두워지는 건 이불을 썼으니 당연한 결과다. 그래서 TalismanStatusView의 hideInBlanket도 없앴다.
+        // 0으로 두지 않는 이유: 완전 암전은 "정보 차단된 채 죽는 시간"이 된다. 실루엣은 남아야 판단이 가능하다.
+        [SerializeField] private Light2D blanketLight;
+        // v0.7.1 — 더 강하게. 0.3은 "조금 어둡다"였고, 이불이 정보를 포기하는 대가라는 게 안 읽혔다.
+        // 0.12면 방 형태만 겨우 남고 소금 단계는 구분이 안 된다 — 그게 이불의 값이다.
+        [SerializeField, Range(0.02f, 1f)] private float blanketRoomDimScale = 0.12f;
+        [SerializeField, Range(0f, 1f)] private float blanketCornerDimScale = 0.1f;
+        [SerializeField] private float blanketLightIntensity = 0.9f;
+        [SerializeField] private float blanketFadeSec = 0.45f;   // 들어가고 나오는 전환 (툭 끊기면 연출이 아니라 버그로 보인다)
+
 #if UNITY_EDITOR
         // 이 블록은 에디터에서만 컴파일된다 — 빌드 산출물에는 필드도 로직도 남지 않는다.
         // 컨트롤러가 매 프레임 전역광을 덮어쓰기 때문에 인스펙터로 밝기를 올려도 즉시 되돌아가던 작업 불편을 푼다.
@@ -85,6 +98,8 @@ namespace Morae.Game.Presentation
         private float _smoothedGlobal = -1f; // 첫 프레임은 목표값으로 스냅 (페이드인 없이 시작)
         private float _candleFlareUntil;     // v0.6 — 전조 시 촛불이 위로만 튀는 구간
         private bool _trainingActive;        // v0.6.1 — 프롤로그 학습 구간 스포트라이트
+        private bool _inBlanket;             // v0.7 — 이불 속 감광
+        private float _blanket01;            // 0 = 밖, 1 = 이불 속 (전환 러프값)
         private float _smoothedCandleScale = 1f; // 촛불 배율도 러프 — 학습 종료 시 뚝 끊기지 않게
 
         private float MinRoomLight => config != null ? config.MinRoomLight : globalMinIntensity;
@@ -98,6 +113,7 @@ namespace Morae.Game.Presentation
             GameEvents.AttackTelegraphStarted += HandleTelegraphStarted;
             GameEvents.AttackResolved += HandleAttackResolved;
             GameEvents.TrainingModeChanged += HandleTrainingModeChanged;
+            GameEvents.PlayerStateChanged += HandlePlayerStateChanged;
         }
 
         private void OnDisable()
@@ -107,6 +123,7 @@ namespace Morae.Game.Presentation
             GameEvents.AttackTelegraphStarted -= HandleTelegraphStarted;
             GameEvents.AttackResolved -= HandleAttackResolved;
             GameEvents.TrainingModeChanged -= HandleTrainingModeChanged;
+            GameEvents.PlayerStateChanged -= HandlePlayerStateChanged;
         }
 
         private void Start()
@@ -152,11 +169,19 @@ namespace Morae.Game.Presentation
                       $" (배율 {TrainingStageModel.RoomDimScale(active, trainingRoomDimScale):F2})");
         }
 
+        private void HandlePlayerStateChanged(PlayerState state) => _inBlanket = state == PlayerState.InBlanket;
+
+        /// <summary>이불 감광 배율 — 밖이면 정확히 1 (학습 감광과 같은 규약: 꺼지면 흔적이 남지 않는다).</summary>
+        private float BlanketDimScale => Mathf.Lerp(1f, blanketRoomDimScale, _blanket01);
+
         private void Update()
         {
             float dt = Time.deltaTime;
             float dawn = sequencer != null ? sequencer.Dawn01 : 0f;
             float bias = sequencer != null ? sequencer.RoomLightBias : 0f;
+
+            _blanket01 = Mathf.MoveTowards(_blanket01, _inBlanket ? 1f : 0f, dt / Mathf.Max(0.01f, blanketFadeSec));
+            UpdateBlanketLight();
 
             // 예외① 창밖 여명은 진실 채널 — RoomLightBias(연출)도 흑화 감광도 절대 섞지 않는다.
             if (windowDawnLight != null) windowDawnLight.intensity = dawn * dawnMaxIntensity;
@@ -164,9 +189,11 @@ namespace Morae.Game.Presentation
             // 실내 전역광에만 연출 가감 + 흑화 감광을 얹고, 합산 후 한 번만 바닥으로 클램프한다.
             if (globalLight != null)
             {
+                // 학습 감광과 이불 감광은 **곱연산**이다 — 둘 다 "방을 덜 보이게" 하는 같은 축이라
+                // 겹치면 더 어두워지는 게 맞고, 어느 쪽이 꺼지든 나머지는 그대로 남는다.
                 float target = CornerPenaltyModel.RoomLightIntensity(
                     globalBase, dawn, globalDawnBoost, bias, _blackCount, LightPenalty, MinRoomLight,
-                    TrainingStageModel.RoomDimScale(_trainingActive, trainingRoomDimScale));
+                    TrainingStageModel.RoomDimScale(_trainingActive, trainingRoomDimScale) * BlanketDimScale);
                 _smoothedGlobal = _smoothedGlobal < 0f
                     ? target
                     : Mathf.Lerp(_smoothedGlobal, target, CornerPenaltyModel.SmoothFactor(dt, SmoothSec));
@@ -182,32 +209,21 @@ namespace Morae.Game.Presentation
             }
 
             UpdateCornerLights();
-            UpdateCandle();
+            // [v0.7] UpdateCandle 제거 — 불상 촛불은 "기도하러 갈 곳"을 가리키는 등대였다.
+            //   기도가 사라지면서 불상은 상호작용 없는 소품이 됐고, 그 자리만 밝으면
+            //   플레이어 시선이 **아무 할 일 없는 곳**으로 끌린다. 지금 밝아야 하는 건 소금 귀퉁이다.
         }
 
         /// <summary>
-        /// 촛불 — 상시 candleIntensity를 유지하고, 전조 직후에만 그 위로 짧게 일렁인다.
-        /// 감광 예외②의 취지(암전 방지·행동 지시)를 깨지 않으면서 "지금 여기로"만 덧붙인다.
+        /// 이불 조명 — 이불 속일 때만 켜져 <b>제 주변만</b> 남긴다.
+        /// 방 전체가 눌린 상태에서 여기만 살아 있어야 "이불 안은 안전하다"가 그림으로 읽힌다.
         /// </summary>
-        private void UpdateCandle()
+        private void UpdateBlanketLight()
         {
-            if (buddhaCandleLight == null) return;
-
-            // v0.6.1 학습 스포트라이트 — 촛불은 **위로만**(예외② 유지). 러프해서 학습 종료가 뚝 끊기지 않게.
-            float candleTarget = TrainingStageModel.CandleScale(_trainingActive, trainingCandleBoost);
-            _smoothedCandleScale = Mathf.Lerp(_smoothedCandleScale, candleTarget,
-                CornerPenaltyModel.SmoothFactor(Time.deltaTime, SmoothSec));
-            float baseIntensity = candleIntensity * _smoothedCandleScale;
-
-            float left = _candleFlareUntil - Time.time;
-            if (left <= 0f)
-            {
-                buddhaCandleLight.intensity = baseIntensity;
-                return;
-            }
-            float k = Mathf.Clamp01(left / Mathf.Max(0.01f, candleFlareSec));
-            float flicker = 0.6f + 0.4f * Mathf.Sin(Time.time * 11f);
-            buddhaCandleLight.intensity = baseIntensity * (1f + candleFlareBoost * k * flicker);
+            if (blanketLight == null) return;
+            float target = blanketLightIntensity * _blanket01;
+            if (Mathf.Approximately(blanketLight.intensity, target)) return;
+            blanketLight.intensity = target;
         }
 
 #if UNITY_EDITOR
@@ -231,6 +247,10 @@ namespace Morae.Game.Presentation
         private void UpdateCornerLights()
         {
             float now = Time.time;
+            // v0.7 — 이불 속에서는 귀퉁이 광원도 함께 눌린다. 전조(예외③)까지 눌러야 하는 이유:
+            // 여기만 살려두면 이불 안에서 <b>유일하게 밝은 것이 붉은 점멸</b>이 되어, 방을 가리려는 연출이
+            // 오히려 전조 전용 레이더가 된다. 이불의 대가는 "덜 보인다"여야 한다.
+            float blanketDim = Mathf.Lerp(1f, blanketCornerDimScale, _blanket01);
             for (int i = 0; i < cornerLights.Length; i++)
             {
                 Light2D light = cornerLights[i];
@@ -240,24 +260,24 @@ namespace Morae.Game.Presentation
                 {
                     float pulse = 0.5f + 0.5f * Mathf.Sin(now * telegraphPulseHz * 2f * Mathf.PI);
                     light.color = cornerBreachColor;
-                    light.intensity = telegraphIntensity * (0.55f + 0.45f * pulse);
+                    light.intensity = telegraphIntensity * (0.55f + 0.45f * pulse) * blanketDim;
                     continue;
                 }
 
                 int stage = _stages[i];
                 if (stage >= (int)CornerStage.Black)
                 {
-                    // 흑화 = 결계가 꺼진 자리에 붉은 균열광이 켜진다. 심화면 그 빛이 느리게 숨쉰다.
-                    float breathe = stage >= (int)CornerStage.DeepBlack
-                        ? 0.75f + 0.25f * Mathf.Sin(now * breachPulseHz * 2f * Mathf.PI)
-                        : 1f;
+                    // 흑화 = 결계가 꺼진 자리에 붉은 균열광이 켜지고, 그 빛이 느리게 숨쉰다.
+                    // v0.7: 심화 단계가 사라져 조건 분기가 없어졌다 — 흑이면 항상 숨쉰다.
+                    // 소금 스프라이트의 느린 호흡과 같은 목적이다: 정지한 것은 눈에 띄지 않는다.
+                    float breathe = 0.75f + 0.25f * Mathf.Sin(now * breachPulseHz * 2f * Mathf.PI);
                     light.color = cornerBreachColor;
-                    light.intensity = cornerBaseIntensity * breachFactor * breathe;
+                    light.intensity = cornerBaseIntensity * breachFactor * breathe * blanketDim;
                     continue;
                 }
 
                 light.color = cornerWardColor;
-                light.intensity = cornerBaseIntensity * (stage == (int)CornerStage.Gray ? 0.55f : 1f);
+                light.intensity = cornerBaseIntensity * (stage == (int)CornerStage.Gray ? 0.55f : 1f) * blanketDim;
             }
         }
     }
