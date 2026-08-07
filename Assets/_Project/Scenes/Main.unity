@@ -2253,7 +2253,7 @@ Transform:
   m_GameObject: {fileID: 268653838}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -3.1, y: 6.2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2316,7 +2316,7 @@ AudioSource:
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 1
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -6787,6 +6787,8 @@ MonoBehaviour:
   shakeTarget: {fileID: 1993547514}
   shakeAmplitude: 0.035
   shakeHz: 17
+  handleRattleEventId: triple-assault
+  handleRattleScale: 1
 --- !u!1 &713609471
 GameObject:
   m_ObjectHideFlags: 0
@@ -8339,6 +8341,17 @@ MonoBehaviour:
   purifyVolume: 0.9
   poppoVolume: 1
   poppoMinIntervalSec: 0.8
+  sfxPhoneRing: {fileID: 8300000, guid: 7c47e2997a3652442b8b1bbda51c3fd1, type: 3}
+  sfxHandleRattle: {fileID: 8300000, guid: ea81f33f0192350469ecddef5cb2bbe9, type: 3}
+  phoneSource: {fileID: 268653840}
+  phoneVolume: 0.8
+  phoneMaxDistance: 500
+  phoneVolumeInBlanket: 0.38
+  phoneVolumeAtDoor: 1.15
+  phoneVolumeSmoothSec: 0.3
+  handleRattleVolume: 0.9
+  assaultKnockVolume: 0.8
+  assaultVolumeInBlanket: 0.5
   sfxTvWhisper: {fileID: 8300000, guid: 5f362958ea19eaf8830e00c0f245dc1f, type: 3}
   tvAnchor: {fileID: 4671688}
   tvWhisperVolume: 0.55
@@ -13730,6 +13743,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1945724124}
+  - component: {fileID: 1945724125}
   m_Layer: 0
   m_Name: Window
   m_TagString: Untagged
@@ -13753,6 +13767,22 @@ Transform:
   - {fileID: 505517861}
   m_Father: {fileID: 235126998}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1945724125
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1945724123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa24f4f0b7e82c04a91cffacac6c16f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Morae.Game::Morae.Game.Presentation.WindowRattleView
+  target: {fileID: 505517861}
+  knockEventId: window-knock
+  rattleEventId: window-rattle
+  amplitudeScale: 1
 --- !u!1 &1951482087
 GameObject:
   m_ObjectHideFlags: 0
