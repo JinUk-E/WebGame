@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 471e2d6058598c440bf9a7f753a85e72
+guid: 7ee692500a4498448833bb182abdc0c9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5070475516838858995
-    second: ui_button_hover_0
+      213: -7636427381481810561
+    second: ui_panel_02_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -96,40 +96,27 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ui_button_hover_0
+      name: ui_panel_02_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 360
-        height: 110
+        width: 541
+        height: 355
       alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 20, y: 20, z: 20, w: 20}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3f0de773e92fd5640800000000000000
-      internalID: 5070475516838858995
+      spriteID: f75d5bd81c5f50690800000000000000
+      internalID: -7636427381481810561
       vertices: []
       indices: 
       edges: []
@@ -138,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 858a7bf1acf9fca44a8d2985376c75a9
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ui_button_hover_0: 5070475516838858995
+      ui_panel_02_0: -7636427381481810561
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
