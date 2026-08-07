@@ -1,0 +1,472 @@
+# ===== 1. 오브젝트 (경로 | 활성 | 월드 좌표/회전/스케일 | 컴포넌트) =====
+Audio | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform
+Audio/AmbienceSource | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | AudioSource,Transform
+Audio/CornerSource_0 | active=1 | pos=(-4.5000,1.5000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | AudioSource,Transform
+Audio/CornerSource_1 | active=1 | pos=(4.5000,0.2000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | AudioSource,Transform
+Audio/CornerSource_2 | active=1 | pos=(-4.5000,-3.8000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | AudioSource,Transform
+Audio/CornerSource_3 | active=1 | pos=(4.5000,-3.8000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | AudioSource,Transform
+Audio/DoorSourceClear | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | AudioSource,Transform
+Audio/DoorSourceMuffled | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | AudioSource,Transform
+Audio/HeartbeatSource | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | AudioSource,Transform
+Audio/PhoneSource | active=1 | pos=(-3.1000,6.2000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | AudioSource,Transform
+Audio/RoomSource | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | AudioSource,Transform
+Audio/SoundManager | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SoundManager,Transform
+Audio/WindowSource | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | AudioSource,Transform
+Directors | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform
+Directors/EndingDirector | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform
+Directors/PrologueDirector | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | PrologueDirector,Transform
+Directors/RecoveryHintDirector | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | RecoveryHintDirector,Transform
+EventSystem | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | EventSystem,InputSystemUIInputModule,Transform
+GlobalVolume | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SanityFeedback,Transform,Volume
+Lighting | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | LightingController,Transform
+Lighting/BuddhaCandleLight | active=1 | pos=(-1.0000,2.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Light2D,Transform
+Lighting/CornerLight_0 | active=1 | pos=(-4.5000,1.5000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Light2D,Transform
+Lighting/CornerLight_1 | active=1 | pos=(4.5000,0.2000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Light2D,Transform
+Lighting/CornerLight_2 | active=1 | pos=(-4.5000,-3.8000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Light2D,Transform
+Lighting/CornerLight_3 | active=1 | pos=(4.5000,-3.8000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Light2D,Transform
+Lighting/GlobalLight2D | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Light2D,Transform
+Lighting/TVLight | active=1 | pos=(3.5000,-1.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Light2D,Transform
+Lighting/WindowDawnLight | active=1 | pos=(2.5000,2.1300,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Light2D,Transform
+Main Camera | active=1 | pos=(0.0000,0.0000,-10.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | AudioListener,Camera,Transform,UniversalAdditionalCameraData
+Player | active=1 | pos=(0.0000,-1.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | CircleCollider2D,PlayerController,PlayerInteraction,PlayerSpriteView,Rigidbody2D,Transform
+Player/Visual | active=1 | pos=(0.0000,-1.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | CornerTelegraphView,SaltCornersView,Transform
+Room/Blanket | active=1 | pos=(1.5000,-3.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | BlanketInteractable,BlanketView,BoxCollider2D,ChannelBarView,Transform
+Room/Blanket/ChannelBar | active=0 | pos=(1.5000,-1.9500,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform
+Room/Blanket/ChannelBar/BG | active=1 | pos=(1.5000,-1.9500,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,0.1400,1.0000) | SpriteRenderer,Transform
+Room/Blanket/ChannelBar/Fill | active=1 | pos=(1.5000,-1.9500,0.0000) rot=(0.000,0.000,0.000) scale=(0.0000,0.1000,1.0000) | SpriteRenderer,Transform
+Room/Blanket/Visual | active=1 | pos=(1.5000,-3.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/Buddha | active=1 | pos=(-1.0000,2.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | AltarHighlightView,BoxCollider2D,ChannelBarView,PrayerInteractable,Transform
+Room/Buddha/ChannelBar | active=0 | pos=(-1.0000,2.7500,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform
+Room/Buddha/ChannelBar/BG | active=1 | pos=(-1.0000,2.7500,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,0.1400,1.0000) | SpriteRenderer,Transform
+Room/Buddha/ChannelBar/Fill | active=1 | pos=(-1.0000,2.7500,0.0000) rot=(0.000,0.000,0.000) scale=(0.0000,0.1000,1.0000) | SpriteRenderer,Transform
+Room/Buddha/Halo | active=1 | pos=(-1.0000,2.1000,0.0500) rot=(0.000,0.000,0.000) scale=(0.7500,0.7500,1.0000) | SpriteRenderer,Transform
+Room/Buddha/Visual | active=1 | pos=(-1.0000,2.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/Clock | active=1 | pos=(1.0000,2.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | ClockView,Transform
+Room/Clock/HandHour | active=1 | pos=(1.0000,2.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/Clock/HandMinute | active=1 | pos=(1.0000,2.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/Clock/Visual | active=1 | pos=(1.0000,2.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/Door | active=1 | pos=(-3.1000,2.6000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | BoxCollider2D,ChannelBarView,DoorInteractable,DoorView,Transform
+Room/Door/ChannelBar | active=0 | pos=(-2.5500,3.7000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform
+Room/Door/ChannelBar/BG | active=1 | pos=(-2.5500,3.7000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,0.1400,1.0000) | SpriteRenderer,Transform
+Room/Door/ChannelBar/Fill | active=1 | pos=(-2.5500,3.7000,0.0000) rot=(0.000,0.000,0.000) scale=(0.0000,0.1000,1.0000) | SpriteRenderer,Transform
+Room/Door/Closed | active=1 | pos=(-3.1000,2.6000,0.0000) rot=(0.000,0.000,90.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/Door/Open | active=0 | pos=(-3.1000,2.6000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/Door/Open/Shadow | active=1 | pos=(-3.7000,2.6000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/Floor | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/Jar | active=1 | pos=(-3.8000,-2.2000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | BoxCollider2D,ChannelBarView,JarInteractable,Transform
+Room/Jar/ChannelBar | active=0 | pos=(-3.8000,-1.5500,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform
+Room/Jar/ChannelBar/BG | active=1 | pos=(-3.8000,-1.5500,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,0.1400,1.0000) | SpriteRenderer,Transform
+Room/Jar/ChannelBar/Fill | active=1 | pos=(-3.8000,-1.5500,0.0000) rot=(0.000,0.000,0.000) scale=(0.0000,0.1000,1.0000) | SpriteRenderer,Transform
+Room/Jar/Visual | active=1 | pos=(-3.8000,-2.2000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/PrayerBeam | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | LineRenderer,PrayerBeamView,Transform
+Room/PrayerBeam/BeamHead | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Light2D,Transform
+Room/SaltCorner_0 | active=1 | pos=(-4.5000,1.5000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform
+Room/SaltCorner_0/Gloom | active=1 | pos=(-4.5000,1.4500,0.0200) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/SaltCorner_0/Mark | active=1 | pos=(-4.5000,1.3800,0.0000) rot=(0.000,0.000,0.000) scale=(0.5000,0.5000,1.0000) | SpriteRenderer,Transform
+Room/SaltCorner_0/Visual | active=1 | pos=(-4.5000,1.5000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/SaltCorner_1 | active=1 | pos=(4.5000,0.2000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform
+Room/SaltCorner_1/Gloom | active=1 | pos=(4.5000,0.1500,0.0200) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/SaltCorner_1/Mark | active=1 | pos=(4.5000,0.0800,0.0000) rot=(0.000,0.000,0.000) scale=(0.5000,0.5000,1.0000) | SpriteRenderer,Transform
+Room/SaltCorner_1/Visual | active=1 | pos=(4.5000,0.2000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/SaltCorner_2 | active=1 | pos=(-4.5000,-3.8000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform
+Room/SaltCorner_2/Gloom | active=1 | pos=(-4.5000,-3.8500,0.0200) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/SaltCorner_2/Mark | active=1 | pos=(-4.5000,-3.9200,0.0000) rot=(0.000,0.000,0.000) scale=(0.5000,0.5000,1.0000) | SpriteRenderer,Transform
+Room/SaltCorner_2/Visual | active=1 | pos=(-4.5000,-3.8000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/SaltCorner_3 | active=1 | pos=(4.5000,-3.8000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform
+Room/SaltCorner_3/Gloom | active=1 | pos=(4.5000,-3.8500,0.0200) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/SaltCorner_3/Mark | active=1 | pos=(4.5000,-3.9200,0.0000) rot=(0.000,0.000,0.000) scale=(0.5000,0.5000,1.0000) | SpriteRenderer,Transform
+Room/SaltCorner_3/Visual | active=1 | pos=(4.5000,-3.8000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/TV | active=1 | pos=(3.5000,-1.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | BoxCollider2D,Transform,TvInteractable,TvScreenView
+Room/TV/Visual | active=1 | pos=(3.5000,-1.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/WallTalisman | active=1 | pos=(-1.2000,3.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/Wall_Bottom | active=1 | pos=(0.0000,-4.4450,0.0000) rot=(0.000,0.000,0.000) scale=(10.8600,0.4000,1.0000) | BoxCollider2D,SpriteRenderer,Transform
+Room/Wall_Left | active=1 | pos=(-5.2300,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4000,9.2900,1.0000) | BoxCollider2D,SpriteRenderer,Transform
+Room/Wall_Right | active=1 | pos=(5.2300,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4000,9.2900,1.0000) | BoxCollider2D,SpriteRenderer,Transform
+Room/Wall_Step | active=1 | pos=(0.2200,1.3700,0.0000) rot=(0.000,0.000,0.000) scale=(0.4000,1.3900,1.0000) | BoxCollider2D,SpriteRenderer,Transform
+Room/Wall_Top | active=1 | pos=(-2.6050,2.0650,0.0000) rot=(0.000,0.000,0.000) scale=(5.2500,0.4000,1.0000) | BoxCollider2D,SpriteRenderer,Transform
+Room/Wall_Top_Right | active=1 | pos=(2.6250,0.8750,0.0000) rot=(0.000,0.000,0.000) scale=(5.2100,0.4000,1.0000) | BoxCollider2D,SpriteRenderer,Transform
+Room/WardLine | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform,WardLineView
+Room/WardLine/WardTrail | active=1 | pos=(0.0000,-1.2396,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/Window | active=1 | pos=(2.5000,2.1300,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform,WindowRattleView
+Room/Window/Visual | active=1 | pos=(2.5000,2.1300,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Room/Window/Visual/Sky | active=1 | pos=(2.5000,2.1300,0.0000) rot=(0.000,0.000,0.000) scale=(1.2000,0.7000,1.0000) | SpriteRenderer,Transform
+Screens | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform
+Screens/EndingScreen | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | EndingScreenView,Transform
+Screens/EndingScreen/Root | active=0 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.0000,0.0000,0.0000) | Canvas,CanvasGroup,CanvasScaler,RectTransform
+Screens/EndingScreen/Root/BG | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.0000,0.0000,0.0000) | CanvasRenderer,Image,RectTransform
+Screens/EndingScreen/Root/Hint | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.0000,0.0000,0.0000) | CanvasRenderer,RectTransform,TextMeshProUGUI
+Screens/EndingScreen/Root/Title | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.0000,0.0000,0.0000) | CanvasRenderer,RectTransform,TextMeshProUGUI
+Screens/GameOverScreen | active=1 | pos=(1003.5300,483.7440,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | GameOverScreenView,Transform
+Screens/GameOverScreen/Root | active=0 | pos=(1003.5300,483.7440,0.0000) rot=(0.000,0.000,0.000) scale=(0.0000,0.0000,0.0000) | Canvas,CanvasGroup,CanvasScaler,RectTransform
+Screens/GameOverScreen/Root/BG | active=1 | pos=(1003.5300,483.7440,0.0000) rot=(0.000,0.000,0.000) scale=(0.0000,0.0000,0.0000) | CanvasRenderer,Image,RectTransform
+Screens/GameOverScreen/Root/Hint | active=1 | pos=(1003.5300,483.7440,0.0000) rot=(0.000,0.000,0.000) scale=(0.0000,0.0000,0.0000) | CanvasRenderer,RectTransform,TextMeshProUGUI
+Screens/GameOverScreen/Root/Title | active=1 | pos=(1003.5300,483.7440,0.0000) rot=(0.000,0.000,0.000) scale=(0.0000,0.0000,0.0000) | CanvasRenderer,RectTransform,TextMeshProUGUI
+Screens/TitleScreen | active=1 | pos=(1003.5300,483.7440,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | TitleScreenView,Transform
+Screens/TitleScreen/Root | active=1 | pos=(320.0000,240.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | Canvas,CanvasGroup,CanvasScaler,GraphicRaycaster,RectTransform
+Screens/TitleScreen/Root/BG | active=1 | pos=(320.0000,240.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+Screens/TitleScreen/Root/HelpButton | active=1 | pos=(711.1111,444.4445,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | Button,CanvasRenderer,Image,RectTransform
+Screens/TitleScreen/Root/HelpButton/Label | active=1 | pos=(711.1111,444.4445,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+Screens/TitleScreen/Root/HelpPanel | active=0 | pos=(320.0000,240.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+Screens/TitleScreen/Root/HelpPanel/CloseButton | active=1 | pos=(560.0000,391.1111,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | Button,CanvasRenderer,Image,RectTransform
+Screens/TitleScreen/Root/HelpPanel/CloseButton/Label | active=1 | pos=(560.0000,391.1111,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+Screens/TitleScreen/Root/HelpPanel/HelpText | active=1 | pos=(320.0000,253.3333,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+Screens/TitleScreen/Root/HelpPanel/NextButton | active=1 | pos=(542.2222,93.3333,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | Button,CanvasRenderer,Image,RectTransform
+Screens/TitleScreen/Root/HelpPanel/NextButton/Label | active=1 | pos=(542.2222,93.3333,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+Screens/TitleScreen/Root/HelpPanel/PageLabel | active=1 | pos=(320.0000,93.3333,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+Screens/TitleScreen/Root/HelpPanel/PrevButton | active=1 | pos=(97.7778,93.3333,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | Button,CanvasRenderer,Image,RectTransform
+Screens/TitleScreen/Root/HelpPanel/PrevButton/Label | active=1 | pos=(97.7778,93.3333,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+Screens/TitleScreen/Root/MobileAudioHint | active=0 | pos=(320.0000,48.8889,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+Screens/TitleScreen/Root/SkipRow | active=0 | pos=(320.0000,93.3333,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | Button,CanvasRenderer,Image,RectTransform
+Screens/TitleScreen/Root/SkipRow/Label | active=1 | pos=(320.0000,93.3333,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+Screens/TitleScreen/Root/StartButton | active=1 | pos=(320.0000,128.8889,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | Button,CanvasRenderer,Image,RectTransform
+Screens/TitleScreen/Root/StartButton/Label | active=1 | pos=(320.0000,128.8889,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+Screens/TitleScreen/Root/Sub | active=1 | pos=(320.0000,173.3333,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+Screens/TitleScreen/Root/Title | active=1 | pos=(320.0000,328.8889,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform
+Screens/TitleScreen/Root/Title/Img | active=1 | pos=(275.5555,362.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+Screens/TitleScreen/Root/Title/Img (1) | active=1 | pos=(364.4445,295.5555,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+Screens/TitleScreen/Root/VolumeLabel | active=1 | pos=(204.4445,62.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+Screens/TitleScreen/Root/VolumeSlider | active=1 | pos=(333.3333,62.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | RectTransform,Slider,VolumeSliderView
+Screens/TitleScreen/Root/VolumeSlider/HandleArea | active=1 | pos=(333.3333,62.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | RectTransform
+Screens/TitleScreen/Root/VolumeSlider/HandleArea/Handle | active=1 | pos=(414.2222,62.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+Screens/TitleScreen/Root/VolumeSlider/Track | active=1 | pos=(333.3333,62.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+Silhouettes | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SilhouetteDirector,Transform
+Stage | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform
+Stage/StandMarker | active=1 | pos=(-1.0000,1.2500,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | DestinationMarkerView,SpriteRenderer,Transform
+Systems | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | AttackScheduler,DebugCheats,DebugEventLogger,DebugHud,DebugTimeScale,EventDirector,GameFlowController,PhaseSequencer,SaltCorners,Sanity,Talisman,Transform
+UI | active=1 | pos=(320.0000,240.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | Canvas,CanvasScaler,GraphicRaycaster,RectTransform
+UI/DialogueBox | active=1 | pos=(320.0000,240.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | DialogueBoxView,RectTransform
+UI/DialogueBox/Root | active=0 | pos=(320.0000,10.6667,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | RectTransform
+UI/DialogueBox/Root/AdvanceIndicator | active=0 | pos=(655.1111,22.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/DialogueBox/Root/Body | active=1 | pos=(395.5555,81.7778,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/DialogueBox/Root/Frame | active=1 | pos=(320.0000,90.6667,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+UI/DialogueBox/Root/NamePanel | active=1 | pos=(195.5556,166.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+UI/DialogueBox/Root/NamePanel/NameLabel | active=1 | pos=(195.5556,166.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/DialogueBox/Root/Portrait | active=1 | pos=(4.4444,24.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+UI/DialogueBox/SkipHint | active=0 | pos=(622.2222,466.6667,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/DoorHint | active=1 | pos=(320.0000,264.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | DoorHintView,RectTransform
+UI/DoorHint/Row | active=0 | pos=(320.0000,130.6667,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | ContentSizeFitter,HorizontalLayoutGroup,RectTransform
+UI/DoorHint/Row/Keycap | active=1 | pos=(320.0000,142.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,LayoutElement,RectTransform
+UI/DoorHint/Row/Keycap/KeyLabel | active=1 | pos=(320.0000,142.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/DoorHint/Row/Label | active=1 | pos=(320.0000,142.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/HeartView | active=1 | pos=(32.0000,229.3333,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,HeartView,Image,RectTransform
+UI/InteractPrompt | active=1 | pos=(320.0000,240.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | InteractPromptView,RectTransform
+UI/InteractPrompt/Row | active=0 | pos=(320.0000,106.6667,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | ContentSizeFitter,HorizontalLayoutGroup,RectTransform
+UI/InteractPrompt/Row/Keycap | active=1 | pos=(320.0000,118.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,LayoutElement,RectTransform
+UI/InteractPrompt/Row/Keycap/KeyLabel | active=1 | pos=(320.0000,118.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/InteractPrompt/Row/Label | active=1 | pos=(320.0000,118.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/PrayerHint | active=1 | pos=(320.0000,240.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | PrayerHintView,RectTransform
+UI/PrayerHint/Root | active=0 | pos=(320.0000,426.6667,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | RectTransform
+UI/PrayerHint/Root/Keyboard | active=1 | pos=(320.0000,388.8889,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | RectTransform
+UI/PrayerHint/Root/Keyboard/AimLabel | active=1 | pos=(330.6667,356.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/PrayerHint/Root/Keyboard/HoldLabel | active=1 | pos=(241.7778,366.6667,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/PrayerHint/Root/Keyboard/KeyDown | active=1 | pos=(330.6667,378.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+UI/PrayerHint/Root/Keyboard/KeyDown/Glyph | active=1 | pos=(330.6667,378.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/PrayerHint/Root/Keyboard/KeyE | active=1 | pos=(241.7778,394.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+UI/PrayerHint/Root/Keyboard/KeyE/Glyph | active=1 | pos=(241.7778,394.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/PrayerHint/Root/Keyboard/KeyLeft | active=1 | pos=(298.6667,378.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+UI/PrayerHint/Root/Keyboard/KeyLeft/Glyph | active=1 | pos=(298.6667,378.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/PrayerHint/Root/Keyboard/KeyRight | active=1 | pos=(362.6667,378.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+UI/PrayerHint/Root/Keyboard/KeyRight/Glyph | active=1 | pos=(362.6667,378.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/PrayerHint/Root/Keyboard/KeyUp | active=1 | pos=(330.6667,410.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+UI/PrayerHint/Root/Keyboard/KeyUp/Glyph | active=1 | pos=(330.6667,410.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/PrayerHint/Root/Keyboard/Plus | active=1 | pos=(273.7778,394.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/PrayerHint/Root/Panel | active=1 | pos=(320.0000,388.8889,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+UI/PrayerHint/Root/Touch | active=1 | pos=(320.0000,388.8889,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | RectTransform
+UI/PrayerHint/Root/Touch/AimLabel | active=1 | pos=(362.6667,364.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/PrayerHint/Root/Touch/HoldLabel | active=1 | pos=(266.6667,364.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/PrayerHint/Root/Touch/Plus | active=1 | pos=(306.6667,394.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/PrayerHint/Root/Touch/StickRing | active=1 | pos=(362.6667,394.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+UI/PrayerHint/Root/Touch/StickRing/StickKnob | active=1 | pos=(362.6667,394.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+UI/PrayerHint/Root/Touch/TouchButton | active=1 | pos=(266.6667,394.2222,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+UI/SubtitleView | active=1 | pos=(320.0000,240.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | RectTransform,SubtitleView
+UI/SubtitleView/Label | active=1 | pos=(320.0000,40.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/TalismanStatus | active=1 | pos=(16.0000,16.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform,TalismanStatusView
+UI/TouchControls | active=1 | pos=(320.0000,240.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | RectTransform,TouchControlsView
+UI/TouchControls/Controls | active=1 | pos=(320.0000,240.0000,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | RectTransform
+UI/TouchControls/Controls/InteractButton | active=1 | pos=(506.6667,111.1111,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+UI/TouchControls/Controls/InteractButton/Inner | active=1 | pos=(506.6667,111.1111,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+UI/TouchControls/Controls/InteractButton/Label | active=1 | pos=(506.6667,186.6667,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,RectTransform,TextMeshProUGUI
+UI/TouchControls/Controls/StickBase | active=1 | pos=(146.6667,111.1111,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+UI/TouchControls/Controls/StickBase/Knob | active=1 | pos=(146.6667,111.1111,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
+
+# ===== 2. 렌더 정렬 (경로 | 렌더러 | 레이어 | 순서) =====
+Player/Visual | SpriteRenderer | Default | 8
+Room/Blanket/ChannelBar/BG | SpriteRenderer | Default | 10
+Room/Blanket/ChannelBar/Fill | SpriteRenderer | Default | 11
+Room/Blanket/Visual | SpriteRenderer | Default | 1
+Room/Buddha/ChannelBar/BG | SpriteRenderer | Default | 10
+Room/Buddha/ChannelBar/Fill | SpriteRenderer | Default | 11
+Room/Buddha/Halo | SpriteRenderer | Default | 1
+Room/Buddha/Visual | SpriteRenderer | Default | 1
+Room/Clock/HandHour | SpriteRenderer | Default | 5
+Room/Clock/HandMinute | SpriteRenderer | Default | 6
+Room/Clock/Visual | SpriteRenderer | Default | 4
+Room/Door/ChannelBar/BG | SpriteRenderer | Default | 10
+Room/Door/ChannelBar/Fill | SpriteRenderer | Default | 11
+Room/Door/Closed | SpriteRenderer | Default | 4
+Room/Door/Open | SpriteRenderer | Default | 4
+Room/Door/Open/Shadow | SpriteRenderer | Default | 4
+Room/Floor | SpriteRenderer | Default | 0
+Room/Jar/ChannelBar/BG | SpriteRenderer | Default | 10
+Room/Jar/ChannelBar/Fill | SpriteRenderer | Default | 11
+Room/Jar/Visual | SpriteRenderer | Default | 1
+Room/PrayerBeam | LineRenderer | Default | 9
+Room/SaltCorner_0/Gloom | SpriteRenderer | Default | 1
+Room/SaltCorner_0/Mark | SpriteRenderer | Default | 1
+Room/SaltCorner_0/Visual | SpriteRenderer | Default | 2
+Room/SaltCorner_1/Gloom | SpriteRenderer | Default | 1
+Room/SaltCorner_1/Mark | SpriteRenderer | Default | 1
+Room/SaltCorner_1/Visual | SpriteRenderer | Default | 2
+Room/SaltCorner_2/Gloom | SpriteRenderer | Default | 1
+Room/SaltCorner_2/Mark | SpriteRenderer | Default | 1
+Room/SaltCorner_2/Visual | SpriteRenderer | Default | 2
+Room/SaltCorner_3/Gloom | SpriteRenderer | Default | 1
+Room/SaltCorner_3/Mark | SpriteRenderer | Default | 1
+Room/SaltCorner_3/Visual | SpriteRenderer | Default | 2
+Room/TV/Visual | SpriteRenderer | Default | 1
+Room/WallTalisman | SpriteRenderer | Default | 4
+Room/Wall_Bottom | SpriteRenderer | Default | 1
+Room/Wall_Left | SpriteRenderer | Default | 1
+Room/Wall_Right | SpriteRenderer | Default | 1
+Room/Wall_Step | SpriteRenderer | Default | 1
+Room/Wall_Top | SpriteRenderer | Default | 1
+Room/Wall_Top_Right | SpriteRenderer | Default | 1
+Room/WardLine/WardTrail | SpriteRenderer | Default | 1
+Room/Window/Visual | SpriteRenderer | Default | 4
+Room/Window/Visual/Sky | SpriteRenderer | Default | 3
+Screens/EndingScreen/Root | Canvas | Default | 25
+Screens/GameOverScreen/Root | Canvas | Default | 25
+Screens/TitleScreen/Root | Canvas | Default | 30
+Stage/StandMarker | SpriteRenderer | Default | 1
+UI | Canvas | Default | 0
+
+# ===== 3. Morae 컴포넌트 오브젝트 참조 (경로.컴포넌트.필드 = 대상) =====
+Audio/SoundManager.SoundManager.balance = asset:Assets/_Project/Data/BalanceConfig.asset#BalanceConfig:BalanceConfig
+Audio/SoundManager.SoundManager.bgmEnding = asset:Assets/_Project/Audio/BGM_04_Ending/01.mp3#01:AudioClip
+Audio/SoundManager.SoundManager.bgmIntro = asset:Assets/_Project/Audio/BGM_02_Intro/01.mp3#01:AudioClip
+Audio/SoundManager.SoundManager.bgmMain = asset:Assets/_Project/Audio/BGM_01_Main/01.mp3#01:AudioClip
+Audio/SoundManager.SoundManager.bgmNight.Array.data[0] = asset:Assets/_Project/Audio/BGM_03_Night/01.mp3#01:AudioClip
+Audio/SoundManager.SoundManager.bgmNight.Array.data[1] = asset:Assets/_Project/Audio/BGM_03_Night/02.mp3#02:AudioClip
+Audio/SoundManager.SoundManager.cornerSources.Array.data[0] = scene:Audio/CornerSource_0:AudioSource
+Audio/SoundManager.SoundManager.cornerSources.Array.data[1] = scene:Audio/CornerSource_1:AudioSource
+Audio/SoundManager.SoundManager.cornerSources.Array.data[2] = scene:Audio/CornerSource_2:AudioSource
+Audio/SoundManager.SoundManager.cornerSources.Array.data[3] = scene:Audio/CornerSource_3:AudioSource
+Audio/SoundManager.SoundManager.phoneSource = scene:Audio/PhoneSource:AudioSource
+Audio/SoundManager.SoundManager.sfxClock = asset:Assets/_Project/Audio/SFX_Clock/01.mp3#01:AudioClip
+Audio/SoundManager.SoundManager.sfxCornerWhisper = asset:Assets/_Project/Audio/SFX_Corner/whisper_loop.wav#whisper_loop:AudioClip
+Audio/SoundManager.SoundManager.sfxDoorClose = asset:Assets/_Project/Audio/SFX_Door/door_close.mp3#door_close:AudioClip
+Audio/SoundManager.SoundManager.sfxDoorTry = asset:Assets/_Project/Audio/SFX_Door/door_try.mp3#door_try:AudioClip
+Audio/SoundManager.SoundManager.sfxFear.Array.data[0] = asset:Assets/_Project/Audio/SFX_Fear/01.mp3#01:AudioClip
+Audio/SoundManager.SoundManager.sfxFear.Array.data[1] = asset:Assets/_Project/Audio/SFX_Fear/02.mp3#02:AudioClip
+Audio/SoundManager.SoundManager.sfxFear.Array.data[2] = asset:Assets/_Project/Audio/SFX_Fear/03.mp3#03:AudioClip
+Audio/SoundManager.SoundManager.sfxHandleRattle = asset:Assets/_Project/Audio/SFX_Handle/handle_rattle.wav#handle_rattle:AudioClip
+Audio/SoundManager.SoundManager.sfxHeartbeat = asset:Assets/_Project/Audio/SFX_Heartbeat/heartbeat_loop.wav#heartbeat_loop:AudioClip
+Audio/SoundManager.SoundManager.sfxKnock = asset:Assets/_Project/Audio/SFX_Knock/knock.wav#knock:AudioClip
+Audio/SoundManager.SoundManager.sfxPhoneRing = asset:Assets/_Project/Audio/SFX_Phone/phone_ring.wav#phone_ring:AudioClip
+Audio/SoundManager.SoundManager.sfxPoppo = asset:Assets/_Project/Audio/SFX_Poppo/poppo.wav#poppo:AudioClip
+Audio/SoundManager.SoundManager.sfxPurify = asset:Assets/_Project/Audio/SFX_Purify/purify.wav#purify:AudioClip
+Audio/SoundManager.SoundManager.sfxTvWhisper = asset:Assets/_Project/Audio/SFX_TV/tv_whisper_loop.wav#tv_whisper_loop:AudioClip
+Audio/SoundManager.SoundManager.tvAnchor = scene:Room/TV:Transform
+Directors/PrologueDirector.PrologueDirector.config = asset:Assets/_Project/Data/BalanceConfig.asset#BalanceConfig:BalanceConfig
+Directors/PrologueDirector.PrologueDirector.scheduler = scene:Systems:AttackScheduler
+GlobalVolume.SanityFeedback.volume = scene:GlobalVolume:Volume
+Lighting.LightingController.buddhaCandleLight = scene:Lighting/BuddhaCandleLight:Light2D
+Lighting.LightingController.config = asset:Assets/_Project/Data/BalanceConfig.asset#BalanceConfig:BalanceConfig
+Lighting.LightingController.cornerLights.Array.data[0] = scene:Lighting/CornerLight_0:Light2D
+Lighting.LightingController.cornerLights.Array.data[1] = scene:Lighting/CornerLight_1:Light2D
+Lighting.LightingController.cornerLights.Array.data[2] = scene:Lighting/CornerLight_2:Light2D
+Lighting.LightingController.cornerLights.Array.data[3] = scene:Lighting/CornerLight_3:Light2D
+Lighting.LightingController.globalLight = scene:Lighting/GlobalLight2D:Light2D
+Lighting.LightingController.sequencer = scene:Systems:PhaseSequencer
+Lighting.LightingController.tvLight = scene:Lighting/TVLight:Light2D
+Lighting.LightingController.windowDawnLight = scene:Lighting/WindowDawnLight:Light2D
+Player.PlayerController.config = asset:Assets/_Project/Data/BalanceConfig.asset#BalanceConfig:BalanceConfig
+Player.PlayerInteraction.flow = scene:Systems:GameFlowController
+Player.PlayerSpriteView.body = scene:Player/Visual:SpriteRenderer
+Player.PlayerSpriteView.downFrames.Array.data[0] = asset:Assets/_Project/Art/Props/player_boy_down_0.png#player_boy_down_0_0:Sprite
+Player.PlayerSpriteView.downFrames.Array.data[1] = asset:Assets/_Project/Art/Props/player_boy_down_1.png#player_boy_down_1_0:Sprite
+Player.PlayerSpriteView.downFrames.Array.data[2] = asset:Assets/_Project/Art/Props/player_boy_down_2.png#player_boy_down_2_0:Sprite
+Player.PlayerSpriteView.player = scene:Player:PlayerController
+Player.PlayerSpriteView.sideFrames.Array.data[0] = asset:Assets/_Project/Art/Props/player_boy_side_0.png#player_boy_side_0_0:Sprite
+Player.PlayerSpriteView.sideFrames.Array.data[1] = asset:Assets/_Project/Art/Props/player_boy_side_1.png#player_boy_side_1_0:Sprite
+Player.PlayerSpriteView.sideFrames.Array.data[2] = asset:Assets/_Project/Art/Props/player_boy_side_2.png#player_boy_side_2_0:Sprite
+Player.PlayerSpriteView.upFrames.Array.data[0] = asset:Assets/_Project/Art/Props/player_boy_up_0.png#player_boy_up_0_0:Sprite
+Player.PlayerSpriteView.upFrames.Array.data[1] = asset:Assets/_Project/Art/Props/player_boy_up_1.png#player_boy_up_1_0:Sprite
+Player.PlayerSpriteView.upFrames.Array.data[2] = asset:Assets/_Project/Art/Props/player_boy_up_2.png#player_boy_up_2_0:Sprite
+Room.CornerTelegraphView.gloomRenderers.Array.data[0] = scene:Room/SaltCorner_0/Gloom:SpriteRenderer
+Room.CornerTelegraphView.gloomRenderers.Array.data[1] = scene:Room/SaltCorner_1/Gloom:SpriteRenderer
+Room.CornerTelegraphView.gloomRenderers.Array.data[2] = scene:Room/SaltCorner_2/Gloom:SpriteRenderer
+Room.CornerTelegraphView.gloomRenderers.Array.data[3] = scene:Room/SaltCorner_3/Gloom:SpriteRenderer
+Room.CornerTelegraphView.saltTransforms.Array.data[0] = scene:Room/SaltCorner_0/Visual:Transform
+Room.CornerTelegraphView.saltTransforms.Array.data[1] = scene:Room/SaltCorner_1/Visual:Transform
+Room.CornerTelegraphView.saltTransforms.Array.data[2] = scene:Room/SaltCorner_2/Visual:Transform
+Room.CornerTelegraphView.saltTransforms.Array.data[3] = scene:Room/SaltCorner_3/Visual:Transform
+Room.SaltCornersView.cornerRenderers.Array.data[0] = scene:Room/SaltCorner_0/Visual:SpriteRenderer
+Room.SaltCornersView.cornerRenderers.Array.data[1] = scene:Room/SaltCorner_1/Visual:SpriteRenderer
+Room.SaltCornersView.cornerRenderers.Array.data[2] = scene:Room/SaltCorner_2/Visual:SpriteRenderer
+Room.SaltCornersView.cornerRenderers.Array.data[3] = scene:Room/SaltCorner_3/Visual:SpriteRenderer
+Room.SaltCornersView.stageSprites.Array.data[0] = asset:Assets/_Project/Art/Props/prop_salt_white.png#prop_salt_white_0:Sprite
+Room.SaltCornersView.stageSprites.Array.data[1] = asset:Assets/_Project/Art/Props/prop_salt_gray.png#prop_salt_gray_0:Sprite
+Room.SaltCornersView.stageSprites.Array.data[2] = asset:Assets/_Project/Art/Props/prop_salt_black.png#prop_salt_black_0:Sprite
+Room.SaltCornersView.stageSprites.Array.data[3] = asset:Assets/_Project/Art/Props/prop_salt_black_deep.png#prop_salt_black_deep_0:Sprite
+Room/Blanket.BlanketInteractable.config = asset:Assets/_Project/Data/BalanceConfig.asset#BalanceConfig:BalanceConfig
+Room/Blanket.BlanketView.blanket = scene:Room/Blanket/Visual:SpriteRenderer
+Room/Blanket.BlanketView.bulgeSprite = asset:Assets/_Project/Art/Props/prop_blanket_bulge.png#prop_blanket_bulge_0:Sprite
+Room/Blanket.BlanketView.flatSprite = asset:Assets/_Project/Art/Props/prop_blanket_flat.png#prop_blanket_flat_0:Sprite
+Room/Blanket.ChannelBarView.barRoot = scene:Room/Blanket/ChannelBar:GameObject
+Room/Blanket.ChannelBarView.fill = scene:Room/Blanket/ChannelBar/Fill:Transform
+Room/Buddha.AltarHighlightView.halo = scene:Room/Buddha/Halo:SpriteRenderer
+Room/Buddha.ChannelBarView.barRoot = scene:Room/Buddha/ChannelBar:GameObject
+Room/Buddha.ChannelBarView.fill = scene:Room/Buddha/ChannelBar/Fill:Transform
+Room/Buddha.PrayerInteractable.config = asset:Assets/_Project/Data/BalanceConfig.asset#BalanceConfig:BalanceConfig
+Room/Buddha.PrayerInteractable.salt = scene:Systems:SaltCorners
+Room/Buddha.PrayerInteractable.scheduler = scene:Systems:AttackScheduler
+Room/Clock.ClockView.hourHand = scene:Room/Clock/HandHour:Transform
+Room/Clock.ClockView.label = NULL
+Room/Clock.ClockView.minuteHand = scene:Room/Clock/HandMinute:Transform
+Room/Clock.ClockView.sequencer = scene:Systems:PhaseSequencer
+Room/Door.ChannelBarView.barRoot = scene:Room/Door/ChannelBar:GameObject
+Room/Door.ChannelBarView.fill = scene:Room/Door/ChannelBar/Fill:Transform
+Room/Door.DoorInteractable.config = asset:Assets/_Project/Data/BalanceConfig.asset#BalanceConfig:BalanceConfig
+Room/Door.DoorInteractable.flow = scene:Systems:GameFlowController
+Room/Door.DoorInteractable.talisman = scene:Systems:Talisman
+Room/Door.DoorView.closedVisual = scene:Room/Door/Closed:GameObject
+Room/Door.DoorView.openVisual = scene:Room/Door/Open:GameObject
+Room/Door.DoorView.shakeTarget = scene:Room/Door/Closed:Transform
+Room/Jar.ChannelBarView.barRoot = scene:Room/Jar/ChannelBar:GameObject
+Room/Jar.ChannelBarView.fill = scene:Room/Jar/ChannelBar/Fill:Transform
+Room/Jar.JarInteractable.config = asset:Assets/_Project/Data/BalanceConfig.asset#BalanceConfig:BalanceConfig
+Room/Jar.JarInteractable.sanity = scene:Systems:Sanity
+Room/PrayerBeam.PrayerBeamView.altar = scene:Room/Buddha:Transform
+Room/PrayerBeam.PrayerBeamView.cornerTransforms.Array.data[0] = scene:Room/SaltCorner_0:Transform
+Room/PrayerBeam.PrayerBeamView.cornerTransforms.Array.data[1] = scene:Room/SaltCorner_1:Transform
+Room/PrayerBeam.PrayerBeamView.cornerTransforms.Array.data[2] = scene:Room/SaltCorner_2:Transform
+Room/PrayerBeam.PrayerBeamView.cornerTransforms.Array.data[3] = scene:Room/SaltCorner_3:Transform
+Room/PrayerBeam.PrayerBeamView.headLight = scene:Room/PrayerBeam/BeamHead:Light2D
+Room/PrayerBeam.PrayerBeamView.line = scene:Room/PrayerBeam:LineRenderer
+Room/TV.TvInteractable.config = asset:Assets/_Project/Data/BalanceConfig.asset#BalanceConfig:BalanceConfig
+Room/TV.TvScreenView.offSprite = asset:Assets/_Project/Art/Props/prop_tv_off.png#prop_tv_off_0:Sprite
+Room/TV.TvScreenView.onSprite = asset:Assets/_Project/Art/Props/prop_tv_on.png#prop_tv_on_0:Sprite
+Room/TV.TvScreenView.screen = scene:Room/TV/Visual:SpriteRenderer
+Room/WardLine.WardLineView.segments.Array.data[0] = scene:Room/WardLine/WardTrail:SpriteRenderer
+Room/Window.WindowRattleView.target = scene:Room/Window/Visual:Transform
+Screens/EndingScreen.EndingScreenView.group = scene:Screens/EndingScreen/Root:CanvasGroup
+Screens/EndingScreen.EndingScreenView.root = scene:Screens/EndingScreen/Root:GameObject
+Screens/EndingScreen.EndingScreenView.titleLabel = scene:Screens/EndingScreen/Root/Title:TextMeshProUGUI
+Screens/GameOverScreen.GameOverScreenView.group = scene:Screens/GameOverScreen/Root:CanvasGroup
+Screens/GameOverScreen.GameOverScreenView.root = scene:Screens/GameOverScreen/Root:GameObject
+Screens/GameOverScreen.GameOverScreenView.titleLabel = scene:Screens/GameOverScreen/Root/Title:TextMeshProUGUI
+Screens/TitleScreen.TitleScreenView.helpButton = scene:Screens/TitleScreen/Root/HelpButton:Button
+Screens/TitleScreen.TitleScreenView.helpCloseButton = scene:Screens/TitleScreen/Root/HelpPanel/CloseButton:Button
+Screens/TitleScreen.TitleScreenView.helpNextButton = scene:Screens/TitleScreen/Root/HelpPanel/NextButton:Button
+Screens/TitleScreen.TitleScreenView.helpPageLabel = scene:Screens/TitleScreen/Root/HelpPanel/PageLabel:TextMeshProUGUI
+Screens/TitleScreen.TitleScreenView.helpPanel = scene:Screens/TitleScreen/Root/HelpPanel:GameObject
+Screens/TitleScreen.TitleScreenView.helpPrevButton = scene:Screens/TitleScreen/Root/HelpPanel/PrevButton:Button
+Screens/TitleScreen.TitleScreenView.helpText = scene:Screens/TitleScreen/Root/HelpPanel/HelpText:TextMeshProUGUI
+Screens/TitleScreen.TitleScreenView.root = scene:Screens/TitleScreen/Root:GameObject
+Screens/TitleScreen.TitleScreenView.skipButton = scene:Screens/TitleScreen/Root/SkipRow:Button
+Screens/TitleScreen.TitleScreenView.skipLabel = scene:Screens/TitleScreen/Root/SkipRow/Label:TextMeshProUGUI
+Screens/TitleScreen.TitleScreenView.skipRow = scene:Screens/TitleScreen/Root/SkipRow:GameObject
+Screens/TitleScreen.TitleScreenView.startButton = scene:Screens/TitleScreen/Root/StartButton:Button
+Screens/TitleScreen/Root/VolumeSlider.VolumeSliderView.slider = scene:Screens/TitleScreen/Root/VolumeSlider:Slider
+Silhouettes.SilhouetteDirector.altar = scene:Room/Buddha:Transform
+Silhouettes.SilhouetteDirector.config = asset:Assets/_Project/Data/BalanceConfig.asset#BalanceConfig:BalanceConfig
+Silhouettes.SilhouetteDirector.cornerTransforms.Array.data[0] = scene:Room/SaltCorner_0:Transform
+Silhouettes.SilhouetteDirector.cornerTransforms.Array.data[1] = scene:Room/SaltCorner_1:Transform
+Silhouettes.SilhouetteDirector.cornerTransforms.Array.data[2] = scene:Room/SaltCorner_2:Transform
+Silhouettes.SilhouetteDirector.cornerTransforms.Array.data[3] = scene:Room/SaltCorner_3:Transform
+Silhouettes.SilhouetteDirector.player = scene:Player:Transform
+Silhouettes.SilhouetteDirector.silhouetteSprite = asset:Assets/_Project/Art/Props/prop_silhouette.png#prop_silhouette_0:Sprite
+Silhouettes.SilhouetteDirector.unlitMaterial = asset:Resources/unity_builtin_extra#Sprites-Default:Material
+Stage/StandMarker.DestinationMarkerView.marker = scene:Stage/StandMarker:SpriteRenderer
+Stage/StandMarker.DestinationMarkerView.player = scene:Player:Transform
+Systems.AttackScheduler.attackTable = asset:Assets/_Project/Data/AttackTable.asset#AttackTable:AttackTable
+Systems.AttackScheduler.config = asset:Assets/_Project/Data/BalanceConfig.asset#BalanceConfig:BalanceConfig
+Systems.AttackScheduler.phaseTable = asset:Assets/_Project/Data/PhaseTable.asset#PhaseTable:PhaseTable
+Systems.AttackScheduler.player = scene:Player:PlayerController
+Systems.AttackScheduler.salt = scene:Systems:SaltCorners
+Systems.AttackScheduler.sanity = scene:Systems:Sanity
+Systems.AttackScheduler.sequencer = scene:Systems:PhaseSequencer
+Systems.AttackScheduler.tv = scene:Room/TV:TvInteractable
+Systems.DebugHud.door = scene:Room/Door:DoorInteractable
+Systems.DebugHud.flow = scene:Systems:GameFlowController
+Systems.DebugHud.player = scene:Player:PlayerController
+Systems.DebugHud.salt = scene:Systems:SaltCorners
+Systems.DebugHud.sanity = scene:Systems:Sanity
+Systems.DebugHud.scheduler = scene:Systems:AttackScheduler
+Systems.DebugHud.sequencer = scene:Systems:PhaseSequencer
+Systems.DebugHud.talisman = scene:Systems:Talisman
+Systems.EventDirector.config = asset:Assets/_Project/Data/BalanceConfig.asset#BalanceConfig:BalanceConfig
+Systems.EventDirector.eventTable = asset:Assets/_Project/Data/EventTable.asset#EventTable:EventTable
+Systems.EventDirector.sanity = scene:Systems:Sanity
+Systems.EventDirector.sequencer = scene:Systems:PhaseSequencer
+Systems.GameFlowController.attackScheduler = scene:Systems:AttackScheduler
+Systems.GameFlowController.config = asset:Assets/_Project/Data/BalanceConfig.asset#BalanceConfig:BalanceConfig
+Systems.GameFlowController.phaseSequencer = scene:Systems:PhaseSequencer
+Systems.GameFlowController.player = scene:Player:PlayerController
+Systems.GameFlowController.prologueDirector = scene:Directors/PrologueDirector:PrologueDirector
+Systems.GameFlowController.sanity = scene:Systems:Sanity
+Systems.GameFlowController.titleScreen = scene:Screens/TitleScreen:TitleScreenView
+Systems.PhaseSequencer.phaseTable = asset:Assets/_Project/Data/PhaseTable.asset#PhaseTable:PhaseTable
+Systems.SaltCorners.cornerTransforms.Array.data[0] = scene:Room/SaltCorner_0:Transform
+Systems.SaltCorners.cornerTransforms.Array.data[1] = scene:Room/SaltCorner_1:Transform
+Systems.SaltCorners.cornerTransforms.Array.data[2] = scene:Room/SaltCorner_2:Transform
+Systems.SaltCorners.cornerTransforms.Array.data[3] = scene:Room/SaltCorner_3:Transform
+Systems.SaltCorners.talisman = scene:Systems:Talisman
+Systems.Sanity.config = asset:Assets/_Project/Data/BalanceConfig.asset#BalanceConfig:BalanceConfig
+Systems.Sanity.player = scene:Player:PlayerController
+Systems.Sanity.salt = scene:Systems:SaltCorners
+Systems.Sanity.sequencer = scene:Systems:PhaseSequencer
+Systems.Sanity.talisman = scene:Systems:Talisman
+Systems.Sanity.tv = scene:Room/TV:TvInteractable
+Systems.Talisman.config = asset:Assets/_Project/Data/BalanceConfig.asset#BalanceConfig:BalanceConfig
+Systems.Talisman.salt = scene:Systems:SaltCorners
+Systems.Talisman.sanity = scene:Systems:Sanity
+UI/DialogueBox.DialogueBoxView.advanceIndicator = scene:UI/DialogueBox/Root/AdvanceIndicator:TextMeshProUGUI
+UI/DialogueBox.DialogueBoxView.bodyLabel = scene:UI/DialogueBox/Root/Body:TextMeshProUGUI
+UI/DialogueBox.DialogueBoxView.nameLabel = scene:UI/DialogueBox/Root/NamePanel/NameLabel:TextMeshProUGUI
+UI/DialogueBox.DialogueBoxView.namePanel = scene:UI/DialogueBox/Root/NamePanel:GameObject
+UI/DialogueBox.DialogueBoxView.portrait = scene:UI/DialogueBox/Root/Portrait:Image
+UI/DialogueBox.DialogueBoxView.portraits.Array.data[0].sprite = asset:Assets/_Project/Art/Portraits/portrait_grandfather.png#portrait_grandfather_0:Sprite
+UI/DialogueBox.DialogueBoxView.portraits.Array.data[1].sprite = asset:Assets/_Project/Art/Portraits/portrait_grandmother.png#portrait_grandmother_0:Sprite
+UI/DialogueBox.DialogueBoxView.portraits.Array.data[2].sprite = asset:Assets/_Project/Art/Portraits/portrait_boy.png#portrait_boy_0:Sprite
+UI/DialogueBox.DialogueBoxView.portraits.Array.data[3].sprite = asset:Assets/_Project/Art/Portraits/portrait_shaman.png#portrait_shaman_0:Sprite
+UI/DialogueBox.DialogueBoxView.root = scene:UI/DialogueBox/Root:GameObject
+UI/DialogueBox.DialogueBoxView.skipHint = scene:UI/DialogueBox/SkipHint:GameObject
+UI/DoorHint.DoorHintView.door = scene:Room/Door:DoorInteractable
+UI/DoorHint.DoorHintView.keyGlyph = scene:UI/DoorHint/Row/Keycap/KeyLabel:TextMeshProUGUI
+UI/DoorHint.DoorHintView.label = scene:UI/DoorHint/Row/Label:TextMeshProUGUI
+UI/DoorHint.DoorHintView.root = scene:UI/DoorHint/Row:GameObject
+UI/HeartView.HeartView.heart = scene:UI/HeartView:Image
+UI/InteractPrompt.InteractPromptView.interaction = scene:Player:PlayerInteraction
+UI/InteractPrompt.InteractPromptView.label = scene:UI/InteractPrompt/Row/Label:TextMeshProUGUI
+UI/InteractPrompt.InteractPromptView.promptRoot = scene:UI/InteractPrompt/Row:GameObject
+UI/PrayerHint.PrayerHintView.arrowKeys.Array.data[0] = scene:UI/PrayerHint/Root/Keyboard/KeyUp:Image
+UI/PrayerHint.PrayerHintView.arrowKeys.Array.data[1] = scene:UI/PrayerHint/Root/Keyboard/KeyDown:Image
+UI/PrayerHint.PrayerHintView.arrowKeys.Array.data[2] = scene:UI/PrayerHint/Root/Keyboard/KeyLeft:Image
+UI/PrayerHint.PrayerHintView.arrowKeys.Array.data[3] = scene:UI/PrayerHint/Root/Keyboard/KeyRight:Image
+UI/PrayerHint.PrayerHintView.keyboardGroup = scene:UI/PrayerHint/Root/Keyboard:GameObject
+UI/PrayerHint.PrayerHintView.root = scene:UI/PrayerHint/Root:GameObject
+UI/PrayerHint.PrayerHintView.touchGroup = scene:UI/PrayerHint/Root/Touch:GameObject
+UI/PrayerHint.PrayerHintView.touchKnob = scene:UI/PrayerHint/Root/Touch/StickRing/StickKnob:RectTransform
+UI/SubtitleView.SubtitleView.label = scene:UI/SubtitleView/Label:TextMeshProUGUI
+UI/TalismanStatus.TalismanStatusView.stageSprites.Array.data[0] = asset:Assets/_Project/Art/UI/ui_talisman_status_0.png#ui_talisman_status_0_0:Sprite
+UI/TalismanStatus.TalismanStatusView.stageSprites.Array.data[1] = asset:Assets/_Project/Art/UI/ui_talisman_status_1.png#ui_talisman_status_1_0:Sprite
+UI/TalismanStatus.TalismanStatusView.stageSprites.Array.data[2] = asset:Assets/_Project/Art/UI/ui_talisman_status_2.png#ui_talisman_status_2_0:Sprite
+UI/TalismanStatus.TalismanStatusView.stageSprites.Array.data[3] = asset:Assets/_Project/Art/UI/ui_talisman_status_3.png#ui_talisman_status_3_0:Sprite
+UI/TalismanStatus.TalismanStatusView.stageSprites.Array.data[4] = asset:Assets/_Project/Art/UI/ui_talisman_status_4.png#ui_talisman_status_4_0:Sprite
+UI/TalismanStatus.TalismanStatusView.talisman = scene:UI/TalismanStatus:Image
+UI/TouchControls.TouchControlsView.controlsRoot = scene:UI/TouchControls/Controls:GameObject
+UI/TouchControls.TouchControlsView.flow = scene:Systems:GameFlowController
+UI/TouchControls.TouchControlsView.interactButton = scene:UI/TouchControls/Controls/InteractButton:RectTransform
+UI/TouchControls.TouchControlsView.interactButtonRoot = scene:UI/TouchControls/Controls/InteractButton:GameObject
+UI/TouchControls.TouchControlsView.interactLabel = scene:UI/TouchControls/Controls/InteractButton/Label:TextMeshProUGUI
+UI/TouchControls.TouchControlsView.interaction = scene:Player:PlayerInteraction
+UI/TouchControls.TouchControlsView.keyboardHints.Array.data[0] = scene:Screens/GameOverScreen/Root/Hint:TextMeshProUGUI
+UI/TouchControls.TouchControlsView.keyboardHints.Array.data[1] = scene:Screens/EndingScreen/Root/Hint:TextMeshProUGUI
+UI/TouchControls.TouchControlsView.mobileAudioHint = scene:Screens/TitleScreen/Root/MobileAudioHint:GameObject
+UI/TouchControls.TouchControlsView.stickBase = scene:UI/TouchControls/Controls/StickBase:RectTransform
+UI/TouchControls.TouchControlsView.stickKnob = scene:UI/TouchControls/Controls/StickBase/Knob:RectTransform
+
+# ===== 요약: 오브젝트 190 / 참조 필드 226 / 그중 NULL 1 =====
