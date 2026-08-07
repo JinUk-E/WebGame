@@ -2721,6 +2721,7 @@ MonoBehaviour:
   - {fileID: 1108568239}
   - {fileID: 1731765970}
   - {fileID: 1519598325}
+  attackScheduler: {fileID: 638019703}
 --- !u!1 &822536128
 GameObject:
   m_ObjectHideFlags: 0

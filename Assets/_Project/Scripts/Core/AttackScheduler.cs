@@ -18,6 +18,9 @@ namespace Morae.Game.Core
     /// <b>v0.7에서 사라진 것 — 이 클래스의 절반이다.</b>
     /// ① <b>상쇄(TryCounter)</b> — "전조 안에 기도를 완료하면 오염을 막는다"는 능동 방어가 사라졌다.
     ///    이제 전조는 예고이고, 대응은 오염된 뒤 그 자리에 가서 뿌리는 것이다.
+    ///    <b>[v0.8 부활]</b> 다만 동사가 기도→소금으로 바뀌어 돌아왔다: 전조 중인 귀퉁이에 소금 뿌리기를
+    ///    <b>완료</b>하면 그 공격은 상쇄되어 오염이 오지 않는다 (<see cref="TryCounter"/>, SaltCorners.Purify가 호출).
+    ///    위험한 자리로 미리 몸을 옮겨 선방어하는 보상 경로다 — 학습 모드에서는 닫혀 있다.
     /// ② <b>다중 귀퉁이 동시 공격</b> — 공격 1건 = 1귀퉁이. 이로써 발동 프레임 버퍼(_fireBuffer/_fireTaken),
     ///    포화 재타겟(RetargetToAvailable/HasActiveTelegraph)이 통째로 필요 없어졌다.
     /// ③ <b>Resolves 갈래</b> — 전 행이 true였다(실사용 0).
@@ -275,6 +278,28 @@ namespace Morae.Game.Core
             if (sanity != null) sanity.ApplyDelta(-config.SanityTelegraphHit);
 
             Debug.Log($"[ATTACK] {attack.Id} 전조 시작 — 귀퉁이 {corner} (판정까지 {attack.TelegraphDuration:F1}s)");
+        }
+
+        /// <summary>
+        /// 전조 진행 중인 귀퉁이에 소금 뿌리기를 완료하면 그 공격을 상쇄한다 (SaltCorners.Purify가 호출).
+        /// 상쇄된 전조는 오염을 일으키지 않고 즉시 countered로 판정된다 — 표현 계층의 점멸도 그 프레임에 멎는다.
+        /// 학습 모드에서는 상쇄하지 않는다: 오염이 실제로 나야 "지우는 법"을 배울 수 있고,
+        /// PrologueDirector가 오염→정화 순서를 전제로 진행을 감지하기 때문이다.
+        /// </summary>
+        public bool TryCounter(int corner)
+        {
+            if (!IsRunning || IsTraining) return false;
+
+            bool countered = false;
+            for (int i = _telegraphs.Count - 1; i >= 0; i--)
+            {
+                if (_telegraphs[i].Corner != corner) continue;
+                _telegraphs.RemoveAt(i);
+                GameEvents.RaiseAttackResolved(corner, true);
+                countered = true;
+            }
+            if (countered) Debug.Log($"[ATTACK] 귀퉁이 {corner} 전조 상쇄 — 소금 선방어 성공 (오염 없음)");
+            return countered;
         }
 
         private Vector2 PlayerPosition() => player != null ? (Vector2)player.transform.position : Vector2.zero;

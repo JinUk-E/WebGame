@@ -7,6 +7,7 @@ namespace Morae.Game.Gauges
     /// <summary>
     /// 소금 4귀퉁이 0~2단계 (백/회/흑). 인덱스 규약: 0=좌상 1=우상 2=좌하 3=우하 (CornerIndex).
     /// 전이: 공격 판정 미대응 +1(AttackScheduler) / 소금 뿌리기 완료 −1(SaltInteractable).
+    /// 예외: 전조 중인 귀퉁이에 뿌리기를 완료하면 공격이 상쇄되어 +1 자체가 오지 않는다 (Purify → TryCounter).
     ///
     /// <para>
     /// <b>v0.7에서 무엇이 빠졌나.</b>
@@ -30,6 +31,8 @@ namespace Morae.Game.Gauges
     {
         [SerializeField] private BalanceConfig config;
         [SerializeField] private Transform[] cornerTransforms = new Transform[CornerIndex.Count]; // FarthestFromPlayer 해석용
+        // 전조 중 선방어 상쇄용 (§1.2 — 게임플레이 내부는 이벤트 경유 금지, 직접 참조). 미배선이면 상쇄 없이 동작.
+        [SerializeField] private AttackScheduler attackScheduler;
 
         private readonly int[] _stages = new int[CornerIndex.Count];
         // 귀퉁이별 정화 진행도 0~1 (1 = 이번 프레임에 한 단계 정화). 손을 떼도 남되 감쇠한다.
@@ -92,12 +95,22 @@ namespace Morae.Game.Gauges
             Debug.Log($"[SALT] 귀퉁이 {corner} 오염 → {(CornerStage)_stages[corner]}");
         }
 
-        /// <summary>소금 뿌리기 완료 −1 (SaltInteractable이 호출). 진행도도 함께 리셋.</summary>
+        /// <summary>
+        /// 소금 뿌리기 완료 −1 (SaltInteractable이 호출). 진행도도 함께 리셋.
+        /// 이 귀퉁이에 전조가 진행 중이었다면 그 공격을 먼저 상쇄한다 — 상쇄된 공격은 오염을 일으키지 않는다.
+        /// 상쇄에 성공한 프레임에는 "여긴 이미 깨끗해" 무효 대사를 내지 않는다: 뿌린 보람이 실제로 있었다.
+        /// </summary>
         public void Purify(int corner)
         {
             _purify01[corner] = 0f;
+            bool countered = attackScheduler != null && attackScheduler.TryCounter(corner);
             if (_stages[corner] <= 0)
             {
+                if (countered)
+                {
+                    Debug.Log($"[SALT] 귀퉁이 {corner} 공격 상쇄 — 백 유지 (손상 없음)");
+                    return;
+                }
                 GameEvents.RaiseSaltPurifyNoop(corner); // 속마음 "여긴 이미 깨끗해" (RecoveryHintDirector)
                 Debug.Log($"[SALT] 귀퉁이 {corner} 이미 백 — 정화 효과 없음");
                 return;
