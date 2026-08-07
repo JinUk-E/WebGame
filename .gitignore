@@ -113,3 +113,6 @@ InitTestScene*.unity*
 # Python 도구 캐시
 __pycache__/
 *.pyc
+
+# JetBrains Rider / IntelliJ
+.idea/
