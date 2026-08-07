@@ -24,7 +24,7 @@ namespace Morae.EditorTools
         private const string SpriteLitMatPath =
             "Packages/com.unity.render-pipelines.universal/Runtime/Materials/Sprite-Lit-Default.mat";
 
-        private const string Room = "Assets/_Project/Art/Room/";
+        // Art/Room/ 경로 상수는 삭제됐다 — 방 아트를 씬에 꽂는 일은 Room 프리팹의 몫이다.
         private const string Props = "Assets/_Project/Art/Props/";
         private const string UI = "Assets/_Project/Art/UI/";
         private const string Portraits = "Assets/_Project/Art/Portraits/";
@@ -40,13 +40,8 @@ namespace Morae.EditorTools
                 scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
             }
 
-            SetupFloorAndWalls();
-            SetupWindowAndDoor();
+            VerifyRoomPrefab(); // 방은 프리팹이 원본 — 만들지 않고 확인만 한다
             SetupPlayer();
-            SetupSaltCorners();
-            SetupClock();
-            SetupTvBlanketProps();
-            SetupWallTalisman();
             SetupDialogueBox();
             SetupTalismanStatus();
             SetupInteractPromptKeycap();
@@ -106,44 +101,80 @@ namespace Morae.EditorTools
             Debug.Log($"[ART2-SETUP] 임포트 설정 확인 완료 — {guids.Length}개");
         }
 
-        // ---------- 방 ----------
+        // ---------- 방 (프리팹이 단일 진실 — 검증만) ----------
 
-        private static void SetupFloorAndWalls()
+        /// <summary>
+        /// **방은 <c>Assets/_Project/Prefab/Room.prefab</c>이 원본이다 — 여기서 만들지도 옮기지도 않는다.**
+        ///
+        /// <para>
+        /// 원래 이 자리에는 바닥·벽·창·문·소금·시계·TV·이불·벽부적을 코드로 배치·교체하는 코드가 있었다.
+        /// 그 코드는 v0.4 시절 방을 전제로 짜여 있었고, 2026-08-06 v0.6에서 아트 담당이 방을 L자 지오메트리로
+        /// 갈아엎으면서 <b>조용히 옛것이 됐다</b>. 실제로 지금 그대로 실행하면 v0.6 작업물이 무너진다:
+        /// 창문을 (2.5,2.13) → (0,4.2)로 옮기고, 삭제된 <c>room_wall_frame.png</c>를 쓰는 빈 WallFrame을 되살리고,
+        /// 없어진 <c>Room/Door/Visual</c>·<c>room_door.png</c>를 찾다 실패하고, 소금 Visual 정렬을 2 → 1로 내린다.
+        /// (2026-08-06 화면 3종에서 <c>D4Setup</c>이 아트 작업물을 단색 화면으로 덮던 것과 같은 종류의 사고다.)
+        /// </para>
+        ///
+        /// <para>
+        /// 그래서 생성·이동 코드를 <b>가드하지 않고 삭제</b>했다(git 이력이 복원 경로 — 죽은 분기를 남기면
+        /// 다음 사람에게 여전히 선택지로 보인다). 남은 것은 프리팹이 제대로 배선돼 있는지 <b>확인하고 로그로 남기는</b> 일뿐이다.
+        /// 방의 스프라이트·좌표·정렬순서를 고치려면 <b>에디터에서 Room 프리팹을 편집</b>할 것.
+        /// </para>
+        /// </summary>
+        private static void VerifyRoomPrefab()
         {
-            var mat = AssetDatabase.LoadAssetAtPath<Material>(SpriteLitMatPath);
-
-            // 바닥: white32 14×9 → room_floor(12.8×7.8, 벽 프레임 구멍에 맞음)
-            var floor = GameObject.Find("Room/Floor");
-            SwapSprite(floor, Room + "room_floor.png", 0);
-
-            // 벽 4면: 콜라이더만 유지, 렌더러는 끔 — 시각은 WallFrame이 담당
-            foreach (string name in new[] { "Wall_Top", "Wall_Bottom", "Wall_Left", "Wall_Right" })
+            var room = GameObject.Find("Room");
+            if (room == null)
             {
-                var wall = GameObject.Find("Room/" + name);
-                if (wall == null) continue;
-                var sr = wall.GetComponent<SpriteRenderer>();
-                if (sr != null) sr.enabled = false;
+                Debug.LogError("[ART2-SETUP] 씬에 Room이 없다");
+                return;
+            }
+            if (!PrefabUtility.IsPartOfPrefabInstance(room))
+            {
+                Debug.LogWarning("[ART2-SETUP] Room이 프리팹 인스턴스가 아니다 — " +
+                                 "메뉴 'Morae/Convert Room To Prefab Instance'로 전환할 것");
             }
 
-            // 벽 프레임 (14×9, 중앙 투명 구멍)
-            var frame = FindOrCreateSpriteChild("Room", "WallFrame", mat);
-            frame.transform.position = Vector3.zero;
-            SwapSprite(frame, Room + "room_wall_frame.png", 3);
+            // 프리팹이 담고 있어야 할 배선 — 하나라도 비면 프리팹 편집 중 끊긴 것이다
+            RequireRenderer("Room/Floor");
+            RequireRenderer("Room/Window/Visual");
+            RequireRenderer("Room/Door/Closed");
+            RequireRenderer("Room/Clock/Visual");
+            for (int i = 0; i < CornerIndex.Count; i++) RequireRenderer($"Room/SaltCorner_{i}/Visual");
+
+            RequireField(room.GetComponent<SaltCornersView>(), "stageSprites");
+            RequireField(GameObject.Find("Room/Clock").GetComponent<ClockView>(), "hourHand");
+            RequireField(GameObject.Find("Room/Clock").GetComponent<ClockView>(), "minuteHand");
+            RequireField(GameObject.Find("Room/TV").GetComponent<TvScreenView>(), "onSprite");
+            RequireField(GameObject.Find("Room/Blanket").GetComponent<BlanketView>(), "bulgeSprite");
+            Debug.Log("[ART2-SETUP] 방 프리팹 배선 검증 완료 (방은 프리팹이 원본 — 이 스크립트는 방을 만들지 않는다)");
         }
 
-        private static void SetupWindowAndDoor()
+        private static void RequireRenderer(string path)
         {
-            // 창문 — 벽 밴드(3.9~4.5) 중앙 y=4.2로 정렬, 여명 라이트도 같은 위치로 (창호지 위에 틴트)
-            var window = GameObject.Find("Room/Window");
-            if (window != null) window.transform.position = new Vector3(0f, 4.2f, 0f);
-            SwapSprite(FindChild(window, "Visual"), Room + "room_window.png", 4);
-            var dawnLight = GameObject.Find("Lighting/WindowDawnLight");
-            if (dawnLight != null) dawnLight.transform.position = new Vector3(0f, 4.2f, 0f);
+            var go = GameObject.Find(path);
+            SpriteRenderer sr = go != null ? go.GetComponent<SpriteRenderer>() : null;
+            if (go == null || sr == null || sr.sprite == null)
+                Debug.LogError($"[ART2-SETUP] 방 프리팹 결손 — {path}의 스프라이트가 비었다");
+        }
 
-            // 문 — 좌측 벽: 스프라이트는 정면 제작(1.6×0.9) → Z+90 회전으로 세움 (하단 걸쇠가 실내(+x) 방향)
-            var doorVisual = FindChild(GameObject.Find("Room/Door"), "Visual");
-            SwapSprite(doorVisual, Room + "room_door.png", 4);
-            if (doorVisual != null) doorVisual.transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+        private static void RequireField(Component target, string field)
+        {
+            if (target == null)
+            {
+                Debug.LogError($"[ART2-SETUP] 방 프리팹 결손 — 컴포넌트 없음 ({field})");
+                return;
+            }
+            var prop = new SerializedObject(target).FindProperty(field);
+            if (prop == null)
+            {
+                Debug.LogError($"[ART2-SETUP] {target.GetType().Name}.{field} 프로퍼티 없음 — 이름이 바뀌었나?");
+                return;
+            }
+            bool empty = prop.isArray
+                ? prop.arraySize == 0
+                : prop.propertyType == SerializedPropertyType.ObjectReference && prop.objectReferenceValue == null;
+            if (empty) Debug.LogError($"[ART2-SETUP] 방 프리팹 결손 — {target.GetType().Name}.{field} 미배선");
         }
 
         private static void SetupPlayer()
@@ -158,7 +189,10 @@ namespace Morae.EditorTools
                 Debug.LogError("[ART2-SETUP] Player/Visual 없음 — 플레이어 스프라이트 배선 실패");
                 return;
             }
-            SwapSprite(visual, Props + "player_boy.png", 2); // 소팅 규약: 플레이어 2
+            // 소팅 규약(v0.6): 플레이어 8. 이전 값 2는 벽걸이(창·문·시계·부적 = 4)보다 낮아
+            // 플레이어가 문·시계 뒤로 숨는 상태였다 — v0.6에서 캐릭터 위층을 올려 고친 것을
+            // 이 스크립트만 모르고 있었다(셋업을 다시 돌리면 그 버그가 되살아났다).
+            SwapSprite(visual, Props + "player_boy.png", 8);
 
             // 씬 빌더가 플레이어 Visual에 라이트 머티리얼을 안 깔았음 — 2D 라이트 수광 보장
             var mat = AssetDatabase.LoadAssetAtPath<Material>(SpriteLitMatPath);
@@ -170,76 +204,6 @@ namespace Morae.EditorTools
             if (view == null) view = player.AddComponent<PlayerSpriteView>();
             Wire(view, "body", sr);
             Wire(view, "player", player.GetComponent<Morae.Game.Player.PlayerController>()); // 이동 방향 회전용
-        }
-
-        private static void SetupSaltCorners()
-        {
-            for (int i = 0; i < CornerIndex.Count; i++)
-            {
-                SwapSprite(GameObject.Find($"Room/SaltCorner_{i}/Visual"), Props + "prop_salt_white.png", 1);
-            }
-
-            var view = GameObject.Find("Room").GetComponent<SaltCornersView>();
-            WireSpriteArray(view, "stageSprites", new[]
-            {
-                Props + "prop_salt_white.png", Props + "prop_salt_gray.png",
-                Props + "prop_salt_black.png", Props + "prop_salt_black_deep.png",
-            });
-        }
-
-        private static void SetupClock()
-        {
-            var mat = AssetDatabase.LoadAssetAtPath<Material>(SpriteLitMatPath);
-            var clock = GameObject.Find("Room/Clock");
-            SwapSprite(FindChild(clock, "Visual"), Props + "prop_clock_face.png", 4);
-
-            // 디지털 텍스트 제거 — 아날로그 바늘로 대체
-            var text = clock.transform.Find("ClockText");
-            if (text != null) Object.DestroyImmediate(text.gameObject);
-
-            var hour = FindOrCreateSpriteChild("Room/Clock", "HandHour", mat);
-            SwapSprite(hour, Props + "prop_clock_hand_hour.png", 5);
-            var minute = FindOrCreateSpriteChild("Room/Clock", "HandMinute", mat);
-            SwapSprite(minute, Props + "prop_clock_hand_minute.png", 6);
-
-            var view = clock.GetComponent<ClockView>();
-            Wire(view, "label", null);
-            Wire(view, "hourHand", hour.transform);
-            Wire(view, "minuteHand", minute.transform);
-        }
-
-        private static void SetupTvBlanketProps()
-        {
-            // TV — off 기본 + TvScreenView 스왑 (TVLight는 LightingController 유지)
-            var tv = GameObject.Find("Room/TV");
-            var tvVisual = FindChild(tv, "Visual");
-            SwapSprite(tvVisual, Props + "prop_tv_off.png", 1);
-            var tvView = tv.GetComponent<TvScreenView>();
-            if (tvView == null) tvView = tv.AddComponent<TvScreenView>();
-            Wire(tvView, "screen", tvVisual.GetComponent<SpriteRenderer>());
-            Wire(tvView, "offSprite", LoadSprite(Props + "prop_tv_off.png"));
-            Wire(tvView, "onSprite", LoadSprite(Props + "prop_tv_on.png"));
-
-            // 이불 — flat 기본 + InBlanket 시 bulge
-            var blanket = GameObject.Find("Room/Blanket");
-            var blanketVisual = FindChild(blanket, "Visual");
-            SwapSprite(blanketVisual, Props + "prop_blanket_flat.png", 1);
-            var blanketView = blanket.GetComponent<BlanketView>();
-            if (blanketView == null) blanketView = blanket.AddComponent<BlanketView>();
-            Wire(blanketView, "blanket", blanketVisual.GetComponent<SpriteRenderer>());
-            Wire(blanketView, "flatSprite", LoadSprite(Props + "prop_blanket_flat.png"));
-            Wire(blanketView, "bulgeSprite", LoadSprite(Props + "prop_blanket_bulge.png"));
-
-            SwapSprite(FindChild(GameObject.Find("Room/Buddha"), "Visual"), Props + "prop_buddha_altar.png", 1);
-            SwapSprite(FindChild(GameObject.Find("Room/Jar"), "Visual"), Props + "prop_jar.png", 1);
-        }
-
-        private static void SetupWallTalisman()
-        {
-            var mat = AssetDatabase.LoadAssetAtPath<Material>(SpriteLitMatPath);
-            var talisman = FindOrCreateSpriteChild("Room", "WallTalisman", mat);
-            talisman.transform.position = new Vector3(-1.2f, 4.1f, 0f); // 상단 벽, 창문 좌측 — 시각 소품
-            SwapSprite(talisman, Props + "prop_talisman_wall.png", 4);
         }
 
         // ---------- UI ----------
@@ -606,18 +570,8 @@ namespace Morae.EditorTools
             return child != null ? child.gameObject : null;
         }
 
-        private static GameObject FindOrCreateSpriteChild(string parentPath, string name, Material mat)
-        {
-            var parent = GameObject.Find(parentPath);
-            var existing = parent.transform.Find(name);
-            if (existing != null) return existing.gameObject;
-
-            var go = new GameObject(name);
-            go.transform.SetParent(parent.transform, false);
-            var sr = go.AddComponent<SpriteRenderer>();
-            if (mat != null) sr.sharedMaterial = mat;
-            return go;
-        }
+        // FindOrCreateSpriteChild(방 하위에 스프라이트 자식을 만들던 헬퍼)는 삭제됐다 —
+        // 방은 프리팹이 원본이므로 코드가 방에 오브젝트를 더하면 프리팹을 되돌릴 때 조용히 사라진다.
 
         /// <summary>스프라이트 교체 공통 — 스케일 1 복원(도형 시대의 localScale 크기 지정 폐기) + 색 white + 정렬 순서.</summary>
         private static void SwapSprite(GameObject go, string spritePath, int sortingOrder)
