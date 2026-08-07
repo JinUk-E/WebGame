@@ -20,7 +20,9 @@ namespace Morae.Game.Tests.EditMode
         // LightingController 직렬화 초기값
         private const int MaxAttempts = 3;
         private const float GlobalBase = 0.12f;
-        private const float DawnBoost = 0.18f;
+        // v0.7 §3: 0.18 → 0.06. 0.18은 방 기본 조도(0.12)보다 커서 "아침이 방을 밝히는" 상태였다.
+        // (실제 배포값이 이 상수와 같은지는 DawnLegibilityTests가 Main.unity를 파싱해 검사한다.)
+        private const float DawnBoost = 0.06f;
 
         // ---------- §1 조도: 합산 후 클램프 ----------
 
@@ -34,11 +36,14 @@ namespace Morae.Game.Tests.EditMode
         [Test]
         public void RoomLight_PhaseBiasAndPenalty_AreSummedNotAppliedTwice()
         {
-            // P6 연출 bias(−0.10)와 흑 2개 감광(−0.036)은 **한 번만** 합산돼야 한다.
+            // 페이즈 연출 bias(−0.06)와 흑 2개 감광(−0.036)은 **한 번만** 합산돼야 한다.
             // 따로 클램프하면 이중 감광이 되어 바닥에 처박힌다 (v0.5 금지 사항).
-            float expected = GlobalBase + 0.4f * DawnBoost - 0.10f - LightPenalty * 2f;
+            // ⚠ v0.7에서 DawnBoost가 0.06으로 줄어 P6 최악값(bias −0.10 + 흑 2)은 이제 바닥에 걸린다 —
+            //   바닥 클램프는 아래 AllCornersBlack 케이스가 따로 검사하므로, 여기서는 클램프에 걸리지 않는
+            //   조합으로 "합산이 한 번뿐"이라는 성질만 본다.
+            float expected = GlobalBase + 1f * DawnBoost - 0.06f - LightPenalty * 2f;
             float actual = CornerPenaltyModel.RoomLightIntensity(
-                GlobalBase, 0.4f, DawnBoost, -0.10f, 2, LightPenalty, MinRoomLight);
+                GlobalBase, 1f, DawnBoost, -0.06f, 2, LightPenalty, MinRoomLight);
             Assert.Greater(expected, MinRoomLight, "이 케이스는 바닥에 걸리지 않아야 검증이 의미가 있다");
             Assert.AreEqual(expected, actual, 1e-5f);
         }

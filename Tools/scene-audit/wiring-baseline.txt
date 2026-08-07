@@ -12,6 +12,9 @@ Audio/PhoneSource | active=1 | pos=(-3.1000,6.2000,0.0000) rot=(0.000,0.000,0.00
 Audio/RoomSource | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | AudioSource,Transform
 Audio/SoundManager | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SoundManager,Transform
 Audio/WindowSource | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | AudioSource,Transform
+Dawn | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | DawnWindowView,Transform
+Dawn/FloorPatchGrid | active=1 | pos=(2.5000,0.6200,0.0500) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
+Dawn/FloorPatchHaze | active=1 | pos=(2.5000,0.6200,0.0500) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | SpriteRenderer,Transform
 Directors | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform
 Directors/EndingDirector | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | Transform
 Directors/PrologueDirector | active=1 | pos=(0.0000,0.0000,0.0000) rot=(0.000,0.000,0.000) scale=(1.0000,1.0000,1.0000) | PrologueDirector,Transform
@@ -191,6 +194,8 @@ UI/TouchControls/Controls/StickBase | active=1 | pos=(146.6667,111.1111,0.0000) 
 UI/TouchControls/Controls/StickBase/Knob | active=1 | pos=(146.6667,111.1111,0.0000) rot=(0.000,0.000,0.000) scale=(0.4444,0.4444,0.4444) | CanvasRenderer,Image,RectTransform
 
 # ===== 2. 렌더 정렬 (경로 | 렌더러 | 레이어 | 순서) =====
+Dawn/FloorPatchGrid | SpriteRenderer | Default | 1
+Dawn/FloorPatchHaze | SpriteRenderer | Default | 1
 Player/Visual | SpriteRenderer | Default | 8
 Room/Blanket/ChannelBar/BG | SpriteRenderer | Default | 10
 Room/Blanket/ChannelBar/Fill | SpriteRenderer | Default | 11
@@ -268,6 +273,10 @@ Audio/SoundManager.SoundManager.sfxPoppo = asset:Assets/_Project/Audio/SFX_Poppo
 Audio/SoundManager.SoundManager.sfxPurify = asset:Assets/_Project/Audio/SFX_Purify/purify.wav#purify:AudioClip
 Audio/SoundManager.SoundManager.sfxTvWhisper = asset:Assets/_Project/Audio/SFX_TV/tv_whisper_loop.wav#tv_whisper_loop:AudioClip
 Audio/SoundManager.SoundManager.tvAnchor = scene:Room/TV:Transform
+Dawn.DawnWindowView.patchGrid = scene:Dawn/FloorPatchGrid:SpriteRenderer
+Dawn.DawnWindowView.patchHaze = scene:Dawn/FloorPatchHaze:SpriteRenderer
+Dawn.DawnWindowView.sequencer = scene:Systems:PhaseSequencer
+Dawn.DawnWindowView.windowPaper = scene:Room/Window/Visual/Sky:SpriteRenderer
 Directors/PrologueDirector.PrologueDirector.config = asset:Assets/_Project/Data/BalanceConfig.asset#BalanceConfig:BalanceConfig
 Directors/PrologueDirector.PrologueDirector.scheduler = scene:Systems:AttackScheduler
 GlobalVolume.SanityFeedback.volume = scene:GlobalVolume:Volume
@@ -469,4 +478,4 @@ UI/TouchControls.TouchControlsView.mobileAudioHint = scene:Screens/TitleScreen/R
 UI/TouchControls.TouchControlsView.stickBase = scene:UI/TouchControls/Controls/StickBase:RectTransform
 UI/TouchControls.TouchControlsView.stickKnob = scene:UI/TouchControls/Controls/StickBase/Knob:RectTransform
 
-# ===== 요약: 오브젝트 190 / 참조 필드 226 / 그중 NULL 1 =====
+# ===== 요약: 오브젝트 193 / 참조 필드 230 / 그중 NULL 1 =====

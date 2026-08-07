@@ -38,7 +38,11 @@ namespace Morae.Game.Presentation
 
         [SerializeField] private float dawnMaxIntensity = 2.5f;   // 여명 최대 (Dawn01 = 1)
         [SerializeField] private float globalBase = 0.12f;        // §3.1 골격값
-        [SerializeField] private float globalDawnBoost = 0.18f;   // 아침이 방 전체를 서서히 밝힌다
+        // v0.7 §3: 0.18 → 0.06. 0.18은 방 기본 조도 0.12보다 커서 **아침이 창이 아니라 방을 밝혔다** —
+        // 창과 방이 함께 밝아지니 창문이 광원으로 도드라지지 않았다(여명이 체감되지 않은 원인 셋 중 하나).
+        // 아침의 도래는 이제 창호지 색 단계와 바닥 창틀 빛 무늬(DawnStageModel)가 전달한다.
+        // ⚠ 이 값은 Main.unity에 직렬화돼 있다 — 여기만 고치면 게임은 안 바뀐다(V07Setup이 씬 값을 잡는다).
+        [SerializeField] private float globalDawnBoost = 0.06f;   // 창 주변만 은은히 — 방을 밝히는 건 창의 몫이 아니다
         [SerializeField] private float globalMinIntensity = 0.05f; // config 미배선 시의 폴백 바닥
         [SerializeField] private float tvIntensity = 1.1f;
         [SerializeField] private float cornerBaseIntensity = 0.25f; // 단계별 ×1 / ×0.45 / ×0.1
@@ -159,6 +163,9 @@ namespace Morae.Game.Presentation
             float bias = sequencer != null ? sequencer.RoomLightBias : 0f;
 
             // 예외① 창밖 여명은 진실 채널 — RoomLightBias(연출)도 흑화 감광도 절대 섞지 않는다.
+            // 이 빛은 **창 주변에 번지는 빛**이다(창 자체의 색은 v0.7부터 DawnWindowView가 무광으로 그린다).
+            // 계단으로 끊지 않고 연속으로 두는 이유: 계단은 색·모양이 이미 만들고 있고,
+            // 이 번짐까지 끊으면 창 주변 벽이 프레임 단위로 튀어 "조명이 깜빡였다"로 읽힌다.
             if (windowDawnLight != null) windowDawnLight.intensity = dawn * dawnMaxIntensity;
 
             // 실내 전역광에만 연출 가감 + 흑화 감광을 얹고, 합산 후 한 번만 바닥으로 클램프한다.
