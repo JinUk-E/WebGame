@@ -36,11 +36,18 @@ namespace Morae.EditorTools
             SetClip(so, "sfxDoorTry", LoadByName("SFX_Door", "door_try"));
             SetClips(so, "sfxFear", LoadAll("SFX_Fear"));
             SetClip(so, "sfxHeartbeat", LoadFirst("SFX_Heartbeat"));
+            // 삼중 습격 2종 (절차 생성) — 배선이 빠지면 자막만 세 소리를 말하고 실제로는 노크만 난다
+            SetClip(so, "sfxPhoneRing", LoadFirst("SFX_Phone"));
+            SetClip(so, "sfxHandleRattle", LoadFirst("SFX_Handle"));
             so.ApplyModifiedPropertiesWithoutUndo();
 
             // 배선 검증 — 저장 후 실제 값 재확인 (SO 배선 유실 사고 재발 감지)
             var verify = new SerializedObject(mgr);
-            string[] singles = { "bgmMain", "bgmIntro", "bgmEnding", "sfxClock", "sfxDoorClose", "sfxDoorTry", "sfxHeartbeat" };
+            string[] singles =
+            {
+                "bgmMain", "bgmIntro", "bgmEnding", "sfxClock", "sfxDoorClose", "sfxDoorTry", "sfxHeartbeat",
+                "sfxPhoneRing", "sfxHandleRattle",
+            };
             foreach (string field in singles)
             {
                 Object v = verify.FindProperty(field).objectReferenceValue;

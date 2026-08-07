@@ -53,6 +53,25 @@ namespace Morae.Game.Presentation
         // 함정 웨이브처럼 네 귀퉁이가 한꺼번에 뚫려도 웃음은 한 번만 — 겹치면 조롱이 아니라 소음이 된다
         [SerializeField] private float poppoMinIntervalSec = 0.8f;
 
+        [Header("삼중 습격 — 전화벨·손잡이·노크 (P5 triple-assault)")]
+        // 자막이 "손잡이 덜컹 — 전화벨 — 노크가 동시에"라고 말해 왔는데 실제로는 문 효과음 하나뿐이었다.
+        // 세 층의 시각은 TripleAssaultCue가 소유하고, 손잡이 층은 DoorView의 문짝 흔들림과 같은 표를 쓴다.
+        [SerializeField] private AudioClip sfxPhoneRing;        // SFX_Phone/phone_ring (절차 생성 — 다른 방의 전화)
+        [SerializeField] private AudioClip sfxHandleRattle;     // SFX_Handle/handle_rattle (절차 생성)
+        // 전화는 **이 방에 없다.** 소스를 문 바깥(복도)에 두고 3D로 울려야 "다른 방에서"가 성립한다.
+        // 거리 감쇠는 귀퉁이와 같은 이유로 사실상 끈다 — 방향만 얻고 크기는 볼륨 테이블이 정한다.
+        [SerializeField] private AudioSource phoneSource;       // 씬의 Audio/PhoneSource
+        [SerializeField] private float phoneVolume = 0.8f;
+        [SerializeField] private float phoneMaxDistance = 500f;
+        // 리슨 상태 배수 (아키텍처 v1.2 §7.2 — WebGL은 Lowpass가 없으니 '먹먹함'은 볼륨으로 만든다).
+        // 이불 속에서는 확실히 멀어지고, 문 앞에서는 (소리가 그 너머에 있으므로) 오히려 또렷해진다.
+        [SerializeField] private float phoneVolumeInBlanket = 0.38f;
+        [SerializeField] private float phoneVolumeAtDoor = 1.15f;
+        [SerializeField] private float phoneVolumeSmoothSec = 0.3f;
+        [SerializeField] private float handleRattleVolume = 0.9f;
+        [SerializeField] private float assaultKnockVolume = 0.8f;
+        [SerializeField] private float assaultVolumeInBlanket = 0.5f;   // 문쪽 두 층의 이불 속 배수
+
         [Header("TV 잡음 (v0.6)")]
         // TV를 켰을 때 **그 근처에서만** 들리는 소리. 2D로 깔면 방 전체가 울려 거리감이 죽는다 —
         // TV 옆으로 가야 크게 들리는 게 이 소리의 존재 이유다 (이불 속·문 앞에서는 멀어진다).
@@ -86,6 +105,9 @@ namespace Morae.Game.Presentation
         private int _knockDone;
         private float _lastPoppo = -99f;
         private bool _training;   // 학습 구간 — 실패해도 할아버지가 막아준다
+        private float _assaultStart = -1f;  // 삼중 습격 진행 시각 (음수 = 없음)
+        private int _assaultKnockDone;
+        private bool _assaultHandleDone;
 
         private void Awake()
         {
@@ -106,6 +128,27 @@ namespace Morae.Game.Presentation
 
             SetupCornerSources();
             SetupTvSource();
+            SetupPhoneSource();
+        }
+
+        /// <summary>
+        /// 전화벨 소스 — 씬의 Audio/PhoneSource를 쓴다(위치가 연출의 일부라 씬에 드러나 있어야 한다.
+        /// TV 잡음 소스와 달리 "복도 어디쯤"이 사람이 눈으로 확인할 값이다).
+        /// panStereo는 WebGL에 바인딩이 없으므로 정위는 3D 좌표로만 만든다 (v0.5 귀퉁이 4채널과 같은 규칙).
+        /// </summary>
+        private void SetupPhoneSource()
+        {
+            if (phoneSource == null) return;
+            phoneSource.clip = sfxPhoneRing;
+            phoneSource.loop = false;
+            phoneSource.playOnAwake = false;   // §8.2 오디오 게이트 — 첫 입력 전 재생 금지
+            phoneSource.volume = 0f;
+            phoneSource.spatialBlend = 1f;
+            phoneSource.rolloffMode = AudioRolloffMode.Linear;
+            phoneSource.dopplerLevel = 0f;
+            phoneSource.spread = 0f;
+            phoneSource.minDistance = 1f;
+            phoneSource.maxDistance = phoneMaxDistance;
         }
 
         /// <summary>
@@ -281,7 +324,51 @@ namespace Morae.Game.Presentation
             UpdateCornerWhispers();
             UpdateKnocks();
             UpdateTvWhisper();
+            UpdateTripleAssault();
+            UpdatePhoneVolume();
         }
+
+        /// <summary>
+        /// 삼중 습격 — 세 층을 <see cref="TripleAssaultCue"/>의 시각표대로 낸다.
+        /// 손잡이 층은 DoorView의 문짝 흔들림과 <b>같은 표</b>를 쓰므로 소리와 그림이 어긋날 수 없다.
+        /// </summary>
+        private void UpdateTripleAssault()
+        {
+            if (_assaultStart < 0f) return;
+            float elapsed = Time.time - _assaultStart;
+
+            if (!_assaultHandleDone && elapsed >= TripleAssaultCue.HandleStartSec)
+            {
+                _assaultHandleDone = true;
+                PlayOneShotScaled(sfxHandleRattle, handleRattleVolume);
+            }
+
+            int should = TripleAssaultCue.KnockCountUpTo(elapsed);
+            while (_assaultKnockDone < should)
+            {
+                PlayOneShotScaled(sfxKnock, assaultKnockVolume);
+                _assaultKnockDone++;
+            }
+
+            if (elapsed > TripleAssaultCue.TotalDurationSec) _assaultStart = -1f;
+        }
+
+        /// <summary>
+        /// 전화벨 볼륨 — 울리는 내내 리슨 상태를 따라간다(0.3s 러프).
+        /// 재생 중에 이불로 들어가면 그 자리에서 서서히 먹먹해져야 한다 — 시작 시점에 한 번만 정하면
+        /// "이불 속인데 또렷한 전화벨"이 남는다.
+        /// </summary>
+        private void UpdatePhoneVolume()
+        {
+            if (phoneSource == null || !phoneSource.isPlaying) return;
+            float target = phoneVolume * sfxVolume * ListenScale(phoneVolumeInBlanket, phoneVolumeAtDoor);
+            float k = CornerPenaltyModel.SmoothFactor(Time.unscaledDeltaTime, phoneVolumeSmoothSec);
+            phoneSource.volume = Mathf.Lerp(phoneSource.volume, Mathf.Clamp01(target), k);
+        }
+
+        /// <summary>리슨 상태 배수 — 이불 속/문 앞에서 소리의 거리가 달라진다 (§7.2 볼륨 테이블 규약).</summary>
+        private float ListenScale(float inBlanket, float atDoor)
+            => _inBlanket ? inBlanket : _listening ? atDoor : 1f;
 
         /// <summary>
         /// v0.5 §1 — 귀퉁이별 속삭임 볼륨을 그 귀퉁이의 오염 단계로 결정한다 (0.35s 러프).
@@ -360,6 +447,7 @@ namespace Morae.Game.Presentation
         {
             _heart.Stop(); // 아침 — 심장이 가라앉는다
             StopCornerWhispers();
+            StopTripleAssault();
             FadeTo(bgmEnding);
         }
 
@@ -368,6 +456,7 @@ namespace Morae.Game.Presentation
             StopBgm();
             _heart.Stop();
             StopCornerWhispers();
+            StopTripleAssault();
             PlayRandom(sfxFear);
         }
 
@@ -451,6 +540,14 @@ namespace Morae.Game.Presentation
 
         private void HandleGameEventFired(EventDef def)
         {
+            // 삼중 습격만 예외 — 클립 하나가 아니라 **세 층을 겹쳐** 낸다.
+            // 일반 경로(테이블 클립 / Door 폴백)보다 먼저 잡아야 문 효과음 하나로 흘러가지 않는다.
+            if (def.Id == TripleAssaultCue.EventId)
+            {
+                BeginTripleAssault();
+                return;
+            }
+
             // 테이블 클립 우선 (§2.3) — Door 채널은 귀 대기 여부로 뭉갬/선명 선택 (§7.2 간이판)
             AudioClip clip = def.AudioClip;
             if (def.Channel == AudioChannel.Door && def.AudioClipMuffled != null && !_listening)
@@ -508,6 +605,36 @@ namespace Morae.Game.Presentation
         private void PlayOneShot(AudioClip clip)
         {
             if (clip != null) _sfx.PlayOneShot(clip, sfxVolume);
+        }
+
+        /// <summary>문쪽 원샷 — 리슨 상태 배수를 태워 이불 속에서는 함께 멀어진다.</summary>
+        private void PlayOneShotScaled(AudioClip clip, float volume)
+        {
+            if (clip == null) return;
+            _sfx.PlayOneShot(clip, Mathf.Clamp01(sfxVolume * volume * ListenScale(assaultVolumeInBlanket, 1f)));
+        }
+
+        /// <summary>
+        /// 삼중 습격 시작 — 전화벨은 즉시(다른 방에서 이미 울리고 있다), 손잡이·노크는 시각표대로.
+        /// 겹쳐 들어오면 앞의 것을 끊고 다시 센다 (P5에서 이 이벤트가 두 번 겹칠 일은 없지만,
+        /// 상태가 반쯤 남은 채로 두면 다음 재생이 조용히 층을 빠뜨린다).
+        /// </summary>
+        private void BeginTripleAssault()
+        {
+            _assaultStart = Time.time;
+            _assaultKnockDone = 0;
+            _assaultHandleDone = false;
+            if (phoneSource == null || sfxPhoneRing == null) return;
+            phoneSource.Stop();
+            phoneSource.volume = Mathf.Clamp01(phoneVolume * sfxVolume * ListenScale(phoneVolumeInBlanket, phoneVolumeAtDoor));
+            phoneSource.Play();
+        }
+
+        /// <summary>연출 중단 — 게임오버·엔딩에서 전화가 혼자 계속 울리면 결과 화면이 우스워진다.</summary>
+        private void StopTripleAssault()
+        {
+            _assaultStart = -1f;
+            if (phoneSource != null && phoneSource.isPlaying) phoneSource.Stop();
         }
 
         private void PlayRandom(AudioClip[] clips)
