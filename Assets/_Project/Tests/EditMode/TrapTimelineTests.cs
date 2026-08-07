@@ -73,7 +73,9 @@ namespace Morae.Game.Tests.EditMode
             {
                 Assert.AreEqual(9f, config.TrapVoiceLeadSec, 1e-4f);
                 Assert.AreEqual(5f, config.TrapQuietSec, 1e-4f);
-                Assert.AreEqual(3f, config.TrapTelegraphSec, 1e-4f);
+                // v0.6.1: 3.0 → 4.5 (능동 방어 타이밍 정정 — 스케줄 전조와 같은 값을 유지한다.
+                // 관계 검사는 CounterTimingTests.TrapWaveTelegraph_MatchesScheduledTelegraph)
+                Assert.AreEqual(4.5f, config.TrapTelegraphSec, 1e-4f);
                 Assert.AreEqual(5f, config.TrapWaveGapSec, 1e-4f);
                 Assert.AreEqual(2, config.TrapWaveCount);
                 Assert.AreEqual(1.5f, config.PrayerDeepenedMultiplier, 1e-4f);
