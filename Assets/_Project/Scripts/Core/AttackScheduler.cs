@@ -428,6 +428,10 @@ namespace Morae.Game.Core
         {
             var sb = new StringBuilder(256); // Begin 1회 — 핫패스 아님
             sb.Append($"[ATTACK] 스케줄 확정 (seed={seed}, {_schedule.Length}건 + 함정 {config.TrapWaveCount}웨이브):");
+            // 능동 방어 부등식을 실수치로 한 줄 남긴다 — 두 파일에 흩어진 수치의 **관계**가 깨졌는지는
+            // 각 값만 봐서는 안 보인다 (v0.6.1 이전 3.0s/3.0s 사고). 회귀 방어는 CounterTimingTests.
+            float telegraph = _schedule.Length > 0 ? _schedule[0].TelegraphDuration : config.TrapTelegraphSec;
+            sb.Append($"\n  [타이밍] {CounterTimingModel.Describe(config.PrayerChannelSec, telegraph, config.PrayerDeepenedMultiplier, config.MoveSpeed)}");
             for (int i = 0; i < _schedule.Length; i++)
             {
                 ScheduledAttack a = _schedule[i];

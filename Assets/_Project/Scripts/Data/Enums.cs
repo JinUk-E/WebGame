@@ -13,7 +13,7 @@ namespace Morae.Game.Data
     {
         Idle,
         Move,
-        Praying,          // 3s 채널 + 방향 지정
+        Praying,          // BalanceConfig.PrayerChannelSec 채널 + 방향 지정
         WatchingTV,
         InBlanket,
         ListeningAtDoor,
