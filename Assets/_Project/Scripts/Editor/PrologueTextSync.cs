@@ -52,7 +52,7 @@ namespace Morae.EditorTools
         {
             EnsureScene();
 
-            var director = UnityEngine.Object.FindFirstObjectByType<PrologueDirector>(FindObjectsInactive.Include);
+            var director = UnityEngine.Object.FindAnyObjectByType<PrologueDirector>(FindObjectsInactive.Include);
             if (director == null)
             {
                 Debug.LogError("[TEXT-SYNC] 씬에 PrologueDirector가 없다 — 배선을 먼저 확인할 것");
@@ -115,8 +115,7 @@ namespace Morae.EditorTools
             var report = new StringBuilder();
             int drift = 0;
             int placeholders = 0;
-            var behaviours = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(
-                FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var behaviours = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include);
 
             foreach (MonoBehaviour mb in behaviours)
             {

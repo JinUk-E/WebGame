@@ -41,7 +41,7 @@ namespace Morae.Game.Interactions
         {
             base.Awake();
             if (salt != null) return;
-            salt = FindFirstObjectByType<SaltCorners>();
+            salt = FindAnyObjectByType<SaltCorners>();
             if (salt == null) Debug.LogError($"[SALT] {name}: SaltCorners를 찾지 못했다 — 소금 뿌리기 불가", this);
             else Debug.LogWarning($"[SALT] {name}: salt 미배선 — 런타임 탐색으로 대체 (씬에서 배선할 것)", this);
         }
@@ -57,9 +57,14 @@ namespace Morae.Game.Interactions
 
         public override string PromptLabel => "소금 뿌리기";
 
-        /// <summary>이미 깨끗하면 상호작용 대상이 아니다.</summary>
+        /// <summary>
+        /// 깨끗해도 항상 상호작용 가능 — 백 귀퉁이에 뿌리면 <see cref="SaltCorners.Purify"/>가 무효과로 끝난다.
+        /// 오염 시에만 후보가 되면 귀퉁이에 서 있어도 프롬프트가 안 떠서 "여기가 뿌리는 자리"라는 위치
+        /// 학습이 안 되고, 오염 순간마다 프롬프트가 나타났다 사라지는 게 버그처럼 읽힌다.
+        /// 깨끗한 데 뿌리는 낭비는 이성 감소(Salting)가 이미 자연 비용으로 막는다.
+        /// </summary>
         public override bool CanInteract(PlayerController player)
-            => player.IsMovable && salt != null && salt.IsContaminated(cornerIndex);
+            => player.IsMovable && salt != null;
 
         public override void OnBegin(PlayerController player)
         {
