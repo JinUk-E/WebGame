@@ -4,9 +4,10 @@ using UnityEngine;
 namespace Morae.Game.Core
 {
     /// <summary>
-    /// 손자의 속마음 안내 — 두 가지를 맡는다 (v0.7).
+    /// 손자의 속마음 안내 — 세 가지를 맡는다 (v0.7).
     /// <list type="number">
     ///   <item><b>오염 안내</b>: 소금이 더러워질 때마다 "다시 뿌려야 한다"를 반복한다.</item>
+    ///   <item><b>무효 정화</b>: 깨끗한 귀퉁이에 뿌리기를 마치면 "여긴 이미 깨끗해"로 닫아준다.</item>
     ///   <item><b>이불 유도</b>: 이성이 임계 아래로 떨어지면 주기적으로 "숨으면 나아질 것 같다"를 말한다.</item>
     /// </list>
     ///
@@ -31,6 +32,13 @@ namespace Morae.Game.Core
         [SerializeField] private float delaySec = 1.2f;              // 오염 연출(소리·색)이 먼저 도착하도록 한 박자 늦춘다
         [SerializeField] private float repeatCooldownSec = 9f;       // 같은 문장이 겹쳐 도배되지 않게
 
+        [Header("무효 정화 (깨끗한 귀퉁이에 뿌리기 완료)")]
+        // 소금이 상시 상호작용이 되면서 생긴 경우 — 효과 없이 끝났다는 걸 말로 닫아줘야
+        // "뿌렸는데 왜 아무 일도 없지"가 버그가 아니라 내 판단 착오로 읽힌다.
+        [SerializeField, TextArea]
+        private string alreadyCleanText = "(여긴 이미 깨끗해.)";
+        [SerializeField] private float alreadyCleanDuration = 2.5f;
+
         [Header("이불 유도 (이성 저하 시 주기)")]
         [SerializeField, TextArea]
         private string scaredText = "(무서워… 이불 속에 숨으면 좀 나아질 것 같아.)";
@@ -49,6 +57,7 @@ namespace Morae.Game.Core
         private void OnEnable()
         {
             GameEvents.CornerStageChanged += HandleCornerStage;
+            GameEvents.SaltPurifyNoop += HandleSaltPurifyNoop;
             GameEvents.TrainingModeChanged += HandleTrainingMode;
             GameEvents.SanityChanged += HandleSanityChanged;
             GameEvents.PlayerStateChanged += HandlePlayerState;
@@ -60,6 +69,7 @@ namespace Morae.Game.Core
         private void OnDisable()
         {
             GameEvents.CornerStageChanged -= HandleCornerStage;
+            GameEvents.SaltPurifyNoop -= HandleSaltPurifyNoop;
             GameEvents.TrainingModeChanged -= HandleTrainingMode;
             GameEvents.SanityChanged -= HandleSanityChanged;
             GameEvents.PlayerStateChanged -= HandlePlayerState;
@@ -83,6 +93,17 @@ namespace Morae.Game.Core
             if (Time.time - _lastContaminatedAt < repeatCooldownSec) return;
             _lastContaminatedAt = Time.time;
             _contaminatedTimer = delaySec;
+        }
+
+        /// <summary>
+        /// 깨끗한 귀퉁이에 뿌리기 완료 — 즉시 말한다. 오염 안내와 달리 지연이 없다:
+        /// 이건 세계의 사건이 아니라 **방금 한 내 행동에 대한 반응**이라 한 박자 늦으면 인과가 끊긴다.
+        /// 쿨다운도 없다 — 홀드 1.5초가 이미 자연 도배 방지다. 학습 구간 억제는 오염 안내와 같은 이유.
+        /// </summary>
+        private void HandleSaltPurifyNoop(int corner)
+        {
+            if (_training) return;
+            Say("hint-already-clean", alreadyCleanText, alreadyCleanDuration);
         }
 
         private void Update()

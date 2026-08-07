@@ -98,6 +98,7 @@ namespace Morae.Game.Gauges
             _purify01[corner] = 0f;
             if (_stages[corner] <= 0)
             {
+                GameEvents.RaiseSaltPurifyNoop(corner); // 속마음 "여긴 이미 깨끗해" (RecoveryHintDirector)
                 Debug.Log($"[SALT] 귀퉁이 {corner} 이미 백 — 정화 효과 없음");
                 return;
             }

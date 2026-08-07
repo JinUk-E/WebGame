@@ -48,6 +48,9 @@ namespace Morae.Game.Core
         // [v0.7] AltarAttentionRequested(불상판) 폐기 — 학습 대상이 불상에서 소금 귀퉁이로 옮겨가면서
         //   SaltAttentionRequested 하나로 합쳐졌다. 가리킬 곳이 한 종류뿐이면 채널도 하나여야 한다.
         public static event Action<int /*corner*/, float /*seconds*/> SaltAttentionRequested;
+        // 깨끗한 귀퉁이에 뿌리기를 완료 — 단계 변화 없음 (소금 상시 상호작용화의 부산물).
+        // CornerStageChanged가 안 나가는 경우라 별도 채널이 필요하다 — 속마음("여긴 이미 깨끗해")이 이걸 듣는다.
+        public static event Action<int /*corner*/> SaltPurifyNoop;
         // 학습(프롤로그) 구간 진입/이탈 — 표현 계층이 "진짜 실패"와 "연습 실패"를 구분해야 할 때 쓴다.
         // 예) 팔척님의 웃음은 할아버지가 붙잡고 있는 연습 구간에서 나면 안 된다.
         public static event Action<bool> TrainingModeChanged;
@@ -77,6 +80,7 @@ namespace Morae.Game.Core
         public static void RaiseBlanketExitChanged(float progress01) => BlanketExitChanged?.Invoke(progress01);
         public static void RaiseSaltAttentionRequested(int corner, float seconds)
             => SaltAttentionRequested?.Invoke(corner, seconds);
+        public static void RaiseSaltPurifyNoop(int corner) => SaltPurifyNoop?.Invoke(corner);
         public static void RaiseTrainingModeChanged(bool active) => TrainingModeChanged?.Invoke(active);
         public static void RaiseDoorOpened() => DoorOpened?.Invoke();
     }
