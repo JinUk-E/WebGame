@@ -9,7 +9,7 @@ namespace Morae.Game.Presentation
     /// 목적지 서클 — 불상 앞 바닥의 "여기 서라" 마커 (v0.6.1 — 표현 계층, 구독만 §1.2).
     ///
     /// <para>
-    /// <b>왜 필요한가</b>: 학습 구간에서 후광(<see cref="AltarHighlightView"/>)이 불상을 가리키지만,
+    /// <b>왜 필요한가</b>: 학습 구간에서 소금 귀퉁이의 흰 섬광(SaltAttentionRequested)이 방향을 가리키지만,
     /// 후광은 <b>물건</b>을 가리킬 뿐 <b>설 자리</b>를 가리키지 못한다. 어두운 방에서 처음 온 플레이어는
     /// "저게 불상이구나"까지는 알아도 "얼마나 가까이 가야 기도가 되는가"를 모른 채 근처를 서성인다.
     /// 서클은 기도 판정 범위(불상 트리거) 안의 한 점을 바닥에 찍어 그 질문을 없앤다.
@@ -17,8 +17,8 @@ namespace Morae.Game.Presentation
     ///
     /// <para>
     /// <b>도착 피드백</b>: 마커 위에 서면 맥동이 멈추고 색이 바뀐다 — "여기가 맞다"가 손이 아니라 눈으로 온다.
-    /// 판정 반경은 불상 트리거(2.2×2.2u, 중심 (-1,2))보다 <b>충분히 안쪽</b>이라
-    /// 서클이 켜졌는데 기도가 안 되는 거짓 신호가 나오지 않는다.
+    /// 판정 반경은 소금 트리거(2.2×2.2u)보다 <b>충분히 안쪽</b>이라
+    /// 서클이 켜졌는데 상호작용이 안 되는 거짓 신호가 나오지 않는다.
     /// </para>
     ///
     /// <para>
@@ -80,6 +80,7 @@ namespace Morae.Game.Presentation
             GameEvents.TrainingModeChanged += HandleTrainingModeChanged;
             GameEvents.GameEventFired += HandleGameEventFired;
             GameEvents.PhaseChanged += HandlePhaseChanged;
+            GameEvents.SaltAttentionRequested += HandleSaltAttention;
         }
 
         private void OnDisable()
@@ -87,6 +88,24 @@ namespace Morae.Game.Presentation
             GameEvents.TrainingModeChanged -= HandleTrainingModeChanged;
             GameEvents.GameEventFired -= HandleGameEventFired;
             GameEvents.PhaseChanged -= HandlePhaseChanged;
+            GameEvents.SaltAttentionRequested -= HandleSaltAttention;
+        }
+
+        /// <summary>
+        /// v0.7 — 마커가 불상 앞 <b>고정 자리</b>였던 시절에는 옮길 필요가 없었다. 이제 학습 대상이
+        /// 소금 귀퉁이라 "여기로 가라"의 여기가 매번 다르다. 주의 유도가 오면 그 귀퉁이 앞으로 옮겨간다.
+        /// <para>
+        /// 좌표는 <see cref="TrainingStageModel.StandPointFor"/>가 준다 — 귀퉁이 정중앙이 아니라
+        /// <b>실제로 설 수 있는 자리</b>다. 좌상단은 플레이어 이동 상한(y 1.515)에 0.015u까지 붙어 있어
+        /// 정중앙에 서클을 놓으면 벽에 끼여 도착 판정이 영영 안 난다.
+        /// </para>
+        /// </summary>
+        private void HandleSaltAttention(int corner, float seconds)
+        {
+            if (marker == null) return;
+            Vector2 stand = TrainingStageModel.StandPointFor(corner);
+            Vector3 p = marker.transform.position;
+            marker.transform.position = new Vector3(stand.x, stand.y, p.z);
         }
 
         private void HandleTrainingModeChanged(bool active)

@@ -66,7 +66,7 @@ namespace Morae.Game.Presentation
         private bool _buttonSeen;
         private bool _tapSeen;
         private Vector2 _stickDelta;
-        private TouchStickModel.SnapMode _snapMode = TouchStickModel.SnapMode.EightWay;
+        // [v0.7] _snapMode 제거 — 스틱은 항상 8방향 이동이다 (기도 조준 폐기).
         private Interactable _shownTarget;
         private string _shownLabel;
         private bool _buttonVisible = true;
@@ -93,14 +93,12 @@ namespace Morae.Game.Presentation
         private void OnEnable()
         {
             if (!_active) return;
-            GameEvents.PlayerStateChanged += HandlePlayerStateChanged;
             GameEvents.GameOver += HandleGameOver;
             GameEvents.EndingStarted += HandleEndingStarted;
         }
 
         private void OnDisable()
         {
-            GameEvents.PlayerStateChanged -= HandlePlayerStateChanged;
             GameEvents.GameOver -= HandleGameOver;
             GameEvents.EndingStarted -= HandleEndingStarted;
             if (_active) InputReader.ResetTouchState();
@@ -285,7 +283,7 @@ namespace Morae.Game.Presentation
         private void ApplyInput()
         {
             Vector2 axis = _stickTouch != NoTouch
-                ? TouchStickModel.Resolve(_stickDelta, stickRadius, stickDeadZone01, _snapMode)
+                ? TouchStickModel.Resolve(_stickDelta, stickRadius, stickDeadZone01)
                 : Vector2.zero;
             InputReader.SetTouchMove(axis);
             InputReader.SetTouchInteract(_buttonTouch != NoTouch || _tapTouch != NoTouch);
@@ -339,14 +337,6 @@ namespace Morae.Game.Presentation
         }
 
         // ---------- 구독 핸들러 ----------
-
-        private void HandlePlayerStateChanged(PlayerState state)
-        {
-            // 기도 중에는 어느 쪽으로 기울여도 가장 가까운 귀퉁이로 — 엄지 조준 정밀도 보정
-            _snapMode = state == PlayerState.Praying
-                ? TouchStickModel.SnapMode.Corners
-                : TouchStickModel.SnapMode.EightWay;
-        }
 
         private void HandleGameOver(GameOverReason reason) => EnterTapToContinue();
 

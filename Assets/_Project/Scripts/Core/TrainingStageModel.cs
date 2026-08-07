@@ -6,8 +6,8 @@ namespace Morae.Game.Core
     /// 프롤로그 학습 구간의 "무대 연출" 계산 — 순수 함수만 (v0.6.1). EditMode 테스트 대상.
     ///
     /// <para>
-    /// <b>왜 있는가</b>: 어두운 방에서 후광만으로는 "저기가 목적지"가 안 읽힌다. 그래서 학습 구간 동안
-    /// ① 불상 앞 바닥에 <b>목적지 서클</b>을 놓고 ② 실내 전역광을 한 단계 더 내려 <b>불상 주변만</b> 밝힌다.
+    /// <b>왜 있는가</b>: 어두운 방에서 섬광만으로는 "저기가 목적지"가 안 읽힌다. 그래서 학습 구간 동안
+    /// ① 목표 소금 앞 바닥에 <b>목적지 서클</b>을 놓고 ② 실내 전역광을 한 단계 더 내려 그 주변만 밝힌다.
     /// </para>
     ///
     /// <para>
@@ -21,21 +21,21 @@ namespace Morae.Game.Core
         /// <summary>연출이 내릴 수 있는 하한 — 이보다 더 내리면 촛불 밖이 완전히 죽는다.</summary>
         public const float MinDimScale = 0.2f;
 
-        // ---------- 불상 앞 자리 (씬 좌표) ----------
-        // 에디터 배선(V061Setup)과 회귀 테스트가 **같은 상수**를 본다. 따로 적으면 한쪽만 옮겨져
-        // "서클은 켜졌는데 기도가 안 되는" 거짓 신호가 조용히 생긴다.
+        // ---------- 소금 귀퉁이 자리 (씬 좌표) ----------
+        // 에디터 배선과 회귀 검증이 **같은 상수**를 본다. 따로 적으면 한쪽만 옮겨져
+        // "서클은 켜졌는데 상호작용이 안 되는" 거짓 신호가 조용히 생긴다.
 
-        /// <summary>불상 트리거(기도 가능 범위) 중심 — 씬의 Room/Buddha BoxCollider2D와 같은 값.</summary>
-        public static readonly Vector2 AltarTriggerCenter = new Vector2(-1f, 2f);
+        /// <summary>소금 4귀퉁이 위치 — Room.prefab의 SaltCorner_0~3과 같은 값 (CornerIndex 순서).</summary>
+        public static readonly Vector2[] SaltCorners =
+        {
+            new Vector2(-4.5f, 1.5f),   // 0 좌상
+            new Vector2(4.5f, 0.2f),    // 1 우상
+            new Vector2(-4.5f, -3.8f),  // 2 좌하
+            new Vector2(4.5f, -3.8f),   // 3 우하
+        };
 
-        /// <summary>불상 트리거 크기 — 씬의 BoxCollider2D size (2.2 × 2.2u).</summary>
-        public static readonly Vector2 AltarTriggerSize = new Vector2(2.2f, 2.2f);
-
-        /// <summary>
-        /// 목적지 서클을 놓는 자리. 트리거 한복판이면서, 좌측 구역 바닥 상단(y=1.865, Wall_Top 하단)에
-        /// 플레이어(반경 0.35u)가 끼지 않는 지점이다.
-        /// </summary>
-        public static readonly Vector2 AltarStandPoint = new Vector2(-1f, 1.25f);
+        /// <summary>소금 트리거 크기 — 불상과 같은 2.2 × 2.2u.</summary>
+        public static readonly Vector2 SaltTriggerSize = new Vector2(2.2f, 2.2f);
 
         /// <summary>플레이어 본체 콜라이더 반경 — 씬의 Player CircleCollider2D.</summary>
         public const float PlayerColliderRadius = 0.35f;
@@ -44,13 +44,31 @@ namespace Morae.Game.Core
         public const float LeftRegionTopY = 1.865f;
 
         /// <summary>
-        /// 이 위치에 <b>서면 기도가 되는가</b>. 상호작용은 트리거와 플레이어 <i>콜라이더</i>의 겹침으로 잡히므로
-        /// 실제 범위는 트리거 박스를 플레이어 반경만큼 넓힌 영역이다 — 박스 자체로 재면 실제보다 좁게 나온다.
+        /// 목적지 서클을 놓는 자리. 귀퉁이 자체가 아니라 <b>거기 설 수 있는 자리</b>다.
+        /// <para>
+        /// ⚠ 좌상(C0)은 y=1.5인데 플레이어 중심 상한이 <c>1.865 − 0.35 = 1.515</c>라 여유가 0.015u뿐이다.
+        /// 서클을 귀퉁이 정중앙에 놓으면 플레이어가 벽에 끼여 정확히 못 선다 — 그래서 아래로 내려 잡는다.
+        /// 트리거가 2.2u라 내려도 상호작용 범위 안이다.
+        /// </para>
         /// </summary>
-        public static bool IsWithinPrayerRange(Vector2 playerCenter)
+        public static Vector2 StandPointFor(int corner)
         {
-            Vector2 half = AltarTriggerSize * 0.5f + Vector2.one * PlayerColliderRadius;
-            Vector2 d = playerCenter - AltarTriggerCenter;
+            if (corner < 0 || corner >= SaltCorners.Length) return Vector2.zero;
+            Vector2 p = SaltCorners[corner];
+            float maxY = LeftRegionTopY - PlayerColliderRadius;
+            if (p.y > maxY) p.y = maxY - 0.35f; // 벽에 붙지 않게 한 몸 더 내린다
+            return p;
+        }
+
+        /// <summary>
+        /// 이 위치에 <b>서면 소금을 뿌릴 수 있는가</b>. 상호작용은 트리거와 플레이어 <i>콜라이더</i>의 겹침으로
+        /// 잡히므로 실제 범위는 트리거 박스를 플레이어 반경만큼 넓힌 영역이다 — 박스 자체로 재면 실제보다 좁게 나온다.
+        /// </summary>
+        public static bool IsWithinSaltRange(Vector2 playerCenter, int corner)
+        {
+            if (corner < 0 || corner >= SaltCorners.Length) return false;
+            Vector2 half = SaltTriggerSize * 0.5f + Vector2.one * PlayerColliderRadius;
+            Vector2 d = playerCenter - SaltCorners[corner];
             return Mathf.Abs(d.x) <= half.x && Mathf.Abs(d.y) <= half.y;
         }
 

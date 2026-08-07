@@ -66,7 +66,9 @@ namespace Morae.Game.Core
             new PrologueLine("할아버지", "쯧, 큰일 났구나… 그건 사람이 아니다. 이 동네에 봉인되어 있던 '팔척님'이야.", 5.0f),
             new PrologueLine("나", "팔척님요…? 그게 뭔데요? 할머니는 왜 옆에서 떨고 계세요?", 3.5f),
             new PrologueLine("할아버지", "그놈 마음에 들면 이튿날을 못 넘기고 죽는다! 오늘은 절대 집에 돌아갈 생각 마라.", 5.0f),
-            new PrologueLine("할아버지", "이 방 창문은 신문지와 부적으로 막았고, 네 귀퉁이에 소금을 쌓았다. 부적은 딱 한 번 널 대신해 재앙을 막아줄 게다.", 5.5f),
+            // v0.7 — 부적이 "1회 방어"에서 "타들어가는 시간"이 되면서 이 줄이 거짓말이 됐다.
+            // ⚠ 이 문자열은 Main.unity에도 직렬화돼 있다. 여기만 고치면 실행되는 건 씬의 옛 문장이다 (씬 값이 이긴다).
+            new PrologueLine("할아버지", "이 방 창문은 신문지와 부적으로 막았고, 네 귀퉁이에 소금을 쌓았다. 소금이 더러워지면 저 부적이 대신 타들어간다 — 다 타면 끝이야.", 5.5f),
             new PrologueLine("나", "그럼 전 아침까지 이 방에 갇혀 있어야 하는 거예요?", 3.5f),
             new PrologueLine("할아버지", "그래. 문밖에서 내 목소리가 들려도 절대 열지 마라. 그놈은 사람 목소리를 훔쳐 유혹하는 놈이다.", 5.5f),
             new PrologueLine("할아버지", "시계나 소리는 믿지 말고, 창밖이 환하게 밝아오면 그때 일곱 시 반에 내가 직접 데리러 오마.", 5.5f),
@@ -80,38 +82,47 @@ namespace Morae.Game.Core
         [SerializeField] private int linesAfterTraining = 1;
         [SerializeField] private BalanceConfig config;
         [SerializeField] private AttackScheduler scheduler;
-        [SerializeField] private int trainingCorner = CornerIndex.TopRight; // 불상(좌상단)에서 가장 잘 보이는 대각
+        // v0.7 — 학습 대상 귀퉁이. 플레이어 시작 위치(0, -1)에서 걸어서 갈 만하고, 문·TV 트리거와
+        // 겹치지 않는 곳이어야 한다. 우하단(4.5, -3.8)은 이불(1.5,-3)·TV(3.5,-1) 어느 트리거와도 안 겹치는 유일한 귀퉁이다.
+        // ⚠ 좌상단(C0)을 쓰면 안 된다 — y=1.5가 좌측 구역 이동 상한(1.515)에 붙어 있어 정중앙에 설 수 없고,
+        //   문 트리거(x −4.2~−2.0)와도 붙어 있어 첫 학습에서 즉사 경로를 밟게 된다.
+        [SerializeField] private int trainingCorner = CornerIndex.BottomRight;
         // 인과를 말로 못 박는 경고 — 공격 **전에** 온다. 학습이 끝난 뒤의 설명은 이미 늦다.
         [SerializeField]
         private PrologueLine warningLine = new PrologueLine("할아버지",
             "소금이 검어지면 그쪽으로 길이 열린다. 네 곳이 다 열리면 끝이야.", 5.5f);
-        // 막는 법 — 경고(인과) 다음, **전조 전**에 온다. 전조가 뜬 뒤에 읽히면 이미 손이 늦다.
+        // 막는 법 — 경고(인과) 다음, **오염 전**에 온다. 더러워진 뒤에 읽히면 이미 손이 늦다.
         // ⚠ 대사에 키 이름을 넣지 말 것 — 할아버지가 게임 시스템을 아는 존재가 되면 몰입이 깨진다.
-        //   조작(시스템 채널)은 이 대사와 같은 순간에 뜨는 **키캡 UI**(PrayerHintView)가 맡는다.
+        //   조작(시스템 채널)은 소금 앞에 서면 뜨는 상호작용 프롬프트가 맡는다.
+        // v0.7 — 전부 재작성. 옛 대사는 "불상 앞에서 빌어라 / 그쪽으로 손을 모아라"로
+        //   **제거된 조작**을 가르치고 있었다. 새 동사는 "가서 눌러 담는다" 하나다.
         [SerializeField]
         private PrologueLine controlHintLine = new PrologueLine("할아버지",
-            "막는 법은 이렇다. 불상 앞에서 빌어라. 소금이 검어진 쪽을 향해서.", 4.5f);
+            "막는 법은 이렇다. 검어진 자리로 직접 가서, 그 자리에 소금을 다시 눌러 담아라.", 4.5f);
         [SerializeField]
         private PrologueLine telegraphLine = new PrologueLine("할아버지",
-            "…쉿. 벌써 하나가 들썩인다. 불상 앞에 앉아, 그쪽으로 손을 모아라. 어서!", 4.5f);
-        // 재시도 — 벌 없이 다시 (조작은 키캡 UI가 계속 떠 있으므로 대사는 방향만 짚어준다)
+            "…쉿. 벌써 한쪽이 들썩인다. 저기다, 저리로 가서 담아라. 어서!", 4.5f);
+        // 재시도 — 벌 없이 다시 (프롬프트가 계속 떠 있으므로 대사는 방향만 짚어준다)
         [SerializeField]
         private PrologueLine retryLine = new PrologueLine("할아버지",
-            "괜찮다, 아직은 내가 붙잡고 있다. 다시 — 소리 나는 쪽으로 빌어라.", 3.5f);
+            "괜찮다, 아직은 내가 붙잡고 있다. 다시 — 소리 나는 쪽으로 가거라.", 3.5f);
         [SerializeField]
         private PrologueLine clearedLine = new PrologueLine("할아버지",
             "그렇지. 그렇게 막는 거다. 이제 혼자서도 할 수 있겠지.", 4f);
         // 시도 상한에 걸려 넘어갈 때 — 규칙을 다시 한 번 문장으로 남긴다 (배우지 못한 채 본편에 들어가므로)
         [SerializeField]
         private PrologueLine mercyLine = new PrologueLine("할아버지",
-            "…이번엔 내가 막았다. 다음엔 네가 해야 해. 불상 앞에 앉아, 검어진 쪽으로 손을 모으는 거다.", 5f);
+            "…이번엔 내가 막았다. 다음엔 네가 해야 해. 검어진 자리로 가서, 손으로 눌러 담는 거다.", 5f);
 
         [Header("소금 주의 유도 (v0.6)")]
         // "네 귀퉁이에 소금을 쌓았다" 줄에서 소금 넷을 순서대로 반짝인다 — 말과 화면이 같은 순간에 같은 것을
         // 가리켜야 대사가 길어진 게 손해가 아니라 이득이 된다. -1이면 비활성.
         [SerializeField] private int saltCueLineIndex = 5;
-        // 학습 구간에서 불상 후광을 대사보다 조금 더 오래 남긴다 (대사를 넣은 뒤 움직이기까지의 간격)
+        // 학습 구간에서 목표 귀퉁이 표시를 대사보다 조금 더 오래 남긴다 (대사를 읽은 뒤 움직이기까지의 간격)
         [SerializeField] private float altarHighlightExtraSec = 2.5f;
+        // 학습 전조 길이 — 본편(4.5s)보다 길게 잡는다. 처음 온 사람은 "무슨 일이 일어나려 한다"를
+        // 알아채는 데만 몇 초를 쓰고, 여기서 오염을 막을 방법은 어차피 없다(오염된 뒤에 지우는 게 정답이다).
+        [SerializeField] private float trainingTelegraphSec = 6f;
         [SerializeField] private float saltCueStepSec = 0.32f;   // 귀퉁이 간 간격
         [SerializeField] private float saltCueHoldSec = 0.55f;   // 한 귀퉁이가 빛나는 시간
 
@@ -237,11 +248,23 @@ namespace Morae.Game.Core
             }
 
             _inTraining = true;
-            _handoffTimer = inputHandoffGraceSec; // 마지막 줄을 넘긴 입력이 그대로 기도로 넘어가지 않게
+            _handoffTimer = inputHandoffGraceSec; // 마지막 줄을 넘긴 입력이 그대로 소금 뿌리기로 넘어가지 않게
             _training.Begin(trainingCorner);
             scheduler.BeginTraining(HandleTrainingResolved);
+            // 정화 성공은 소금 단계가 0으로 돌아오는 것으로만 알 수 있다 — 상호작용을 직접 참조하지 않는다
+            GameEvents.CornerStageChanged += HandleCornerStageChanged;
             FireDialogue("prologue-warn", warningLine);
             Debug.Log($"[PROLOGUE] 강제 학습 시작 — 목표 귀퉁이 {trainingCorner}");
+        }
+
+        /// <summary>
+        /// 학습 목표 귀퉁이가 깨끗해졌으면 통과. 구독 해제는 FinishTraining에서 한다.
+        /// ⚠ 이 구독은 <b>학습 구간에만</b> 살아 있어야 한다 — 본편까지 남으면 정화할 때마다 학습 로직이 깨어난다.
+        /// </summary>
+        private void HandleCornerStageChanged(int corner, int stage)
+        {
+            if (!_inTraining || corner != _training.TargetCorner || stage > 0) return;
+            scheduler.NotifyTrainingCleared(corner);
         }
 
         private void TickTraining()
@@ -263,47 +286,69 @@ namespace Morae.Game.Core
                 if (_warningTimer >= warningLine.duration + linePauseSec)
                 {
                     _hintFired = true;
-                    // 대사가 "불상 앞에서 빌어라"고 말하는 그 순간, 화면도 그 불상을 가리킨다 —
-                    // 처음 온 플레이어는 불상이 화면 어느 물건인지 모른 채로 문장만 듣게 된다.
-                    GameEvents.RaiseAltarAttentionRequested(controlHintLine.duration + altarHighlightExtraSec);
-                    // 이 id가 키캡 힌트(PrayerHintView)를 띄우는 신호이기도 하다 — 대사(픽션)와 조작(시스템)이
-                    // 같은 순간에 다른 채널로 나간다.
+                    // 대사가 "검어진 자리로 가라"고 말하는 그 순간, 화면도 그 자리를 가리킨다 —
+                    // 처음 온 플레이어는 어느 구석이 소금인지 모른 채로 문장만 듣게 된다.
+                    GameEvents.RaiseSaltAttentionRequested(_training.TargetCorner,
+                        controlHintLine.duration + altarHighlightExtraSec);
                     FireDialogue("prologue-controls", controlHintLine);
                 }
             }
 
-            // 경고 대사는 끝까지 들려준 뒤 전조를 낸다 — 대사와 전조가 겹치면 "왜 죽었는지"가 안 남는다
+            // 경고 대사는 끝까지 들려준 뒤 전조를 낸다 — 대사와 전조가 겹치면 "왜 그랬는지"가 안 남는다
             float warningSec = Mathf.Max(config.PrologueWarningSec,
                 warningLine.duration + controlHintLine.duration + linePauseSec * 2f);
-            TrainingCommand command = _training.Tick(dt, warningSec, config.PrologueRetryGapSec);
+            bool wasCleanup = _training.IsAwaitingCleanup;
+            TrainingCommand command = _training.Tick(dt, warningSec, config.PrologueRetryGapSec,
+                PrologueTrainingModel.CleanupDuration(config.SaltHoldSec, config.PrologueTelegraphTravelSec),
+                config.PrologueMaxAttempts);
+
+            // 정화 대기 시간을 넘겨 재시도로 떨어진 프레임 — 여기서 안내를 다시 준다
+            if (wasCleanup && !_training.IsAwaitingCleanup && !_training.IsCleared)
+            {
+                FireDialogue("prologue-retry", retryLine);
+            }
+            if (_training.IsCleared && wasCleanup) FinishTraining(); // 자비 통과
             if (command != TrainingCommand.FireTelegraph) return;
 
-            // 재시도 대사는 실패 직후(재시도 간격 시작)에 이미 나갔다 — 여기서는 첫 전조 안내만.
+            // 재시도 대사는 실패 직후에 이미 나갔다 — 여기서는 첫 전조 안내만.
             if (_training.Attempts <= 1) FireDialogue("prologue-telegraph", telegraphLine);
-            // 전조가 뜼는 순간에도 한 번 더 — "지금 저기로 가라"가 행동 직전에 반복되어야 손이 움직인다
-            GameEvents.RaiseAltarAttentionRequested(telegraphLine.duration + altarHighlightExtraSec);
-            scheduler.FireTrainingTelegraph(_training.TargetCorner,
-                PrologueTrainingModel.TelegraphDuration(config.PrayerChannelSec, config.PrologueTelegraphTravelSec));
+            // 전조가 뜨는 순간에도 한 번 더 — "지금 저기로 가라"가 행동 직전에 반복되어야 손이 움직인다
+            GameEvents.RaiseSaltAttentionRequested(_training.TargetCorner,
+                telegraphLine.duration + altarHighlightExtraSec);
+            scheduler.FireTrainingTelegraph(_training.TargetCorner, trainingTelegraphSec);
         }
 
-        private void HandleTrainingResolved(int corner, bool countered)
+        /// <summary>
+        /// 학습 전조가 판정돼 소금이 실제로 더러워졌다 (AttackScheduler 콜백).
+        /// v0.7에서는 이게 실패가 아니라 <b>학습의 시작</b>이다 — 지울 대상이 생겨야 지우는 법을 배운다.
+        /// </summary>
+        private void HandleTrainingResolved(int corner, bool cleared)
         {
-            _training.OnResolved(countered, config.PrologueMaxAttempts);
-            if (!_training.IsCleared)
+            if (!cleared)
             {
-                // 실패 → 재시도 간격 시작. 조작을 다시 상기시키며, 다음 전조까지 읽을 시간을 준다
-                // (예전에는 이 대사가 다음 전조와 같은 프레임에 떠서 읽을 틈이 없었다).
-                FireDialogue("prologue-retry", retryLine);
+                _training.OnContaminated();
+                // 더러워진 그 자리를 화면이 가리킨다 — 정화 대기 내내 목적지가 보여야 한다
+                GameEvents.RaiseSaltAttentionRequested(corner,
+                    PrologueTrainingModel.CleanupDuration(config.SaltHoldSec, config.PrologueTelegraphTravelSec));
                 return;
             }
+            _training.OnPurified();
+            if (_training.IsCleared) FinishTraining();
+        }
 
+        private void FinishTraining()
+        {
+            GameEvents.CornerStageChanged -= HandleCornerStageChanged; // 본편으로 새어 나가면 안 되는 구독
             scheduler.EndTraining();
             PrologueLine line = _training.ClearedByMercy ? mercyLine : clearedLine;
             FireDialogue(_training.ClearedByMercy ? "prologue-mercy" : "prologue-clear", line);
             _clearedTimer = line.duration + linePauseSec;
             Debug.Log($"[PROLOGUE] 강제 학습 통과 — 시도 {_training.Attempts}회" +
-                      (_training.ClearedByMercy ? " (시도 상한 자비 통과 — 상쇄 성공 아님)" : ""));
+                      (_training.ClearedByMercy ? " (시도 상한 자비 통과 — 스스로 지운 것 아님)" : ""));
         }
+
+        // 씬 리로드·중도 종료로 이 오브젝트가 꺼질 때 구독이 남으면 정적 이벤트에 유령 콜백이 된다
+        private void OnDisable() => GameEvents.CornerStageChanged -= HandleCornerStageChanged;
 
         /// <summary>
         /// 대사 줄 발화. id는 <c>prologue-line-N</c> — "line" 마디가 <b>수동 진행 줄</b> 표식이다

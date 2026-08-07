@@ -1,142 +1,80 @@
 using Morae.Game.Core;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Morae.Game.Presentation
 {
     /// <summary>
-    /// 좌하단 부적 상태 UI (표현 계층 — 구독만: TalismanBurned/SanityChanged/AttackTelegraphStarted/AttackResolved).
-    /// 규칙 (2026-08-05 확정 해석 — 표시 전용, 1회 방어 메커니즘 무변경):
-    /// - 평상시: 단계 0(멀쩡) 고정.
-    /// - 위기(이성 30% 미만 && 전조~판정 진행 중): 단계 1의 은은한 그을림 + 미세 흔들림 — 프리뷰 연출, 소모 아님.
-    /// - TalismanBurned 순간: 1→4 연소 애니메이션(잔불 느낌 순차 재생, 기본 약 2.5s) 후 4(완전 연소) 고정.
-    /// 흔들림·연소는 unscaledTime — F1 배속에 끌려가지 않는 연출 계층 시간 (HeartView 전례).
+    /// 벽에 걸린 부적 (표현 계층 — 구독만: TalismanBurnChanged/PlayerStateChanged).
+    /// 부적이 타들어간 정도를 스프라이트 단계로 보여주고, 다 타갈 때 흔들린다.
+    ///
+    /// <para>
+    /// <b>v0.7: 좌하단 HUD → 월드 스프라이트.</b> 이유가 둘이다.
+    /// ① 플레이어의 시선은 방(월드)에 있는데 부적이 화면 구석에 있으면 <b>화면 대각 최장 사케이드</b>가 된다.
+    ///    벽에 걸어 두면 소금 귀퉁이들과 같은 공간에 있어 "저기가 급하다"까지 한 번에 읽힌다.
+    /// ② 요구사항이 "이불에 들어가면 부적이 안 보인다"인데, <b>월드에 있어야 그게 규칙이 아니라 사실</b>이 된다
+    ///    (이불을 뒤집어썼으니 벽이 안 보이는 것). HUD였다면 임의의 룰로 느껴진다.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>연소는 이제 애니메이션이 아니라 값이다.</b> 옛 코드는 TalismanBurned(1회성)를 받아
+    /// 총 2.5초짜리 4단계 애니메이션을 재생하고 끝이었다. 부적이 60초에 걸쳐 타는 지금은
+    /// burn01을 단계에 <b>직접 매핑</b>한다 — 60초를 4단계로 나누면 15초에 한 칸이라 너무 거칠어서
+    /// 8단계를 기본으로 잡았다(배선된 스프라이트 수에 맞춰 자동으로 접힌다).
+    /// </para>
     /// </summary>
     public sealed class TalismanStatusView : MonoBehaviour
     {
-        [SerializeField] private Image talisman;
-        [SerializeField] private Sprite[] stageSprites = new Sprite[5]; // 0=멀쩡 … 4=완전 연소
-        [SerializeField] private float crisisSanityThreshold = 0.3f;
-        [SerializeField] private float crisisShakeAmplitude = 2.5f;   // px (1920×1080 기준)
-        [SerializeField] private float crisisShakeHz = 11f;
-        [SerializeField] private float[] burnStageSec = { 0.7f, 0.7f, 0.6f, 0.5f }; // 1→2→3→4 각 단계 체류
+        [SerializeField] private SpriteRenderer talisman;
+        [SerializeField] private Sprite[] stageSprites = new Sprite[8]; // 0=멀쩡 … 마지막=완전 연소
+        // 임계 구간 흔들림 — 비회복 풀은 후반까지 조용하다가 갑자기 끝나므로 예고가 반드시 있어야 한다
+        [SerializeField] private float criticalBurn01 = 0.83f;   // BalanceConfig.TalismanCriticalRemainSec와 같은 뜻 (10/60)
+        [SerializeField] private float shakeAmplitude = 0.03f;   // 월드 유닛
+        [SerializeField] private float shakeHz = 11f;
 
-        private RectTransform _rect;
-        private Vector2 _basePos;
-        private float _sanity01 = 1f;
-        private int _activeTelegraphs;
-        private bool _burned;
-        private float _burnTimer = -1f; // >= 0 = 연소 애니메이션 진행 중
+        private Vector3 _basePos;
+        private float _burn01;
         private int _shownStage = -1;
 
         private void Awake()
         {
-            _rect = talisman != null ? talisman.rectTransform : null;
-            if (_rect != null) _basePos = _rect.anchoredPosition;
+            if (talisman != null) _basePos = talisman.transform.localPosition;
         }
 
-        private void OnEnable()
-        {
-            GameEvents.TalismanBurned += HandleBurned;
-            GameEvents.SanityChanged += HandleSanityChanged;
-            GameEvents.AttackTelegraphStarted += HandleTelegraphStarted;
-            GameEvents.AttackResolved += HandleResolved;
-        }
+        private void OnEnable() => GameEvents.TalismanBurnChanged += HandleBurnChanged;
 
-        private void OnDisable()
-        {
-            GameEvents.TalismanBurned -= HandleBurned;
-            GameEvents.SanityChanged -= HandleSanityChanged;
-            GameEvents.AttackTelegraphStarted -= HandleTelegraphStarted;
-            GameEvents.AttackResolved -= HandleResolved;
-        }
+        private void OnDisable() => GameEvents.TalismanBurnChanged -= HandleBurnChanged;
 
-        private void HandleBurned()
-        {
-            if (_burned) return;
-            _burned = true;
-            _burnTimer = 0f;
-        }
-
-        private void HandleSanityChanged(float s01) => _sanity01 = s01;
-
-        private void HandleTelegraphStarted(int corner, float duration) => _activeTelegraphs++;
-
-        private void HandleResolved(int corner, bool countered)
-            => _activeTelegraphs = Mathf.Max(0, _activeTelegraphs - 1);
+        private void HandleBurnChanged(float burn01) => _burn01 = Mathf.Clamp01(burn01);
 
         private void Update()
         {
             if (talisman == null) return;
 
-            int stage;
-            bool shake = false;
-
-            if (_burned)
+            int stageCount = stageSprites != null ? stageSprites.Length : 0;
+            if (stageCount > 0)
             {
-                if (_burnTimer >= 0f)
+                // burn01 → 단계. 1.0(전소)이 마지막 칸을 넘지 않게 클램프
+                int stage = Mathf.Min(Mathf.FloorToInt(_burn01 * stageCount), stageCount - 1);
+                if (stage != _shownStage)
                 {
-                    _burnTimer += Time.unscaledDeltaTime;
-                    stage = BurnStageAt(_burnTimer);
-                    shake = true; // 타는 동안 떨림 — 잔불 연출
-                    float total = 0f;
-                    for (int i = 0; i < burnStageSec.Length; i++) total += burnStageSec[i];
-                    if (_burnTimer >= total)
-                    {
-                        stage = 4;
-                        _burnTimer = -1f; // 완료 — 4 고정
-                    }
-                }
-                else
-                {
-                    stage = 4; // 소모됨 표시 고정
-                }
-            }
-            else if (_sanity01 < crisisSanityThreshold && _activeTelegraphs > 0)
-            {
-                stage = 1; // 위기 프리뷰 — 은은한 그을림 (실제 소모 아님)
-                shake = true;
-            }
-            else
-            {
-                stage = 0;
-            }
-
-            if (stage != _shownStage)
-            {
-                _shownStage = stage;
-                if (stageSprites != null && stage < stageSprites.Length && stageSprites[stage] != null)
-                {
-                    talisman.sprite = stageSprites[stage];
+                    _shownStage = stage;
+                    if (stageSprites[stage] != null) talisman.sprite = stageSprites[stage];
                 }
             }
 
-            if (_rect != null)
+            Transform t = talisman.transform;
+            if (_burn01 >= criticalBurn01)
             {
-                if (shake)
-                {
-                    float t = Time.unscaledTime * crisisShakeHz;
-                    _rect.anchoredPosition = _basePos + new Vector2(
-                        (Mathf.PerlinNoise(t, 0.3f) - 0.5f) * 2f * crisisShakeAmplitude,
-                        (Mathf.PerlinNoise(0.7f, t) - 0.5f) * 2f * crisisShakeAmplitude);
-                }
-                else if (_rect.anchoredPosition != _basePos)
-                {
-                    _rect.anchoredPosition = _basePos;
-                }
+                float n = Time.unscaledTime * shakeHz; // 연출 계층 시간 — F1 배속에 끌려가지 않는다
+                t.localPosition = _basePos + new Vector3(
+                    (Mathf.PerlinNoise(n, 0.3f) - 0.5f) * 2f * shakeAmplitude,
+                    (Mathf.PerlinNoise(0.7f, n) - 0.5f) * 2f * shakeAmplitude,
+                    0f);
             }
-        }
-
-        /// <summary>연소 경과 시간 → 표시 단계 (1..4). burnStageSec를 순서대로 소진.</summary>
-        private int BurnStageAt(float elapsed)
-        {
-            float acc = 0f;
-            for (int i = 0; i < burnStageSec.Length; i++)
+            else if (t.localPosition != _basePos)
             {
-                acc += burnStageSec[i];
-                if (elapsed < acc) return Mathf.Min(1 + i, 4);
+                t.localPosition = _basePos;
             }
-            return 4;
         }
     }
 }

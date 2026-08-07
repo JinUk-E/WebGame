@@ -22,18 +22,18 @@ namespace Morae.Game.Presentation
 
         private float _visibleUntil;
         private float _alpha;
-        private bool _praying;   // 기도 중에는 계속 보인다 — 빛이 지나갈 길이 안 보이면 흐름이 안 읽힌다
+        private bool _salting;   // 뿌리는 중에는 계속 보인다 — 결계가 이어진 그림이 있어야 인과가 읽힌다
 
         private void OnEnable()
         {
             GameEvents.SaltAttentionRequested += HandleAttention;
-            GameEvents.PrayerChannelChanged += HandlePrayer;
+            GameEvents.SaltChannelChanged += HandleSaltChannel;
         }
 
         private void OnDisable()
         {
             GameEvents.SaltAttentionRequested -= HandleAttention;
-            GameEvents.PrayerChannelChanged -= HandlePrayer;
+            GameEvents.SaltChannelChanged -= HandleSaltChannel;
         }
 
         private void Start() => Apply(0f);
@@ -41,16 +41,16 @@ namespace Morae.Game.Presentation
         private void HandleAttention(int corner, float seconds)
             => _visibleUntil = Mathf.Max(_visibleUntil, Time.time + seconds + holdSec);
 
-        private void HandlePrayer(float progress01, int aimedCorner)
+        private void HandleSaltChannel(int corner, float progress01)
         {
-            _praying = progress01 > 0f;
-            // 기도가 끝나도 잔상처럼 잠깐 남긴다 — 빛이 닿은 자리가 곧바로 사라지면 인과가 끊긴다
-            if (!_praying) _visibleUntil = Mathf.Max(_visibleUntil, Time.time + holdSec * 0.5f);
+            _salting = progress01 > 0f;
+            // 다 뿌린 뒤에도 잔상처럼 잠깐 남긴다 — 고친 자리가 곧바로 사라지면 "복구됐다"가 안 읽힌다
+            if (!_salting) _visibleUntil = Mathf.Max(_visibleUntil, Time.time + holdSec * 0.5f);
         }
 
         private void Update()
         {
-            bool show = _praying || Time.time < _visibleUntil;
+            bool show = _salting || Time.time < _visibleUntil;
             float speed = show
                 ? 1f / Mathf.Max(0.01f, fadeInSec)
                 : 1f / Mathf.Max(0.01f, fadeOutSec);

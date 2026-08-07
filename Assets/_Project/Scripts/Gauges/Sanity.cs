@@ -7,12 +7,22 @@ using UnityEngine;
 namespace Morae.Game.Gauges
 {
     /// <summary>
-    /// 이성 0~100 (명세 §2). 시작 = BalanceConfig.SanityMax.
-    /// 하락: 공격 전조 −8(AttackScheduler가 ApplyDelta) / 연출 이벤트(EventDirector가 Epic 2에서 ApplyDelta) /
-    ///       귀 대기·걸쇠 개방 중 −3/s / 페이즈 상시 드레인(CurrentPhaseDef.PassiveSanityDrain — P4 이후 0.5/s).
-    /// 회복: TV 켜짐 +1/s, 이불 속 +3/s — 요의(UrgeActive) 동안 회복 무효 (하락은 그대로).
-    /// 0 = 공황 — Talisman.TryIntercept가 1회 가로채고(+30), 소모돼 있으면 GameOver(Panic).
-    /// 값 변화는 SanityChanged(0~1 정규화) 발행 — 표현(비네트·심박)은 구독만.
+    /// 이성 0~100. 시작 = BalanceConfig.SanityMax.
+    /// 하락: 공격 전조 −8(AttackScheduler) / 연출 이벤트(EventDirector) /
+    ///       <b>소금 뿌리는 중 −2/s</b> / 페이즈 상시 드레인(CurrentPhaseDef.PassiveSanityDrain) /
+    ///       진짜 신호를 듣고도 문을 안 여는 동안 −2/s.
+    /// 회복: TV 켜짐 +1/s, 이불 속 +3/s (단 <b>상한 75까지만</b>).
+    /// 0 = 공황 → 즉시 GameOver(Panic).
+    ///
+    /// <para>
+    /// <b>v0.7 변경 셋.</b>
+    /// ① <b>부적 가로채기 제거</b> — 이성 0이 곧 죽음이다. 부적은 이제 목숨이 아니라 타이머라 여기 개입하지 않는다.
+    /// ② <b>요의(UrgeActive) 제거</b> — 해소 경로가 요강 상호작용 하나뿐이었는데 그게 사라졌다.
+    ///    이벤트만 남기면 요의가 영구 지속돼 회복이 완전히 차단되므로 사슬 전체를 걷어냈다.
+    /// ③ <b>이불 회복 상한</b> — 무제한이면 420초 중 294초를 이불에서 보내는 게 최적해가 되어
+    ///    이성 축이 통째로 사라진다. 상한을 두면 이불은 만회 수단이 아니라 바닥 유지 수단이 된다.
+    /// 흑화 개수 상시 드레인도 뺐다 — 오염은 이미 부적을 태워서 벌을 받는다(이중 처벌).
+    /// </para>
     /// </summary>
     public sealed class Sanity : MonoBehaviour
     {
@@ -20,11 +30,10 @@ namespace Morae.Game.Gauges
         [SerializeField] private PhaseSequencer sequencer;
         [SerializeField] private PlayerController player;
         [SerializeField] private TvInteractable tv;
-        [SerializeField] private Talisman talisman;
-        [SerializeField] private SaltCorners salt; // v0.5 — 흑화 개수 상시 드레인 (같은 계층 직접 참조, §1.2)
 
         private bool _handlingZero;
-        // 진짜 신호가 온 뒤 아직 문을 열지 않은 상태 — 이 동안 추가 드레인 (v0.4, 판별 축 위험 부여)
+        private float _saltingAccum;   // 뿌리는 동안 누적한 손실 — 손을 뗄 때 한 번에 발행
+        // 진짜 신호가 온 뒤 아직 문을 열지 않은 상태 — 이 동안 추가 드레인 (판별 축에 실질 위험 부여)
         private bool _trueSignalPending;
 
         private void OnEnable() => GameEvents.TrueSignalStarted += HandleTrueSignalStarted;
@@ -40,8 +49,6 @@ namespace Morae.Game.Gauges
         public bool IsRunning { get; private set; }
         public float Value { get; private set; }
         public float Max => config != null ? config.SanityMax : 100f;
-        /// <summary>요의 발생~해소 동안 true — 회복 무효 (설정: EventDirector "urge" / 해소: JarInteractable).</summary>
-        public bool UrgeActive { get; private set; }
 
         /// <summary>본편 시작 — GameFlowController가 호출.</summary>
         public void Begin()
@@ -52,7 +59,6 @@ namespace Morae.Game.Gauges
                 return;
             }
             Value = config.SanityMax;
-            UrgeActive = false;
             _trueSignalPending = false;
             IsRunning = true;
             GameEvents.RaiseSanityChanged(1f);
@@ -61,27 +67,25 @@ namespace Morae.Game.Gauges
         /// <summary>게임오버·엔딩 시 정지.</summary>
         public void Stop() => IsRunning = false;
 
-        public void SetUrgeActive(bool active)
-        {
-            if (UrgeActive == active) return;
-            UrgeActive = active;
-            GameEvents.RaiseUrgeChanged(active); // v1.6 — 심장 UI가 구독
-            Debug.Log($"[SANITY] 요의 {(active ? "발생 — 회복 무효" : "해소 — 회복 재개")}");
-        }
-
         /// <summary>
-        /// 이산 증감 (전조 −8, 연출 −10 등). 양수 델타는 요의 중 무효.
-        /// 부적 복구는 ForceRestore 사용 (회복 무효 규칙을 우회 — 게임오버 방어는 "회복"이 아니다).
+        /// 이산 증감 (전조 −8, 연출 −10 등). 감소면 <see cref="GameEvents.SanityLost"/>를 함께 발행한다 —
+        /// 값 추종만으로는 이 크기의 손실이 화면에서 보이지 않는다(GameEvents 주석 참조).
         /// </summary>
         public void ApplyDelta(float delta)
         {
             if (!IsRunning) return;
-            if (delta > 0f && UrgeActive) return;
+            float before = Value;
             Apply(delta);
+            RaiseLossIfAny(before);
         }
 
-        /// <summary>부적 발동 복구 (+30) — 요의 회복 무효를 우회.</summary>
-        public void ForceRestore(float amount) => Apply(amount);
+        /// <summary>실제로 줄어든 만큼을 정규화해 발행. 클램프로 덜 깎였으면 그 값이 나간다.</summary>
+        private void RaiseLossIfAny(float before)
+        {
+            float lost = before - Value;
+            if (lost <= 0f || Max <= 0f) return;
+            GameEvents.RaiseSanityLost(lost / Max);
+        }
 
         private void Update()
         {
@@ -93,30 +97,45 @@ namespace Morae.Game.Gauges
             PhaseDef phase = sequencer != null ? sequencer.CurrentPhaseDef : null;
             if (phase != null) delta -= phase.PassiveSanityDrain * dt;
 
-            // v0.5 §1 — 흑화 귀퉁이 1개당 상시 −0.15/s. 페이즈 상시 드레인과 **별도로 누적**된다.
-            // 하나 버릴 때마다 그 자리에서 대가가 생기게 하는 장치 (붕괴 시점에 벌이 몰리던 문제).
-            if (salt != null)
-            {
-                delta -= CornerPenaltyModel.SanityDrainPerSec(
-                    salt.BlackCornerCount, config.BlackCornerSanityDrainPerSec) * dt;
-            }
-
             // 진짜 신호를 듣고도 문을 열지 않는 동안 — "기다리기만 하면 안전"을 깬다
             if (_trueSignalPending) delta -= config.TrueSignalIgnoreDrainPerSec * dt;
 
+            // [v0.7] 귀 대기 −3/s 제거. 두 가지 이유다:
+            //   ① 체감이 안 된다 — 초당 0.03의 정규화 변화라 비네트도 심박도 움직이지 않는다.
+            //      대가는 보여야 대가고, 안 보이는 감소는 "이유 없이 죽었다"로만 남는다.
+            //   ② 이제 문 앞에 머무는 진짜 대가가 따로 있다 — 그동안 소금이 더러워지면 부적이 탄다.
+            //      시간 자체가 자원이 된 뒤로 이 드레인은 같은 벌을 두 번 물리는 것에 가깝다.
+            //   진짜 신호 무응답 드레인(_trueSignalPending)은 남긴다 — 그건 "듣고도 안 여는" 판단에 붙은 벌이라
+            //   성격이 다르고, 문 앞에 있든 없든 걸린다.
             PlayerState state = player.State;
-            if (state == PlayerState.ListeningAtDoor || state == PlayerState.OpeningDoor)
+            bool salting = state == PlayerState.Salting;
+            if (salting)
             {
-                delta -= config.SanityDoorDrainPerSec * dt; // 걸쇠 개방 중에도 문에 붙어 있음 — 드레인 유지 (결정 기록)
+                // v0.7 — 소금을 뿌리는 대가. 홀드 1.5s × 3.0 = 1회당 −4.5.
+                // 매 프레임 손실은 너무 잘아서 연출이 안 된다 — 뿌리는 동안 모았다가
+                // 손을 뗀 순간 **한 덩어리로** SanityLost를 낸다. "다 뿌리고 나니 대가를 치렀다"가 한 번에 읽힌다.
+                float drain = config.SaltSanityDrainPerSec * dt;
+                delta -= drain;
+                _saltingAccum += drain;
+            }
+            else if (_saltingAccum > 0f)
+            {
+                if (Max > 0f) GameEvents.RaiseSanityLost(_saltingAccum / Max);
+                _saltingAccum = 0f;
             }
 
-            if (!UrgeActive)
-            {
-                if (tv != null && tv.IsOn) delta += config.SanityTvRegenPerSec * dt;
-                if (state == PlayerState.InBlanket) delta += config.SanityBlanketRegenPerSec * dt;
-            }
+            if (tv != null && tv.IsOn) delta += config.SanityTvRegenPerSec * dt;
+            if (state == PlayerState.InBlanket) delta += BlanketRegenDelta(dt);
 
             if (delta != 0f) Apply(delta);
+        }
+
+        /// <summary>이불 회복 — 상한(SanityBlanketRegenCeiling)을 넘지 않는 만큼만.</summary>
+        private float BlanketRegenDelta(float dt)
+        {
+            float ceiling = config.SanityBlanketRegenCeiling;
+            if (Value >= ceiling) return 0f;
+            return Mathf.Min(config.SanityBlanketRegenPerSec * dt, ceiling - Value);
         }
 
         private void Apply(float delta)
@@ -128,14 +147,10 @@ namespace Morae.Game.Gauges
 
             if (Value > 0f || _handlingZero || !IsRunning) return;
 
-            // 이성 0 = 공황 — 부적 1회 가로채기, 2회째는 그대로 게임오버
             _handlingZero = true;
-            if (talisman == null || !talisman.TryIntercept(TalismanTrigger.Panic))
-            {
-                Debug.Log("[SANITY] 이성 0 — 공황");
-                IsRunning = false;
-                GameEvents.RaiseGameOver(GameOverReason.Panic);
-            }
+            Debug.Log("[SANITY] 이성 0 — 공황");
+            IsRunning = false;
+            GameEvents.RaiseGameOver(GameOverReason.Panic);
             _handlingZero = false;
         }
     }

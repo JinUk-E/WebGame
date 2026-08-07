@@ -16,16 +16,39 @@ MonoBehaviour:
   sanityMax: 100
   sanityTvRegenPerSec: 1
   sanityBlanketRegenPerSec: 3
-  sanityDoorDrainPerSec: 3
+  sanityBlanketRegenCeiling: 75
   sanityTelegraphHit: 8
-  prayerChannelSec: 2.5
+  saltSanityDrainPerSec: 3
+  saltHoldSec: 1.5
+  saltProgressDecayPerSec: 0.25
   doorOpenHoldSec: 1.5
-  jarLockSec: 5
-  blanketExitSec: 1
+  doorArmingSec: 0.3
+  blanketExitSec: 0.5
   tvAttackClockRate: 1.333333
+  minAttackGapSec: 12
+  trapVoiceLeadSec: 9
+  trapQuietSec: 5
   trapTelegraphSec: 4.5
-  talismanSaltRestore: 1
-  talismanSanityRestore: 30
-  talismanFxSec: 3
+  trapWaveGapSec: 5
+  trapWaveCount: 2
+  blackCornerLightPenalty: 0.018
+  minRoomLight: 0.055
+  roomLightSmoothSec: 0.3
+  blackCornerSanityDrainPerSec: 0
+  blackCornerAttackIntervalReduction: 0
+  minAttackIntervalScale: 0.6
+  cornerWhisperVolumes:
+  - 0
+  - 0.14
+  - 0.42
+  prologueLineMinShowSec: 0.3
+  prologueWarningSec: 6
+  prologueTelegraphTravelSec: 11
+  prologueRetryGapSec: 3.5
+  prologueMaxAttempts: 3
+  talismanTotalSec: 60
+  talismanCriticalRemainSec: 10
+  endingPerfectRemainSec: 18
   rescueAutoOpenDelaySec: 60
+  trueSignalIgnoreDrainPerSec: 2
   prologueSkipAvailable: 1
