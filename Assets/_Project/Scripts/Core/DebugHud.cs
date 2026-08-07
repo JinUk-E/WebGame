@@ -42,14 +42,15 @@ namespace Morae.Game.Core
             string attack = scheduler != null
                 ? $"공격시계 {scheduler.LocalAttackClock:F1}s | 전조 {scheduler.ActiveTelegraphCount} | 다음 {scheduler.NextAttackId}@{scheduler.NextAttackTime:F1}s"
                 : "공격 스케줄러 없음";
-            // v0.5 — 흑 개수 n과 심화 표시. 감광·드레인·공격 가속이 전부 이 n에 걸려 있어 검증의 기준값이다.
+            // 흑 개수 n은 감광의 기준값. 더러운 곳 수는 부적이 타는 조건이라 따로 본다.
             string saltText = salt != null
-                ? $"[{Cell(0)}{Cell(1)}{Cell(2)}{Cell(3)}] 흑{salt.BlackCornerCount}"
+                ? $"[{Cell(0)}{Cell(1)}{Cell(2)}{Cell(3)}] 흑{salt.BlackCornerCount} 더러움{salt.ContaminatedCornerCount}"
                 : "-";
-            string sanityText = sanity != null
-                ? $"{sanity.Value:F0}/{sanity.Max:F0}{(sanity.UrgeActive ? " (요의)" : "")}"
+            string sanityText = sanity != null ? $"{sanity.Value:F0}/{sanity.Max:F0}" : "-";
+            // v0.7 — 부적은 보유/소모가 아니라 남은 시간이다. 엔딩 등급이 여기서 갈리므로 초 단위로 본다.
+            string talismanText = talisman != null
+                ? $"{talisman.RemainingSec:F1}/{talisman.TotalSec:F0}s{(talisman.IsCritical ? " ⚠임계" : "")}"
                 : "-";
-            string talismanText = talisman != null ? (talisman.Consumed ? "소모" : "보유") : "-";
             string playerText = player != null ? player.State.ToString() : "-";
             string doorText = door != null ? $"{door.Door} {door.LatchProgress01:P0}" : "-";
 
@@ -60,9 +61,8 @@ namespace Morae.Game.Core
                    + $"플레이어 {playerText} | 문 {doorText}";
         }
 
-        /// <summary>귀퉁이 1칸 표기 — 흑+심화는 3으로 (SaltCorners 내부 단계는 0~2, 심화는 별도 플래그).</summary>
-        private string Cell(int corner)
-            => salt == null ? "-" : (salt.IsDeepened(corner) ? 3 : salt.GetStage(corner)).ToString();
+        /// <summary>귀퉁이 1칸 표기 — 단계 0~2 (v0.7에서 심화 단계가 사라졌다).</summary>
+        private string Cell(int corner) => salt == null ? "-" : salt.GetStage(corner).ToString();
 
         private void OnGUI()
         {

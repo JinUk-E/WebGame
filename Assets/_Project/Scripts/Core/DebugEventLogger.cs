@@ -21,7 +21,7 @@ namespace Morae.Game.Core
             GameEvents.AttackResolved += OnAttackResolved;
             GameEvents.CornerStageChanged += OnCornerStageChanged;
             GameEvents.SanityChanged += OnSanityChanged;
-            GameEvents.TalismanBurned += OnTalismanBurned;
+            GameEvents.TalismanBurnChanged += OnTalismanBurnChanged;
             GameEvents.GameEventFired += OnGameEventFired;
             GameEvents.TrueSignalStarted += OnTrueSignalStarted;
             GameEvents.PlayerStateChanged += OnPlayerStateChanged;
@@ -29,10 +29,8 @@ namespace Morae.Game.Core
             GameEvents.GameOver += OnGameOver;
             GameEvents.EndingStarted += OnEndingStarted;
             GameEvents.DoorLatchProgressChanged += OnDoorLatchProgressChanged;
-            GameEvents.PrayerChannelChanged += OnPrayerChannelChanged;
-            GameEvents.JarChannelChanged += OnJarChannelChanged;
+            GameEvents.SaltChannelChanged += OnSaltChannelChanged;
             GameEvents.BlanketExitChanged += OnBlanketExitChanged;
-            GameEvents.UrgeChanged += OnUrgeChanged;
         }
 
         private void OnDisable()
@@ -42,7 +40,7 @@ namespace Morae.Game.Core
             GameEvents.AttackResolved -= OnAttackResolved;
             GameEvents.CornerStageChanged -= OnCornerStageChanged;
             GameEvents.SanityChanged -= OnSanityChanged;
-            GameEvents.TalismanBurned -= OnTalismanBurned;
+            GameEvents.TalismanBurnChanged -= OnTalismanBurnChanged;
             GameEvents.GameEventFired -= OnGameEventFired;
             GameEvents.TrueSignalStarted -= OnTrueSignalStarted;
             GameEvents.PlayerStateChanged -= OnPlayerStateChanged;
@@ -50,27 +48,24 @@ namespace Morae.Game.Core
             GameEvents.GameOver -= OnGameOver;
             GameEvents.EndingStarted -= OnEndingStarted;
             GameEvents.DoorLatchProgressChanged -= OnDoorLatchProgressChanged;
-            GameEvents.PrayerChannelChanged -= OnPrayerChannelChanged;
-            GameEvents.JarChannelChanged -= OnJarChannelChanged;
+            GameEvents.SaltChannelChanged -= OnSaltChannelChanged;
             GameEvents.BlanketExitChanged -= OnBlanketExitChanged;
-            GameEvents.UrgeChanged -= OnUrgeChanged;
         }
 
         private static void OnPhaseChanged(PhaseId phase) => Debug.Log($"[EVT] PhaseChanged → {phase}");
         private static void OnTelegraphStarted(int corner, float duration)
             => Debug.Log($"[EVT] AttackTelegraphStarted corner={corner} dur={duration:F1}s");
-        private static void OnAttackResolved(int corner, bool countered)
-            => Debug.Log($"[EVT] AttackResolved corner={corner} {(countered ? "상쇄" : "오염")}");
+        // v0.7: countered=true는 이제 "폐기(게임오버·엔딩으로 전조를 접었다)"만 뜻한다 — 상쇄 개념은 사라졌다
+        private static void OnAttackResolved(int corner, bool discarded)
+            => Debug.Log($"[EVT] AttackResolved corner={corner} {(discarded ? "폐기" : "오염")}");
         private static void OnCornerStageChanged(int corner, int stage)
             => Debug.Log($"[EVT] CornerStageChanged corner={corner} stage={stage}");
-        private static void OnTalismanBurned() => Debug.Log("[EVT] TalismanBurned");
         private static void OnGameEventFired(EventDef def) => Debug.Log($"[EVT] GameEventFired id={def.Id} kind={def.Kind}");
         private static void OnTrueSignalStarted() => Debug.Log("[EVT] TrueSignalStarted");
         private static void OnPlayerStateChanged(PlayerState state) => Debug.Log($"[EVT] PlayerState → {state}");
         private static void OnTVToggled(bool isOn) => Debug.Log($"[EVT] TVToggled → {(isOn ? "ON" : "OFF")}");
         private static void OnGameOver(GameOverReason reason) => Debug.Log($"[EVT] GameOver reason={reason}");
         private static void OnEndingStarted(EndingKind kind) => Debug.Log($"[EVT] EndingStarted kind={kind}");
-        private static void OnUrgeChanged(bool active) => Debug.Log($"[EVT] UrgeChanged → {(active ? "발생" : "해소")}");
 
         private void OnSanityChanged(float s01)
         {
@@ -88,24 +83,24 @@ namespace Morae.Game.Core
             Debug.Log($"[EVT] DoorLatchProgress ≈ {p01 * 100f:F0}%");
         }
 
-        private int _prayerBucket = int.MinValue; // 25% 단위 — 연속 값 스팸 방지 규약 동일
-        private int _jarBucket = int.MinValue;
+        private int _saltBucket = int.MinValue; // 25% 단위 — 연속 값 스팸 방지 규약 동일
         private int _blanketBucket = int.MinValue;
+        private int _burnBucket = int.MinValue;
 
-        private void OnPrayerChannelChanged(float p01, int aimedCorner)
+        private void OnSaltChannelChanged(int corner, float p01)
         {
-            int bucket = Mathf.FloorToInt(p01 * 4f) * 10 + aimedCorner; // 진행 버킷+조준 변화 모두 감지
-            if (bucket == _prayerBucket) return;
-            _prayerBucket = bucket;
-            Debug.Log($"[EVT] PrayerChannel ≈ {p01 * 100f:F0}% aim={aimedCorner}");
+            int bucket = Mathf.FloorToInt(p01 * 4f) * 10 + corner; // 진행 버킷+대상 변화 모두 감지
+            if (bucket == _saltBucket) return;
+            _saltBucket = bucket;
+            Debug.Log($"[EVT] SaltChannel corner={corner} ≈ {p01 * 100f:F0}%");
         }
 
-        private void OnJarChannelChanged(float p01)
+        private void OnTalismanBurnChanged(float burn01)
         {
-            int bucket = Mathf.FloorToInt(p01 * 4f);
-            if (bucket == _jarBucket) return;
-            _jarBucket = bucket;
-            Debug.Log($"[EVT] JarChannel ≈ {p01 * 100f:F0}%");
+            int bucket = Mathf.FloorToInt(burn01 * 8f); // 12.5% 단위 — 부적 스프라이트 단계와 같은 해상도
+            if (bucket == _burnBucket) return;
+            _burnBucket = bucket;
+            Debug.Log($"[EVT] TalismanBurn ≈ {burn01 * 100f:F0}%");
         }
 
         private void OnBlanketExitChanged(float p01)

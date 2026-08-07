@@ -80,10 +80,12 @@ namespace Morae.Game.Core
             Debug.Log($"[EVENT] {def.Id} 발화 ({def.Kind}, {def.Channel})");
             GameEvents.RaiseGameEventFired(def);
 
-            if (sanity != null)
+            // [v0.7] "urge"(요의) 특수 처리 삭제. 해소 경로가 요강 상호작용 하나뿐이었는데 그게 사라져서,
+            // 이 분기만 남기면 요의가 영구 지속되고 회복이 완전히 차단돼 확정 사망한다.
+            // EventTable의 urge 행도 함께 제거할 것 (없으면 그냥 일반 연출 이벤트로 발화하고 끝난다).
+            if (sanity != null && !Mathf.Approximately(def.SanityDelta, 0f))
             {
-                if (!Mathf.Approximately(def.SanityDelta, 0f)) sanity.ApplyDelta(def.SanityDelta);
-                if (def.Id == "urge") sanity.SetUrgeActive(true); // 해소는 JarInteractable (FR-15)
+                sanity.ApplyDelta(def.SanityDelta);
             }
 
             if (def.IsTrueSignal)

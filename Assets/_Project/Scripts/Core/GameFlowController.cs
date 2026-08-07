@@ -18,6 +18,8 @@ namespace Morae.Game.Core
         [SerializeField] private PhaseSequencer phaseSequencer;
         [SerializeField] private AttackScheduler attackScheduler;
         [SerializeField] private Sanity sanity;
+        // v0.7 신규 배선 — 씬에서 Systems/Talisman을 여기에 물려야 한다 (미배선이면 부적이 타지 않는다)
+        [SerializeField] private Talisman talisman;
         [SerializeField] private PlayerController player;
         [SerializeField] private PrologueDirector prologueDirector;
         [SerializeField] private TitleScreenView titleScreen;
@@ -98,6 +100,9 @@ namespace Morae.Game.Core
             phaseSequencer.Begin(); // 시퀀서 먼저 — 스케줄러·게이지가 페이즈를 읽는 쪽 (§4 의존 방향)
             if (attackScheduler != null) attackScheduler.Begin(SessionContext.Seed);
             if (sanity != null) sanity.Begin();
+            // v0.7 — 부적이 시간 축을 갖게 되면서 Sanity와 같은 생명주기 게이트가 필요해졌다.
+            // 이걸 빠뜨리면 부적이 영영 타지 않아 게임오버 축 하나가 통째로 죽는다 (조용히 실패한다).
+            if (talisman != null) talisman.Begin();
         }
 
         private void HandleTrueSignalStarted()
@@ -131,6 +136,7 @@ namespace Morae.Game.Core
             phaseSequencer.StopSequence();
             if (attackScheduler != null) attackScheduler.Stop();
             if (sanity != null) sanity.Stop();
+            if (talisman != null) talisman.Stop(); // 멈추지 않으면 엔딩 화면 뒤에서 계속 타다 게임오버를 낸다
         }
 
         private void Update()
