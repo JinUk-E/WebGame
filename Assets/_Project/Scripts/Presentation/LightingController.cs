@@ -20,6 +20,11 @@ namespace Morae.Game.Presentation
     ///   ① 창밖 여명(windowDawnLight) — 진실 채널. 소금 상태·bias 어느 것도 섞지 않는다.
     ///   ② 불상 촛불(buddhaCandleLight) — 항상 일정. 암전 시 "기도하러 갈 곳"이 등대가 되어 행동을 지시한다.
     ///   ③ 공격 전조 점멸(telegraphIntensity) — 감광 무관 원래 강도. 어두울수록 화면에서 가장 밝은 것이 된다.
+    ///
+    /// v0.6.1 — **프롤로그 학습 구간 한정** 스포트라이트(TrainingModeChanged 구독): 실내 전역광 ×trainingRoomDimScale,
+    ///   촛불 ×(1+trainingCandleBoost). 예외 3종을 깨지 않는다(여명 무개입 / 촛불은 위로만 / 전조는 원래 강도)이며
+    ///   배율은 클램프 **전에** 곱해 minRoomLight 바닥을 지킨다. 학습이 끝나면 배율이 정확히 1로 돌아온다
+    ///   (<see cref="Core.TrainingStageModel"/> — 본편에 잔여 감광이 남으면 밸런스가 통째로 어긋난다).
     /// </summary>
     public sealed class LightingController : MonoBehaviour
     {
@@ -52,6 +57,15 @@ namespace Morae.Game.Presentation
         [SerializeField] private float candleFlareSec = 0.6f;
         [SerializeField] private float candleFlareBoost = 0.9f;
 
+        [Header("v0.6.1 — 학습 구간 스포트라이트 (프롤로그 한정)")]
+        // 어두운 방에서 후광만으로는 "저기가 목적지"가 안 읽힌다. 학습 동안만 실내 전역광을 한 단계 더 내리고
+        // 불상 촛불(반경 2.8u 포인트 라이트)을 올려 **불상 주변만** 남긴다 — 시선이 갈 곳이 하나가 된다.
+        // ⚠ 감광 예외 3종은 그대로다: 창밖 여명 무개입 / 촛불은 위로만 / 전조 점멸은 원래 강도.
+        //   배율은 minRoomLight 클램프 **전에** 곱해지므로 바닥도 뚫리지 않는다 (CornerPenaltyModel).
+        //   본편 잔여 방지: 배율의 소유는 TrainingStageModel이고, 학습이 꺼지면 정확히 1을 돌려준다.
+        [SerializeField, Range(TrainingStageModel.MinDimScale, 1f)] private float trainingRoomDimScale = 0.55f;
+        [SerializeField] private float trainingCandleBoost = 0.7f;
+
 #if UNITY_EDITOR
         // 이 블록은 에디터에서만 컴파일된다 — 빌드 산출물에는 필드도 로직도 남지 않는다.
         // 컨트롤러가 매 프레임 전역광을 덮어쓰기 때문에 인스펙터로 밝기를 올려도 즉시 되돌아가던 작업 불편을 푼다.
@@ -70,6 +84,8 @@ namespace Morae.Game.Presentation
         private int _blackCount;
         private float _smoothedGlobal = -1f; // 첫 프레임은 목표값으로 스냅 (페이드인 없이 시작)
         private float _candleFlareUntil;     // v0.6 — 전조 시 촛불이 위로만 튀는 구간
+        private bool _trainingActive;        // v0.6.1 — 프롤로그 학습 구간 스포트라이트
+        private float _smoothedCandleScale = 1f; // 촛불 배율도 러프 — 학습 종료 시 뚝 끊기지 않게
 
         private float MinRoomLight => config != null ? config.MinRoomLight : globalMinIntensity;
         private float LightPenalty => config != null ? config.BlackCornerLightPenalty : 0f;
@@ -81,6 +97,7 @@ namespace Morae.Game.Presentation
             GameEvents.CornerStageChanged += HandleCornerStage;
             GameEvents.AttackTelegraphStarted += HandleTelegraphStarted;
             GameEvents.AttackResolved += HandleAttackResolved;
+            GameEvents.TrainingModeChanged += HandleTrainingModeChanged;
         }
 
         private void OnDisable()
@@ -89,6 +106,7 @@ namespace Morae.Game.Presentation
             GameEvents.CornerStageChanged -= HandleCornerStage;
             GameEvents.AttackTelegraphStarted -= HandleTelegraphStarted;
             GameEvents.AttackResolved -= HandleAttackResolved;
+            GameEvents.TrainingModeChanged -= HandleTrainingModeChanged;
         }
 
         private void Start()
@@ -123,6 +141,17 @@ namespace Morae.Game.Presentation
             _telegraphCount[corner] = Mathf.Max(0, _telegraphCount[corner] - 1);
         }
 
+        /// <summary>
+        /// 학습 구간 스포트라이트 — 켜고 끄는 것은 이 이벤트 하나뿐이다(끄는 쪽이 유실되면 본편이 계속 어둡다).
+        /// AttackScheduler는 Begin/Stop/EndTraining **모든 경로**에서 false를 발행한다.
+        /// </summary>
+        private void HandleTrainingModeChanged(bool active)
+        {
+            _trainingActive = active;
+            Debug.Log($"[LIGHT] 학습 스포트라이트 {(active ? "ON" : "OFF — 실내 조도 원복")}" +
+                      $" (배율 {TrainingStageModel.RoomDimScale(active, trainingRoomDimScale):F2})");
+        }
+
         private void Update()
         {
             float dt = Time.deltaTime;
@@ -136,7 +165,8 @@ namespace Morae.Game.Presentation
             if (globalLight != null)
             {
                 float target = CornerPenaltyModel.RoomLightIntensity(
-                    globalBase, dawn, globalDawnBoost, bias, _blackCount, LightPenalty, MinRoomLight);
+                    globalBase, dawn, globalDawnBoost, bias, _blackCount, LightPenalty, MinRoomLight,
+                    TrainingStageModel.RoomDimScale(_trainingActive, trainingRoomDimScale));
                 _smoothedGlobal = _smoothedGlobal < 0f
                     ? target
                     : Mathf.Lerp(_smoothedGlobal, target, CornerPenaltyModel.SmoothFactor(dt, SmoothSec));
@@ -162,15 +192,22 @@ namespace Morae.Game.Presentation
         private void UpdateCandle()
         {
             if (buddhaCandleLight == null) return;
+
+            // v0.6.1 학습 스포트라이트 — 촛불은 **위로만**(예외② 유지). 러프해서 학습 종료가 뚝 끊기지 않게.
+            float candleTarget = TrainingStageModel.CandleScale(_trainingActive, trainingCandleBoost);
+            _smoothedCandleScale = Mathf.Lerp(_smoothedCandleScale, candleTarget,
+                CornerPenaltyModel.SmoothFactor(Time.deltaTime, SmoothSec));
+            float baseIntensity = candleIntensity * _smoothedCandleScale;
+
             float left = _candleFlareUntil - Time.time;
             if (left <= 0f)
             {
-                buddhaCandleLight.intensity = candleIntensity;
+                buddhaCandleLight.intensity = baseIntensity;
                 return;
             }
             float k = Mathf.Clamp01(left / Mathf.Max(0.01f, candleFlareSec));
             float flicker = 0.6f + 0.4f * Mathf.Sin(Time.time * 11f);
-            buddhaCandleLight.intensity = candleIntensity * (1f + candleFlareBoost * k * flicker);
+            buddhaCandleLight.intensity = baseIntensity * (1f + candleFlareBoost * k * flicker);
         }
 
 #if UNITY_EDITOR

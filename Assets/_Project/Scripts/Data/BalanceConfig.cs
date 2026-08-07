@@ -21,7 +21,12 @@ namespace Morae.Game.Data
         [SerializeField] private float sanityTelegraphHit = 8f;        // 공격 전조 발생 −8
 
         [Header("상호작용 (명세 §3)")]
-        [SerializeField] private float prayerChannelSec = 3f;          // 기도 채널
+        // ⚠ 이 값과 AttackDef.telegraphDuration은 **한 쌍의 부등식**이다 (v0.6.1 능동 방어 타이밍 정정).
+        //   ① 상쇄 성립:   channel + 이동 여유 ≤ telegraph        (여유 없으면 전조를 보고 출발해도 항상 늦는다)
+        //   ② 트리아지 보존: channel × 2 > telegraph              (한 전조 창에 두 곳을 막을 수 없다)
+        //   ③ 심화의 벌:   channel × 1.5 ≤ telegraph, 단 여유 없음 (불상 앞에 미리 서 있어야만 가능)
+        // 셋 다 EditMode CounterTimingTests가 실제 SO 에셋 값으로 검사한다 — 여기를 만지면 그 테스트를 볼 것.
+        [SerializeField] private float prayerChannelSec = 2.5f;        // 기도 채널 (v0.6.1: 3.0 → 2.5)
         [SerializeField] private float doorOpenHoldSec = 1.5f;         // 걸쇠 열기 홀드
         [SerializeField] private float jarLockSec = 5f;                // 요강 무방비
         [SerializeField] private float blanketExitSec = 1f;            // 이불에서 나오는 시간
@@ -32,12 +37,14 @@ namespace Morae.Game.Data
         [Header("최후의 함정 (명세 v0.3 — P6 시퀀스, 실시간 기준·TV 배속 무관)")]
         [SerializeField] private float trapVoiceLeadSec = 9f;          // 가짜 목소리 ② 발화 구간 (P6 진입~대사 종료)
         [SerializeField] private float trapQuietSec = 5f;              // 완전 무공격 정적 (소금 전조 금지 — 고민 구간)
-        [SerializeField] private float trapTelegraphSec = 3f;          // 함정 웨이브 전조 길이
+        // 함정 웨이브 전조 길이 — 스케줄 공격의 telegraphDuration과 **같은 값을 유지**한다.
+        // 다르면 "전조 길이"라는 학습된 감각이 P6에서만 어긋나 상쇄가 되던 손이 갑자기 안 먹는다.
+        [SerializeField] private float trapTelegraphSec = 4.5f;        // (v0.6.1: 3.0 → 4.5)
         [SerializeField] private float trapWaveGapSec = 5f;            // 웨이브 판정 → 다음 웨이브 전조 시작 간격
         [SerializeField] private int trapWaveCount = 2;                // 4귀퉁이 동시 공격 횟수
 
         [Header("흑화 심화 (명세 v0.3 — 흑 귀퉁이 추가 피격 시 1회 플래그)")]
-        [SerializeField] private float prayerDeepenedMultiplier = 1.5f; // 심화 귀퉁이 기도 채널 배율 (3s → 4.5s)
+        [SerializeField] private float prayerDeepenedMultiplier = 1.5f; // 심화 귀퉁이 기도 채널 배율 (2.5s → 3.75s)
 
         // ---- 명세 v0.5 §1 — 흑화 귀퉁이당 즉시 대가 (흑 개수 n에 선형 누적) ----
         // "벌이 4개 붕괴 시점에 한 번에 오므로 하나 버렸다가 아무 느낌이 없다"를 깨는 장치.

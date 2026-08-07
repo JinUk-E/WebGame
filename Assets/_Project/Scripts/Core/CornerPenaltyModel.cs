@@ -33,9 +33,20 @@ namespace Morae.Game.Core
         /// </summary>
         public static float RoomLightIntensity(float baseIntensity, float dawn01, float dawnBoost,
             float roomLightBias, int blackCorners, float penaltyPerCorner, float minRoomLight)
+            => RoomLightIntensity(baseIntensity, dawn01, dawnBoost, roomLightBias, blackCorners,
+                penaltyPerCorner, minRoomLight, 1f);
+
+        /// <summary>
+        /// 위와 같되 <paramref name="dimScale"/>(연출용 배율)을 <b>클램프 전에</b> 곱한다 —
+        /// 클램프 뒤에 곱하면 바닥(minRoomLight)이 뚫린다. "합산 후 1회 클램프" 규칙은 그대로다.
+        /// 현재 유일한 사용처는 프롤로그 학습 구간의 스포트라이트 대비(v0.6.1)이며,
+        /// 학습이 끝나면 dimScale=1로 돌아와 원래 값과 **완전히 같아진다**(잔여 효과 없음).
+        /// </summary>
+        public static float RoomLightIntensity(float baseIntensity, float dawn01, float dawnBoost,
+            float roomLightBias, int blackCorners, float penaltyPerCorner, float minRoomLight, float dimScale)
         {
             float raw = baseIntensity + dawn01 * dawnBoost + roomLightBias - penaltyPerCorner * Mathf.Max(0, blackCorners);
-            return Mathf.Max(minRoomLight, raw);
+            return Mathf.Max(minRoomLight, raw * Mathf.Clamp01(dimScale));
         }
 
         /// <summary>흑화 상시 이성 드레인(양수 크기, /초). 페이즈 상시 드레인과 **별도로 누적**된다.</summary>

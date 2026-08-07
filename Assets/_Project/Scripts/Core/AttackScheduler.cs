@@ -73,7 +73,7 @@ namespace Morae.Game.Core
                 return;
             }
 
-            _onTrainingResolved = null;
+            ClearTrainingMode();
             _schedule = AttackScheduleBuilder.Build(attackTable, phaseTable, seed);
             _next = 0;
             _phaseIndex = sequencer.CurrentPhaseIndex;
@@ -89,8 +89,21 @@ namespace Morae.Game.Core
         public void Stop()
         {
             IsRunning = false;
-            _onTrainingResolved = null;
+            ClearTrainingMode();
             DiscardActiveTelegraphs();
+        }
+
+        /// <summary>
+        /// 학습 모드를 내리면서 **반드시 TrainingModeChanged(false)를 발행**한다.
+        /// 조용히 <c>_onTrainingResolved = null</c>만 하면 학습 연출을 구독한 표현 계층
+        /// (LightingController 스포트라이트·DestinationMarkerView)이 켜진 채로 굳어
+        /// 본편이 어두운 방 + 목적지 서클을 달고 시작한다 — DiscardActiveTelegraphs와 같은 종류의 함정이다.
+        /// </summary>
+        private void ClearTrainingMode()
+        {
+            if (_onTrainingResolved == null) return;
+            _onTrainingResolved = null;
+            GameEvents.RaiseTrainingModeChanged(false);
         }
 
         /// <summary>
@@ -149,10 +162,9 @@ namespace Morae.Game.Core
         public void EndTraining()
         {
             if (!IsTraining) return;
-            _onTrainingResolved = null;
             IsRunning = false;
+            ClearTrainingMode();
             DiscardActiveTelegraphs(); // 조용히 비우면 조명·소금 뷰의 전조 연출이 굳는다
-            GameEvents.RaiseTrainingModeChanged(false);
             Debug.Log("[ATTACK] 학습 모드 종료");
         }
 
@@ -428,6 +440,10 @@ namespace Morae.Game.Core
         {
             var sb = new StringBuilder(256); // Begin 1회 — 핫패스 아님
             sb.Append($"[ATTACK] 스케줄 확정 (seed={seed}, {_schedule.Length}건 + 함정 {config.TrapWaveCount}웨이브):");
+            // 능동 방어 부등식을 실수치로 한 줄 남긴다 — 두 파일에 흩어진 수치의 **관계**가 깨졌는지는
+            // 각 값만 봐서는 안 보인다 (v0.6.1 이전 3.0s/3.0s 사고). 회귀 방어는 CounterTimingTests.
+            float telegraph = _schedule.Length > 0 ? _schedule[0].TelegraphDuration : config.TrapTelegraphSec;
+            sb.Append($"\n  [타이밍] {CounterTimingModel.Describe(config.PrayerChannelSec, telegraph, config.PrayerDeepenedMultiplier, config.MoveSpeed)}");
             for (int i = 0; i < _schedule.Length; i++)
             {
                 ScheduledAttack a = _schedule[i];

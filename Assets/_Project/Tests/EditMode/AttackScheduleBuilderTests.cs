@@ -14,7 +14,7 @@ namespace Morae.Game.Tests.EditMode
     public sealed class AttackScheduleBuilderTests
     {
         private const float Jitter = 0.2f;
-        private const float Telegraph = 3f;
+        private const float Telegraph = 4.5f;   // 실제 AttackTable과 같은 값 유지 (v0.6.1 정정)
 
         // 명세 v0.3 — 8페이즈, 본편 01:00~07:30 (합 420s)
         private static PhaseDef[] SpecPhases() => new[]

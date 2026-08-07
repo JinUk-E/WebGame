@@ -18,11 +18,12 @@ MonoBehaviour:
   sanityBlanketRegenPerSec: 3
   sanityDoorDrainPerSec: 3
   sanityTelegraphHit: 8
-  prayerChannelSec: 3
+  prayerChannelSec: 2.5
   doorOpenHoldSec: 1.5
   jarLockSec: 5
   blanketExitSec: 1
   tvAttackClockRate: 1.333333
+  trapTelegraphSec: 4.5
   talismanSaltRestore: 1
   talismanSanityRestore: 30
   talismanFxSec: 3

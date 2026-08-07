@@ -143,7 +143,10 @@ namespace Morae.EditorTools
         private static void FillAttackTable(AttackTable table)
         {
             const float jitter = 0.2f;
-            const float telegraph = 3f;
+            // v0.6.1 능동 방어 타이밍 정정 — 3.0s는 기도 채널(당시 3.0s)과 정확히 같아서
+            // **이동 시간 0을 가정해도 동시**, 즉 "전조 안에 상쇄"라는 핵심 규칙이 성립한 적이 없었다.
+            // 채널 2.5s와 짝을 이루는 4.5s = 이동·조준 여유 2.0s. 부등식은 BalanceConfig.prayerChannelSec 주석 참조.
+            const float telegraph = 4.5f;
             table.EditorSetAttacks(new[]
             {
                 //            id         phase       offset jitter  min max  targetRule                     telegraph  resolves
